@@ -1,0 +1,9 @@
+title: pccli
+description: An unofficial Planning Center command line tool.
+url: "https://joe--cool.github.io"
+baseurl: "/pccli"
+defaults:
+  - scope:
+      path: ""
+    values:
+      layout: default

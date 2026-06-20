@@ -1,0 +1,11 @@
+.env
+.env.*
+!.env.example
+
+/bin/
+/dist/
+/coverage.out
+/.cache/
+/docs/assets/*.gif
+
+.DS_Store

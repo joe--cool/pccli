@@ -1,0 +1,30 @@
+[tools]
+go = "1.26.4"
+"ubi:golangci/golangci-lint" = "latest"
+"ubi:goreleaser/goreleaser" = "latest"
+"ubi:charmbracelet/vhs" = "latest"
+
+[tasks.test]
+description = "Run all Go tests"
+run = "go test ./..."
+
+[tasks.banner]
+description = "Sync the banner into the embedded CLI asset"
+run = "cp scripts/banner.ansi internal/cli/banner.ansi"
+
+[tasks.build]
+description = "Build the pccli binary"
+run = "cp scripts/banner.ansi internal/cli/banner.ansi && go build -o bin/pccli ./cmd/pccli"
+
+[tasks.lint]
+description = "Run golangci-lint"
+run = "golangci-lint run ./..."
+
+[tasks.demo]
+description = "Run the CLI with mock data"
+env = { PCCLI_MOCK = "true" }
+run = "go run ./cmd/pccli songs list"
+
+[tasks.vhs]
+description = "Build pccli and record the documentation demo"
+run = "cp scripts/banner.ansi internal/cli/banner.ansi && go build -o bin/pccli ./cmd/pccli && PATH=$PWD/bin:$PATH vhs scripts/demo.tape"
