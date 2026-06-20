@@ -1,0 +1,74 @@
+{
+  "routes": {
+    "GET /services/v2/songs": {
+      "data": [
+        {
+          "id": "1001",
+          "type": "Song",
+          "attributes": {
+            "title": "Amazing Grace",
+            "author": "John Newton",
+            "ccli_number": 22025,
+            "primary_key": "G"
+          }
+        },
+        {
+          "id": "1002",
+          "type": "Song",
+          "attributes": {
+            "title": "Great Is Thy Faithfulness",
+            "author": "Thomas Chisholm",
+            "ccli_number": 18723,
+            "primary_key": "D"
+          }
+        }
+      ]
+    },
+    "GET /services/v2/songs/1001": {
+      "data": {
+        "id": "1001",
+        "type": "Song",
+        "attributes": {
+          "title": "Amazing Grace",
+          "author": "John Newton",
+          "ccli_number": 22025,
+          "primary_key": "G"
+        }
+      }
+    },
+    "GET /services/v2/songs/1001/arrangements": {
+      "data": [
+        {
+          "id": "2001",
+          "type": "Arrangement",
+          "attributes": {
+            "name": "Full Band",
+            "bpm": 72,
+            "meter": "3/4",
+            "length": 255,
+            "chord_chart_key": "G",
+            "has_chord_chart": true,
+            "has_chords": true,
+            "lyrics_enabled": true,
+            "sequence_short": ["V1", "V2", "V3", "V4"]
+          }
+        },
+        {
+          "id": "2002",
+          "type": "Arrangement",
+          "attributes": {
+            "name": "Acoustic",
+            "bpm": 68,
+            "meter": "3/4",
+            "length": 238,
+            "chord_chart_key": "D",
+            "has_chord_chart": true,
+            "has_chords": true,
+            "lyrics_enabled": true,
+            "sequence_short": ["V1", "V2", "V4"]
+          }
+        }
+      ]
+    }
+  }
+}
