@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ page.title }} - {{ site.title }}</title>
+    <meta name="description" content="{{ site.description }}">
+    <link href="https://fonts.googleapis.com/css?family=Inconsolata|Lato:300,400,700" rel="stylesheet">
+    <link rel="stylesheet" href="{{ '/assets/css/site.css' | relative_url }}">
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="{{ '/' | relative_url }}">
+        <span class="brand-mark">pc</span>
+        <span class="brand-name">pccli</span>
+        <span class="brand-pill">Unofficial</span>
+      </a>
+      <nav class="top-nav" aria-label="Top navigation">
+        <a href="{{ '/quick-start.html' | relative_url }}">Quick Start</a>
+        <a href="{{ '/services.html' | relative_url }}">Services</a>
+        <a href="https://github.com/joe--cool/pccli">Repository</a>
+      </nav>
+    </header>
+
+    <div class="docs-shell">
+      <aside class="sidebar" aria-label="Documentation navigation">
+        <nav>
+          <p class="nav-title">Start</p>
+          <a href="{{ '/' | relative_url }}">Getting Started</a>
+          <a href="{{ '/installation.html' | relative_url }}">Installation</a>
+          <a href="{{ '/authentication.html' | relative_url }}">Authentication</a>
+          <a href="{{ '/quick-start.html' | relative_url }}">Quick Start</a>
+          <p class="nav-title">Services</p>
+          <a href="{{ '/services.html' | relative_url }}">Overview</a>
+          <a href="{{ '/commands.html' | relative_url }}">Music Library Commands</a>
+          <p class="nav-title">Links</p>
+          <a href="https://github.com/joe--cool/pccli">GitHub Repository</a>
+          <a href="https://api.planningcenteronline.com/docs/">Planning Center API Docs</a>
+        </nav>
+      </aside>
+
+      <main class="content">
+        {{ content }}
+      </main>
+    </div>
+  </body>
+</html>

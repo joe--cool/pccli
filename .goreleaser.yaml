@@ -1,0 +1,47 @@
+version: 2
+
+project_name: pccli
+
+before:
+  hooks:
+    - cp scripts/banner.ansi internal/cli/banner.ansi
+    - go mod tidy
+
+builds:
+  - id: pccli
+    main: ./cmd/pccli
+    binary: pccli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/joe--cool/pccli/internal/cli.Version={{ .Version }}
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - arm64
+
+archives:
+  - id: default
+    formats: [tar.gz]
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+
+checksum:
+  name_template: checksums.txt
+
+release:
+  mode: keep-existing
+
+snapshot:
+  version_template: "{{ incpatch .Version }}-next"
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
