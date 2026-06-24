@@ -6,8 +6,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"mime/multipart"
 	"net/http"
 	"net/url"
+	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -17,6 +20,7 @@ import (
 
 type Client struct {
 	baseURL      string
+	uploadURL    string
 	clientID     string
 	clientSecret string
 	userAgent    string
@@ -31,6 +35,7 @@ func NewClient(cfg config.Config, transport http.RoundTripper) *Client {
 
 	return &Client{
 		baseURL:      cfg.BaseURL,
+		uploadURL:    cfg.UploadURL,
 		clientID:     cfg.ClientID,
 		clientSecret: cfg.ClientSecret,
 		userAgent:    cfg.UserAgent,
@@ -46,14 +51,69 @@ func (c *Client) Get(ctx context.Context, path string, query url.Values, dst any
 	return c.do(ctx, http.MethodGet, path, query, nil, dst)
 }
 
+func (c *Client) Post(ctx context.Context, path string, query url.Values, body any, dst any) error {
+	return c.do(ctx, http.MethodPost, path, query, body, dst)
+}
+
+func (c *Client) Patch(ctx context.Context, path string, query url.Values, body any, dst any) error {
+	return c.do(ctx, http.MethodPatch, path, query, body, dst)
+}
+
+func (c *Client) Delete(ctx context.Context, path string, query url.Values) error {
+	return c.do(ctx, http.MethodDelete, path, query, nil, nil)
+}
+
+func (c *Client) UploadFile(ctx context.Context, path string, dst any) error {
+	var body bytes.Buffer
+	writer := multipart.NewWriter(&body)
+
+	file, err := os.Open(path)
+	if err != nil {
+		return fmt.Errorf("open upload file %s: %w", path, err)
+	}
+	defer file.Close()
+
+	part, err := writer.CreateFormFile("file", filepath.Base(path))
+	if err != nil {
+		return fmt.Errorf("create upload form: %w", err)
+	}
+	if _, err := io.Copy(part, file); err != nil {
+		return fmt.Errorf("read upload file %s: %w", path, err)
+	}
+	if err := writer.Close(); err != nil {
+		return fmt.Errorf("finalize upload form: %w", err)
+	}
+
+	endpoint, err := url.JoinPath(c.uploadURL, "/v2/files")
+	if err != nil {
+		return fmt.Errorf("parse Planning Center upload URL: %w", err)
+	}
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, endpoint, &body)
+	if err != nil {
+		return fmt.Errorf("create upload request: %w", err)
+	}
+	req.Header.Set("Accept", "application/vnd.api+json")
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+	req.Header.Set("User-Agent", c.userAgent)
+	if c.clientID != "" || c.clientSecret != "" {
+		req.SetBasicAuth(c.clientID, c.clientSecret)
+	}
+
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return fmt.Errorf("upload file to Planning Center: %w", err)
+	}
+	return decodeResponse(resp, dst)
+}
+
 func (c *Client) do(ctx context.Context, method, path string, query url.Values, body any, dst any) error {
-	var payload io.Reader
+	var payload []byte
 	if body != nil {
 		encoded, err := json.Marshal(body)
 		if err != nil {
 			return fmt.Errorf("encode request body: %w", err)
 		}
-		payload = bytes.NewReader(encoded)
+		payload = encoded
 	}
 
 	endpoint, err := c.endpoint(path, query)
@@ -63,7 +123,7 @@ func (c *Client) do(ctx context.Context, method, path string, query url.Values, 
 
 	var lastErr error
 	for attempt := 0; attempt < 3; attempt++ {
-		req, err := http.NewRequestWithContext(ctx, method, endpoint, payload)
+		req, err := http.NewRequestWithContext(ctx, method, endpoint, bytes.NewReader(payload))
 		if err != nil {
 			return fmt.Errorf("create request: %w", err)
 		}

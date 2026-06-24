@@ -9,6 +9,10 @@
             "title": "Amazing Grace",
             "author": "John Newton",
             "ccli_number": 22025,
+            "copyright": "Public Domain",
+            "hidden": false,
+            "last_scheduled_short_dates": "Jan 7, 2024",
+            "themes": "Grace, Hymn",
             "primary_key": "G"
           }
         },
@@ -19,10 +23,26 @@
             "title": "Great Is Thy Faithfulness",
             "author": "Thomas Chisholm",
             "ccli_number": 18723,
+            "hidden": false,
+            "themes": "Faithfulness",
             "primary_key": "D"
           }
         }
       ]
+    },
+    "POST /services/v2/songs": {
+      "data": {
+        "id": "1003",
+        "type": "Song",
+        "attributes": {
+          "title": "How Great Thou Art",
+          "author": "Stuart K. Hine",
+          "ccli_number": 14181,
+          "copyright": "Copyrighted",
+          "hidden": false,
+          "themes": "Praise"
+        }
+      }
     },
     "GET /services/v2/songs/1001": {
       "data": {
@@ -30,12 +50,45 @@
         "type": "Song",
         "attributes": {
           "title": "Amazing Grace",
+          "admin": "Worship Admin",
           "author": "John Newton",
           "ccli_number": 22025,
+          "copyright": "Public Domain",
+          "hidden": false,
+          "last_scheduled_short_dates": "Jan 7, 2024",
+          "notes": "Use the Full Band arrangement for Sunday gatherings.",
+          "themes": "Grace, Hymn",
           "primary_key": "G"
         }
       }
     },
+    "GET /services/v2/songs/1004": {
+      "data": {
+        "id": "1004",
+        "type": "Song",
+        "attributes": {
+          "title": "Hidden Song",
+          "author": "Staff Writer",
+          "ccli_number": 99999,
+          "hidden": true
+        }
+      }
+    },
+    "PATCH /services/v2/songs/1001": {
+      "data": {
+        "id": "1001",
+        "type": "Song",
+        "attributes": {
+          "title": "Amazing Grace",
+          "author": "John Newton",
+          "ccli_number": 22025,
+          "copyright": "Public Domain",
+          "hidden": true,
+          "themes": "Grace, Hymn"
+        }
+      }
+    },
+    "DELETE /services/v2/songs/1001": {},
     "GET /services/v2/songs/1001/arrangements": {
       "data": [
         {
@@ -69,6 +122,177 @@
           }
         }
       ]
+    },
+    "GET /services/v2/songs/1001/arrangements/2001": {
+      "data": {
+        "id": "2001",
+        "type": "Arrangement",
+        "attributes": {
+          "name": "Full Band",
+          "bpm": 72,
+          "meter": "3/4",
+          "length": 255,
+          "chord_chart_key": "G",
+          "has_chord_chart": true,
+          "has_chords": true,
+          "lyrics_enabled": true,
+          "sequence_short": ["V1", "V2", "V3", "V4"]
+        }
+      }
+    },
+    "POST /services/v2/songs/1001/arrangements": {
+      "data": {
+        "id": "2003",
+        "type": "Arrangement",
+        "attributes": {
+          "name": "Choir",
+          "bpm": 72,
+          "meter": "3/4",
+          "length": 255,
+          "chord_chart_key": "G",
+          "lyrics_enabled": true,
+          "sequence_short": ["V1", "V2", "V3"]
+        }
+      }
+    },
+    "PATCH /services/v2/songs/1001/arrangements/2001": {
+      "data": {
+        "id": "2001",
+        "type": "Arrangement",
+        "attributes": {
+          "name": "Full Band",
+          "bpm": 74,
+          "meter": "3/4",
+          "length": 255,
+          "chord_chart_key": "G",
+          "has_chord_chart": true,
+          "has_chords": true,
+          "lyrics_enabled": true,
+          "sequence_short": ["V1", "V2", "V3", "V4"]
+        }
+      }
+    },
+    "DELETE /services/v2/songs/1001/arrangements/2001": {},
+    "GET /services/v2/songs/1001/arrangements/2001/keys": {
+      "data": [
+        {
+          "id": "3001",
+          "type": "Key",
+          "attributes": {
+            "name": "Default",
+            "starting_key": "G",
+            "ending_key": "G"
+          }
+        },
+        {
+          "id": "3002",
+          "type": "Key",
+          "attributes": {
+            "name": "Female Lead",
+            "starting_key": "Bb",
+            "ending_key": "Bb"
+          }
+        }
+      ]
+    },
+    "POST /services/v2/songs/1001/arrangements/2001/keys": {
+      "data": {
+        "id": "3003",
+        "type": "Key",
+        "attributes": {
+          "name": "Tenor Lead",
+          "starting_key": "A",
+          "ending_key": "A"
+        }
+      }
+    },
+    "PATCH /services/v2/songs/1001/arrangements/2001/keys/3001": {
+      "data": {
+        "id": "3001",
+        "type": "Key",
+        "attributes": {
+          "name": "Default",
+          "starting_key": "A",
+          "ending_key": "A"
+        }
+      }
+    },
+    "DELETE /services/v2/songs/1001/arrangements/2001/keys/3001": {},
+    "GET /services/v2/songs/1001/attachments": {
+      "data": [
+        {
+          "id": "4001",
+          "type": "Attachment",
+          "attributes": {
+            "display_name": "Lead Sheet",
+            "filename": "amazing-grace-lead-sheet.pdf",
+            "content_type": "application/pdf",
+            "file_size": 245760,
+            "downloadable": true,
+            "pco_type": "PDF"
+          }
+        }
+      ]
+    },
+    "GET /services/v2/songs/1001/arrangements/2001/attachments": {
+      "data": [
+        {
+          "id": "4002",
+          "type": "Attachment",
+          "attributes": {
+            "display_name": "Full Band Chart",
+            "filename": "amazing-grace-full-band.pdf",
+            "content_type": "application/pdf",
+            "file_size": 327680,
+            "downloadable": true,
+            "pco_type": "PDF"
+          }
+        }
+      ]
+    },
+    "GET /services/v2/songs/1001/arrangements/2001/keys/3001/attachments": {
+      "data": [
+        {
+          "id": "4003",
+          "type": "Attachment",
+          "attributes": {
+            "display_name": "Full Band G Chart",
+            "filename": "amazing-grace-full-band-g.pdf",
+            "content_type": "application/pdf",
+            "file_size": 330240,
+            "downloadable": true,
+            "pco_type": "PDF"
+          }
+        }
+      ]
+    },
+    "POST /v2/files": {
+      "data": [
+        {
+          "id": "us1-demo-upload",
+          "type": "File",
+          "attributes": {
+            "name": "amazing-grace-chart.pdf",
+            "content_type": "application/pdf",
+            "file_size": 330240
+          }
+        }
+      ]
+    },
+    "POST /services/v2/songs/1001/attachments": {
+      "data": {
+        "id": "4004",
+        "type": "Attachment",
+        "attributes": {
+          "display_name": "Uploaded Chart",
+          "filename": "amazing-grace-chart.pdf",
+          "content_type": "application/pdf",
+          "file_size": 330240,
+          "file_upload_identifier": "us1-demo-upload",
+          "downloadable": true,
+          "pco_type": "PDF"
+        }
+      }
     }
   }
 }

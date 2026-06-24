@@ -38,6 +38,34 @@ func (r Renderer) WriteJSON(value any) error {
 	return encoder.Encode(value)
 }
 
+func (r Renderer) Title(value string) string {
+	if !r.color {
+		return value
+	}
+	return lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#1D4ED8")).Render(value)
+}
+
+func (r Renderer) Section(value string) string {
+	if !r.color {
+		return strings.ToUpper(value)
+	}
+	return lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#0F766E")).Render(strings.ToUpper(value))
+}
+
+func (r Renderer) Muted(value string) string {
+	if !r.color {
+		return value
+	}
+	return lipgloss.NewStyle().Foreground(lipgloss.Color("#64748B")).Render(value)
+}
+
+func (r Renderer) Emphasis(value string) string {
+	if !r.color {
+		return value
+	}
+	return lipgloss.NewStyle().Bold(true).Render(value)
+}
+
 func (r Renderer) Table(headers []string, rows [][]string) error {
 	if len(rows) == 0 {
 		_, err := fmt.Fprintln(r.Out, "No results.")
@@ -106,11 +134,34 @@ func Int(value int) string {
 	return strconv.Itoa(value)
 }
 
+func Bool(value bool) string {
+	if value {
+		return "true"
+	}
+	return "false"
+}
+
 func Float(value float64) string {
 	if value == 0 {
 		return ""
 	}
 	return strings.TrimRight(strings.TrimRight(fmt.Sprintf("%.2f", value), "0"), ".")
+}
+
+func Bytes(value int) string {
+	if value == 0 {
+		return ""
+	}
+	const unit = 1024
+	if value < unit {
+		return fmt.Sprintf("%d B", value)
+	}
+	div, exp := unit, 0
+	for n := value / unit; n >= unit; n /= unit {
+		div *= unit
+		exp++
+	}
+	return fmt.Sprintf("%.1f %ciB", float64(value)/float64(div), "KMGTPE"[exp])
 }
 
 func DurationSeconds(seconds int) string {
