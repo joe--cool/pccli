@@ -5,7 +5,7 @@ nav_order: 4
 
 # Quick Start
 
-This guide gets pccli installed, authenticated, and ready for product-specific workflows.
+This guide gets pccli installed, authenticated, and verified with a basic Planning Center command.
 
 ## 1. Install
 
@@ -13,7 +13,7 @@ This guide gets pccli installed, authenticated, and ready for product-specific w
 go install github.com/joe--cool/pccli/cmd/pccli@latest
 ```
 
-## 2. Configure
+## 2. Set Up Access
 
 Create a `.env` file with your Planning Center Personal Access Token:
 
@@ -21,6 +21,8 @@ Create a `.env` file with your Planning Center Personal Access Token:
 PCCLI_CLIENT_ID=your_client_id
 PCCLI_CLIENT_SECRET=your_secret
 ```
+
+The token's Planning Center user must have access to the product data you want to use. For Services song-library commands, confirm that user can view the Services music library in Planning Center.
 
 ## 3. Confirm pccli Runs
 
@@ -38,30 +40,24 @@ Planning Center product commands start at the product name:
 pccli services --help
 ```
 
-## 5. Work With Services
+## 5. Verify Planning Center Access
 
-### List Songs
+Run a basic read command against Planning Center Services:
 
 ```sh
 pccli services songs list
 ```
 
-Filter by title when you know what you are looking for:
+If you know part of a song title, search for it:
 
 ```sh
-pccli services songs list --title "Amazing%"
+pccli services songs search "Amazing"
 ```
 
-### Inspect a Song
+Open one result by exact title or ID:
 
 ```sh
-pccli services songs show SONG_ID
-```
-
-### Review Arrangements
-
-```sh
-pccli services songs arrangements SONG_ID
+pccli services songs show "Amazing Grace"
 ```
 
 ## 6. Use JSON for Automation
@@ -70,6 +66,8 @@ pccli services songs arrangements SONG_ID
 pccli --json services songs list --author "Newton"
 ```
 
+JSON output is intended for scripts and repeatable checks. Human output stays compact by default.
+
 ## Try Without API Access
 
 Use mock mode for demos and local documentation checks:
@@ -77,3 +75,8 @@ Use mock mode for demos and local documentation checks:
 ```sh
 PCCLI_MOCK=true pccli services songs list
 ```
+
+## Next Steps
+
+- Manage songs, arrangements, keys, PDFs, and links in [Managing Your Song Library](managing-your-song-library.html).
+- Look up every flag in the [Services music-library command reference](commands.html).

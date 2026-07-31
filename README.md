@@ -38,8 +38,12 @@ For user-level config outside a project directory, use `~/.pccli/.env`. pccli lo
 
 ```sh
 pccli services songs list --title "Amazing%"
-pccli services songs show 1001
-pccli services songs arrangements 1001
+pccli services songs search "Amazing"
+pccli services songs show "Amazing Grace"
+pccli services songs show "Amazing Grace" "Full Band"
+pccli services songs arrangements "Amazing Grace"
+pccli services songs keys "Amazing Grace"
+pccli services songs attachments "Amazing Grace" --arrangement "Full Band"
 ```
 
 Add `--json` to any command for automation:
@@ -52,6 +56,17 @@ Run with mock data for demos or screenshots:
 
 ```sh
 PCCLI_MOCK=true go run ./cmd/pccli services songs list
+```
+
+Song-library write commands are also available for operators who maintain metadata and files:
+
+```sh
+pccli services songs create --title "Amazing Grace" --author "John Newton" --ccli 22025
+pccli services songs update "Amazing Grace" --themes "Grace, Hymn"
+pccli services songs arrangements create "Amazing Grace" --name "Full Band" --key G
+pccli services songs keys create "Amazing Grace" "Full Band" --name "Default" --start G
+pccli services songs attach "Amazing Grace" --file ./lead-sheet.pdf
+pccli services songs attach "Amazing Grace" --url "https://example.com/rehearsal-track"
 ```
 
 ## Develop

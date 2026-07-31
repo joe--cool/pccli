@@ -21,16 +21,18 @@ nav_order: 1
 
 ### Services
 
-Use Services commands to inspect the music library, find songs, and review arrangements.
+Use Services commands to search the music library, confirm songs, review arrangements and keys, and manage song files.
 
 [Open the Services guide](services.html)
+
+[Learn how to manage your song library](managing-your-song-library.html)
 
 ## Example
 
 <img class="terminal-demo" src="{{ '/assets/library-demo.gif' | relative_url }}" alt="Terminal demo showing pccli Services music-library commands" />
 
 ```sh
-pccli services songs list --title "Amazing%"
-pccli services songs show 1001
-pccli services songs arrangements 1001
+pccli services songs search "Amazing"
+pccli services songs show "Amazing Grace"
+pccli services songs arrangements "Amazing Grace"
 ```

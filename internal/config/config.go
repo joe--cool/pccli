@@ -11,14 +11,16 @@ import (
 )
 
 const (
-	DefaultBaseURL = "https://api.planningcenteronline.com"
-	DefaultTimeout = 30 * time.Second
+	DefaultBaseURL   = "https://api.planningcenteronline.com"
+	DefaultUploadURL = "https://upload.planningcenteronline.com"
+	DefaultTimeout   = 30 * time.Second
 )
 
 type Config struct {
 	ClientID     string
 	ClientSecret string
 	BaseURL      string
+	UploadURL    string
 	Timeout      time.Duration
 	Mock         bool
 	MockFixture  string
@@ -35,6 +37,7 @@ func Load() (Config, error) {
 	v.AutomaticEnv()
 
 	setDefault(v, "base-url", DefaultBaseURL)
+	setDefault(v, "upload-url", DefaultUploadURL)
 	setDefault(v, "timeout", DefaultTimeout.String())
 	setDefault(v, "mock-fixture", "testdata/mocks/services-library.json")
 	setDefault(v, "color", "auto")
@@ -50,6 +53,7 @@ func Load() (Config, error) {
 		ClientID:     getString(v, "client-id", "PCO_CLIENT_ID"),
 		ClientSecret: getString(v, "client-secret", "PCO_CLIENT_SECRET"),
 		BaseURL:      strings.TrimRight(getString(v, "base-url", "PCO_BASE_URL"), "/"),
+		UploadURL:    strings.TrimRight(getString(v, "upload-url", "PCO_UPLOAD_URL"), "/"),
 		Timeout:      timeout,
 		Mock:         getBool(v, "mock", "PCO_MOCK"),
 		MockFixture:  getString(v, "mock-fixture", "PCO_MOCK_FIXTURE"),
@@ -69,6 +73,9 @@ func Load() (Config, error) {
 	}
 	if cfg.BaseURL == "" {
 		return Config{}, fmt.Errorf("PCCLI_BASE_URL cannot be empty")
+	}
+	if cfg.UploadURL == "" {
+		return Config{}, fmt.Errorf("PCCLI_UPLOAD_URL cannot be empty")
 	}
 	if !cfg.Mock && (cfg.ClientID == "" || cfg.ClientSecret == "") {
 		return Config{}, fmt.Errorf("missing Planning Center credentials: set PCCLI_CLIENT_ID and PCCLI_CLIENT_SECRET in .env or the environment")
