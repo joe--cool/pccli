@@ -40,7 +40,7 @@ Current user instructions live in [the command reference](../../docs/commands.md
 
 ## API evidence and design refinements
 
-The richer official [Services OpenAPI document](https://api.planningcenteronline.com/services/v2/open_api/2018-11-01), retrieved on 2026-11-03, resolves several uncertainties in the initial review. It documents nested attachment writes at all three scopes and additional assignable chart/import fields. A small [capability snapshot](../../testdata/contracts/services-song-library.json) records those eight assignable schemas and their CLI flags. A contract test checks the snapshot against flag types and typed Song/Arrangement/Key inputs, so omissions cannot quietly recur.
+The richer official [Services OpenAPI document](https://api.planningcenteronline.com/services/v2/open_api/2018-11-01), recorded in the capability snapshot as retrieved on 2026-11-02, resolves several uncertainties in the initial review. It documents nested attachment writes at all three scopes and additional assignable chart/import fields. A small [capability snapshot](../../testdata/contracts/services-song-library.json) records those eight assignable schemas and their CLI flags. A contract test checks the snapshot against flag types and typed Song/Arrangement/Key inputs, so omissions cannot quietly recur.
 
 Attachment updates distinguish verified readable values from accepted write-only fields (`song_part` and attachment-type assignments). Provider import fields likewise represent accepted requests, not verified asynchronous completion. CCLI-only creation may return a resolved title rather than the numeric lookup string; verification accounts for that documented behavior without relaxing other assigned-field checks.
 
