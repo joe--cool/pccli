@@ -14,6 +14,8 @@ The Makefile mirrors the common commands for contributors who do not use mise.
 
 ## Project Shape
 
+See the [architecture review and recommended direction](design/architecture-review/README.md) for the current-state audit, independent Astra review, and proposed implementation sequence. These are design documents; they distinguish existing behavior from proposed changes.
+
 - `cmd/pccli`: executable entrypoint.
 - `internal/cli`: Cobra command tree and command-specific behavior.
 - `internal/config`: dotenv and environment configuration.
