@@ -3,7 +3,6 @@ package planningcenter
 import (
 	"encoding/json"
 	"fmt"
-	"strings"
 )
 
 type Resource[T any] struct {
@@ -52,27 +51,70 @@ type APIError struct {
 	Body       string
 }
 
+// Error deliberately excludes remote detail/body text: servers and proxies may
+// echo request secrets or terminal escape sequences in either field.
 func (e APIError) Error() string {
-	if len(e.Errors) == 0 {
-		if strings.TrimSpace(e.Body) != "" {
-			return fmt.Sprintf("Planning Center API returned HTTP %d: %s", e.StatusCode, strings.TrimSpace(e.Body))
-		}
-		return fmt.Sprintf("Planning Center API returned HTTP %d", e.StatusCode)
-	}
+	return fmt.Sprintf("Planning Center API returned HTTP %d", e.StatusCode)
+}
 
-	parts := make([]string, 0, len(e.Errors))
-	for _, item := range e.Errors {
-		switch {
-		case item.Detail != "":
-			parts = append(parts, item.Detail)
-		case item.Title != "":
-			parts = append(parts, item.Title)
-		case item.Code != "":
-			parts = append(parts, item.Code)
+type ResponseError struct{ Reason string }
+
+func (e *ResponseError) Error() string { return "invalid Planning Center response: " + e.Reason }
+
+type TransportError struct {
+	Operation      string
+	UnknownOutcome bool
+	Cause          error
+}
+
+func (e *TransportError) Error() string {
+	if e.UnknownOutcome {
+		return "Planning Center " + e.Operation + " outcome is unknown; do not replay automatically"
+	}
+	return "Planning Center " + e.Operation + " failed"
+}
+func (e *TransportError) Unwrap() error { return e.Cause }
+
+func validateResource(data json.RawMessage) error {
+	var resource struct {
+		ID         string          `json:"id"`
+		Type       string          `json:"type"`
+		Attributes json.RawMessage `json:"attributes"`
+	}
+	if json.Unmarshal(data, &resource) != nil || resource.ID == "" || resource.Type == "" || len(resource.Attributes) == 0 || resource.Attributes[0] != '{' {
+		return &ResponseError{Reason: "resource requires identity, type and attributes"}
+	}
+	return nil
+}
+func (c *Collection[T]) UnmarshalJSON(data []byte) error {
+	type plain Collection[T]
+	var shape struct {
+		Data json.RawMessage `json:"data"`
+	}
+	if json.Unmarshal(data, &shape) != nil || len(shape.Data) == 0 || shape.Data[0] != '[' {
+		return &ResponseError{Reason: "collection data must be an array"}
+	}
+	var resources []json.RawMessage
+	if err := json.Unmarshal(shape.Data, &resources); err != nil {
+		return err
+	}
+	for _, resource := range resources {
+		if err := validateResource(resource); err != nil {
+			return err
 		}
 	}
-	if len(parts) == 0 {
-		return fmt.Sprintf("Planning Center API returned HTTP %d", e.StatusCode)
+	return json.Unmarshal(data, (*plain)(c))
+}
+func (s *Single[T]) UnmarshalJSON(data []byte) error {
+	type plain Single[T]
+	var shape struct {
+		Data json.RawMessage `json:"data"`
 	}
-	return fmt.Sprintf("Planning Center API returned HTTP %d: %s", e.StatusCode, strings.Join(parts, "; "))
+	if json.Unmarshal(data, &shape) != nil || len(shape.Data) == 0 || shape.Data[0] != '{' {
+		return &ResponseError{Reason: "single data must be an object"}
+	}
+	if err := validateResource(shape.Data); err != nil {
+		return err
+	}
+	return json.Unmarshal(data, (*plain)(s))
 }
