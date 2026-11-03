@@ -5,26 +5,27 @@ nav_order: 2
 
 # Installation
 
-## Build From Source
+pccli is an unofficial project, not built, endorsed, or supported by Planning Center.
 
-Install from source with Go:
+## Install a release
+
+Download the archive for your operating system and CPU from [GitHub Releases](https://github.com/joe--cool/pccli/releases). Extract it and put `pccli` (or `pccli.exe`) in a directory on your `PATH`. Release assets include checksums.
+
+## Install with Go
+
+With Go installed, run:
 
 ```sh
 go install github.com/joe--cool/pccli/cmd/pccli@latest
 ```
 
-Confirm the binary is available:
+Add Go's binary installation directory (normally `~/go/bin`) to your `PATH` if needed. Source builds use the Go version declared in the module; the current repository pins Go 1.27.3.
 
 ```sh
 pccli --version
+pccli --help
 ```
 
-## Requirements
+Help and version work without credentials. To update a Go installation, run the same `go install` command again. For release archives, replace the binary with the new release.
 
-- Go is required only when building from source.
-- A Planning Center user account is required for API access.
-- A Personal Access Token is recommended for single-church/local use.
-
-## Updates
-
-When using `go install`, run the same install command again to update to the latest published version.
+Next, [configure your Personal Access Token](authentication.html).

@@ -1,8 +1,8 @@
 [tools]
-go = "1.26.4"
-"ubi:golangci/golangci-lint" = "latest"
-"ubi:goreleaser/goreleaser" = "latest"
-"ubi:charmbracelet/vhs" = "latest"
+go = "1.27.3"
+"ubi:golangci/golangci-lint" = "2.15.0"
+"ubi:goreleaser/goreleaser" = "2.19.0"
+"ubi:charmbracelet/vhs" = "0.12.1"
 
 [tasks.test]
 description = "Run all Go tests"
