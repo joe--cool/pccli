@@ -143,6 +143,23 @@ Tags belong to songs or arrangements, not key records. Scoped tag commands accep
 
 ## JSON and errors
 
+{% include terminal-demo.html name="json-demo" title="Export songs for a script" caption="Inspect the JSON envelope and completeness, then extract song IDs and titles with jq." %}
+
+<details markdown="1">
+<summary>Read the JSON export steps</summary>
+
+These examples use Bash and require [jq](https://jqlang.org/). Enable pipeline error propagation first:
+
+```sh
+set -o pipefail
+pccli --json services songs list --all | jq '{schema, meta}'
+pccli --json services songs list --all | jq '.data[] | {id, title}'
+```
+
+The mock export reports schema **pccli/v1**, **returned: 2**, **has_more: false**, and **complete: true**. The second command extracts **1001 / Amazing Grace** and **1002 / Great Is Thy Faithfulness**. Hidden songs remain excluded by default even with `--all`. In automation, stop on a nonzero pipeline status before using the result; `jq` succeeding alone does not establish that pccli succeeded.
+
+</details>
+
 Successful data commands write one envelope to stdout:
 
 ```json

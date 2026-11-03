@@ -62,7 +62,24 @@ Ordinary arrangement lookups exclude archived versions. Follow-up operations on 
 
 ## Place files and links in the right scope
 
-A file can belong to a song, arrangement, or key. List the association where you intend to place it:
+A file can belong to a song, arrangement, or key. The recording compares the three destinations before you add anything.
+
+{% include terminal-demo.html name="attachment-demo" title="Choose an attachment destination" caption="Inspect song-wide, Full Band, and key-specific files for the same song." %}
+
+<details markdown="1">
+<summary>Read the file-placement steps</summary>
+
+```sh
+pccli services attachments list --song 1001
+pccli services attachments list --song 1001 --arrangement 2001
+pccli services attachments list --song 1001 --arrangement 2001 --key 3001
+```
+
+The mock song has **Lead Sheet (4001)** at song scope, **Full Band Chart (4002)** at arrangement scope, and **Full Band G Chart (4003)** at key scope. Each list shows only that destination. Use the same parent flags when adding or updating a file; a key-specific file requires both its song and arrangement.
+
+</details>
+
+List the association where you intend to place it:
 
 ```sh
 pccli services attachments list --song 1001

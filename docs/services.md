@@ -19,6 +19,8 @@ Use `pccli services RESOURCE ACTION` to work with the Services song library.
 | `tag-groups` | Discover song and arrangement tag classifications |
 | `attachment-types` | Discover available file classifications |
 
+The [front-page overview recording](index.html#see-what-pccli-does) shows how a song leads to its arrangements and keys. Focused recordings cover [file placement](managing-your-song-library.html#place-files-and-links-in-the-right-scope) and [JSON exports](commands.html#json-and-errors).
+
 Start with a read:
 
 ```sh
