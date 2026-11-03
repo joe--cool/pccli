@@ -5,34 +5,32 @@ nav_order: 1
 
 # pccli
 
-`pccli` is an unofficial command line tool for working with Planning Center from a terminal or script. Commands are organized by Planning Center product so each workflow starts from the part of Planning Center you already know.
+`pccli` is an unofficial Planning Center command line tool. It is not built, endorsed, or supported by Planning Center.
 
-<div class="info-banner">
-  <p><strong>Unofficial project:</strong> pccli is not built, endorsed, or supported by Planning Center. Use it with the same care you would use for any third-party API client.</p>
-</div>
+Use a terminal or script to find and maintain your Services song library, with clear IDs and explicit song, arrangement, and key context.
 
-## Start
+## Get connected
 
 1. [Install pccli](installation.html).
 2. [Configure authentication](authentication.html).
-3. [Run the quick start](quick-start.html).
+3. [Verify access with the quick start](quick-start.html).
 
-## Products
+## Choose a workflow
 
-### Services
-
-Use Services commands to search the music library, confirm songs, review arrangements and keys, and manage song files.
-
-[Open the Services guide](services.html)
-
-[Learn how to manage your song library](managing-your-song-library.html)
-
-## Example
-
-<img class="terminal-demo" src="{{ '/assets/library-demo.gif' | relative_url }}" alt="Terminal demo showing pccli Services music-library commands" />
+| Task | Guide |
+| --- | --- |
+| Find songs and inspect their arrangements | [Services overview](services.html) |
+| Maintain metadata, charts, keys, files, and tags | [Managing your song library](managing-your-song-library.html) |
+| Look up command arguments and flags | [Command reference](commands.html) |
+| Check editable fields and import options | [Song-library metadata fields](song-fields.html) |
+| Read results in a script | [JSON and errors](commands.html#json-and-errors) |
 
 ```sh
-pccli services songs search "Amazing"
-pccli services songs show "Amazing Grace"
-pccli services songs arrangements "Amazing Grace"
+pccli services songs list --search "Amazing"
+pccli services songs show 1001
+pccli services arrangements list --song 1001
 ```
+
+## See the workflow
+
+<img class="terminal-demo" src="{{ '/assets/library-demo.gif' | relative_url }}" alt="Mock terminal demo finding a song and listing its arrangements, keys, and attachments" />

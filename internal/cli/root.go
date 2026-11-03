@@ -1,13 +1,18 @@
 package cli
 
 import (
+	"context"
+	"io"
 	"net/http"
 	"os"
+	"strconv"
+	"strings"
 
 	"github.com/joe--cool/pccli/internal/config"
 	"github.com/joe--cool/pccli/internal/planningcenter"
 	"github.com/joe--cool/pccli/internal/services"
 	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
 )
 
 type app struct {
@@ -17,28 +22,88 @@ type app struct {
 
 var Version = "dev"
 
-func Execute() error {
-	cmd := NewRootCommand()
-	err := cmd.Execute()
+func Execute() error { return ExecuteContext(context.Background()) }
+func ExecuteContext(ctx context.Context) error {
+	return ExecuteArgs(ctx, os.Args[1:], os.Stdout, os.Stderr)
+}
+func ExecuteArgs(ctx context.Context, args []string, out, stderr io.Writer) error {
+	return executeCommand(ctx, NewRootCommand(), args, out, stderr)
+}
+func executeCommand(ctx context.Context, cmd *cobra.Command, args []string, out, stderr io.Writer) error {
+	cmd.SetArgs(args)
+	cmd.SetOut(out)
+	cmd.SetErr(stderr)
+	err := cmd.ExecuteContext(ctx)
+	if err != nil && strings.HasPrefix(err.Error(), "unknown command ") {
+		err = usageError{err}
+	}
 	if err != nil {
-		printError(err)
+		printError(stderr, jsonRequested(args), err)
 	}
 	return err
+}
+
+// Error formatting must still honor --json when another flag is invalid.
+// Inspect known flag arity so a value literally named --json is not a flag.
+// Command parsing and validation remain entirely in Cobra/pflag.
+func jsonRequested(args []string) bool {
+	root := NewRootCommand()
+	target, _, _ := root.Find(args)
+	if target == nil {
+		target = root
+	}
+	value := false
+	for i := 0; i < len(args); i++ {
+		token := args[i]
+		if token == "--" {
+			break
+		}
+		if token == "--json" {
+			value = true
+			continue
+		}
+		if raw, ok := strings.CutPrefix(token, "--json="); ok {
+			if parsed, e := strconv.ParseBool(raw); e == nil {
+				value = parsed
+			}
+			continue
+		}
+		var f *pflag.Flag
+		if strings.HasPrefix(token, "--") {
+			name, _, attached := strings.Cut(strings.TrimPrefix(token, "--"), "=")
+			if attached {
+				continue
+			}
+			f = target.Flags().Lookup(name)
+			if f == nil {
+				f = target.InheritedFlags().Lookup(name)
+			}
+		} else if strings.HasPrefix(token, "-") && len(token) == 2 {
+			f = target.Flags().ShorthandLookup(token[1:])
+		}
+		if f != nil && f.NoOptDefVal == "" {
+			i++
+		}
+	}
+	return value
 }
 
 func NewRootCommand() *cobra.Command {
 	var jsonOutput bool
 
 	root := &cobra.Command{
-		Use:     "pccli",
-		Short:   "Planning Center command line tools",
-		Long:    "pccli helps church teams work with Planning Center from the command line.",
-		Version: Version,
+		Use:           "pccli",
+		Short:         "Planning Center command line tools",
+		Long:          "pccli helps church teams work with Planning Center from the command line.",
+		Version:       Version,
+		Args:          noArguments,
+		SilenceErrors: true,
+		SilenceUsage:  true,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return cmd.Help()
 		},
 	}
-	silenceCobra(root)
+	root.SetFlagErrorFunc(func(_ *cobra.Command, e error) error { return usageError{e} })
 	root.PersistentFlags().BoolVar(&jsonOutput, "json", false, "write machine-readable JSON")
 	root.SetOut(os.Stdout)
 	root.SetErr(os.Stderr)

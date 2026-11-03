@@ -5,165 +5,117 @@ nav_order: 6
 
 # Managing Your Song Library
 
-This guide is for worship planners and operators who maintain songs in Planning Center Services. It starts where people usually start in the web app: find the song, confirm it is the right one, then work with arrangements, keys, and files.
+pccli is an unofficial Planning Center tool, not built, endorsed, or supported by Planning Center. Start by finding a song, confirm its identity, then select the version and destination you mean to maintain. Example IDs below are placeholders; use IDs from your results.
 
-Use IDs when scripting. Use titles when working manually.
-
-## 1. Find the Song
-
-Start with search when you know part of a title.
+## Find and inspect
 
 ```sh
-pccli services songs search "Amazing"
-```
-
-The result includes IDs because Planning Center APIs identify songs by ID. Keep that ID when you are building a script or when several songs have similar titles.
-
-pccli searches visible songs by default. If you need to inspect songs hidden in Planning Center, use `--hidden`.
-
-```sh
-pccli services songs search "Amazing" --hidden
-```
-
-If two songs have the same title, compare the author and CCLI number in the search results and use the ID for the follow-up command. pccli will not choose between duplicate exact titles for you.
-
-pccli treats exact title checks as case-insensitive. Read-only commands can also use a unique portion of a title. For example, both commands can resolve the same song when only one match exists:
-
-```sh
-pccli services songs show "Jesus, Lamb of God"
-pccli services songs show "Lamb of God"
-```
-
-For automation, use structured filters and JSON.
-
-```sh
-pccli --json services songs list --title "Amazing%" --author "Newton"
-pccli --json services songs list --ccli 22025
-```
-
-## 2. Confirm the Song
-
-Open the song by title, unique partial title, or ID. This is the best first stop after search because it shows the song details, available arrangements, and the keys for the selected arrangement.
-
-```sh
-pccli services songs show "Amazing Grace"
+pccli services songs list --search "Amazing"
+pccli services songs list --title "Amazing Grace"
 pccli services songs show 1001
-pccli services songs show "Amazing Grace" "Acoustic"
+pccli services songs show 1001 --arrangement 2001
 ```
 
-If you do not name an arrangement, pccli uses the default arrangement. It prefers an arrangement named `Default`; if Planning Center returns no arrangement with that name, pccli uses the first arrangement returned by Planning Center.
+Search text is literal. Use `--visibility hidden` to inspect hidden songs, or `--visibility all` to include both states. Exact names are case-insensitive. A unique partial target works for reads; duplicate matches require an ID. Song show gives an overview and expands keys only when you select an arrangement.
 
-Hidden status is only shown when you use `--hidden`.
-
-If more than one song matches, pccli stops and shows the matching IDs so you can choose intentionally.
-
-## 3. Review Arrangements
-
-Arrangements are the practical versions of a song that teams use: full band, acoustic, youth band, special event versions, and similar variants.
+## Choose an arrangement and key
 
 ```sh
-pccli services songs arrangements "Amazing Grace"
+pccli services arrangements list --song 1001
+pccli services arrangements show 2001 --song 1001
+pccli services keys list --song 1001 --arrangement 2001
+pccli services keys show 3001 --song 1001 --arrangement 2001
+pccli services arrangements sections 2001 --song 1001
 ```
 
-Use the arrangement ID or exact arrangement name for key and attachment work. Read-only arrangement commands can also use a unique partial arrangement name.
+Parent flags accept IDs or exact names. An arrangement is always explicit for key operations; pccli never chooses the first or a named default arrangement for you. The sections command helps inspect full labels before changing sequence.
 
-```sh
-pccli services songs arrangements "Amazing Grace" "Full Band"
-pccli services songs keys "Amazing Grace" "Full Band"
-pccli services songs attachments "Amazing Grace" --arrangement "Full Band"
-```
-
-The arrangement command is still useful even though `songs show` includes arrangement context: use `show` to orient yourself, and use `arrangements` when you want a focused list or one arrangement's details for a script or operator task.
-
-## 4. Review Key-Specific Materials
-
-Some files belong to a specific key rather than the general song or arrangement. Use the key ID or exact key name from `songs keys`.
-
-```sh
-pccli services songs keys "Amazing Grace"
-pccli services songs attachments "Amazing Grace" --arrangement "Full Band" --key "Default"
-```
-
-This is useful for key-specific chord charts, number charts, lead sheets, or PDFs.
-
-## 5. Add, Update, or Delete Metadata
-
-Create songs with the metadata operators usually know first.
+## Maintain metadata and charts
 
 ```sh
 pccli services songs create --title "Amazing Grace" --author "John Newton" --ccli 22025
+pccli services songs update 1001 --themes "Grace, Hymn"
+pccli services arrangements create --song 1001 --name "Full Band" --chart-key G --bpm 72 --meter 4/4 --length 4:15
+pccli services arrangements update 2001 --song 1001 --notes "Verse, chorus, repeat" --sequence 'Verse 1,Chorus 1,Verse 2'
+pccli services keys create --song 1001 --arrangement 2001 --name "Female Lead" --start Bb
+pccli services keys update 3001 --song 1001 --arrangement 2001 --start A --end A
 ```
 
-If you only know the CCLI number, you can create with `--ccli`; Planning Center supports using that field to fetch song metadata.
+Updates change only supplied fields. For example, `--notes ""` requests a clear and `--lyrics-enabled=false` turns lyrics off. Invalid empty or numeric values fail clearly. [All metadata fields](song-fields.html) include chord-chart text, print settings, alternate keys, and provider imports.
+
+To hide or restore a song, select its current visibility independently from its new state:
 
 ```sh
-pccli services songs create --ccli 22025
+pccli services songs update 1001 --hidden=true
+pccli services songs update 1001 --visibility hidden --hidden=false
 ```
 
-For updates, use an ID or exact title. pccli intentionally does not allow broad search terms for write commands.
+## Archive a version without deleting it
 
 ```sh
-pccli services songs update "Amazing Grace" --themes "Grace, Hymn"
-pccli services songs update 1001 --hidden
+pccli services arrangements archive 2001 --song 1001
+pccli services arrangements list --song 1001 --include-archived
+pccli services arrangements unarchive 2001 --song 1001 --include-archived
 ```
 
-Create and maintain arrangements from the same song-centered workflow.
+Ordinary arrangement lookups exclude archived versions. Follow-up operations on an archived arrangement require `--include-archived` explicitly.
+
+## Place files and links in the right scope
+
+A file can belong to a song, arrangement, or key. List the association where you intend to place it:
 
 ```sh
-pccli services songs arrangements create 1001 --name "Full Band" --key G --bpm 72 --meter 4/4 --length 4:15
-pccli services songs arrangements update 1001 "Full Band" --bpm 74
-pccli services songs arrangements delete 1001 "Full Band" --yes
+pccli services attachments list --song 1001
+pccli services attachments list --song 1001 --arrangement 2001
+pccli services attachments list --song 1001 --arrangement 2001 --key 3001
+pccli services attachments add --song 1001 --arrangement 2001 --file ./full-band.pdf
+pccli services attachments add --song 1001 --arrangement 2001 --key 3001 --url https://example.com/chart.pdf --filename chart.pdf
+pccli services attachments show 4001 --song 1001 --arrangement 2001
+pccli services attachments update 4001 --song 1001 --arrangement 2001 --filename full-band-revised.pdf
 ```
 
-Create and maintain keys under the arrangement. If you omit the arrangement on `keys create`, pccli uses the default arrangement.
+Choose one add source: local `--file`, existing `--upload-id`, `--url`, or inline `--content`. Updates can change metadata or replace a source with `--upload-id`, `--url`, or `--content`. Read the outcome: `verified` confirms readable requested values; `accepted` lists fields that cannot be confirmed through API readback.
+
+If an upload succeeds but attachment creation fails, keep the recovery receipt. Inspect the destination before retrying an unknown outcome. Reuse the receipt with `--upload-id` only after confirming it was not attached. [Attachment reference](commands.html#attachments).
+
+## Classify with tags
 
 ```sh
-pccli services songs keys create 1001 --name "Female Lead" --start Bb
-pccli services songs keys update 1001 "Full Band" "Female Lead" --start A --end A
-pccli services songs keys delete 1001 "Full Band" "Female Lead" --yes
+pccli services tag-groups list --all
+pccli services tags list --all
+pccli services tags list --song 1001
+pccli services tags replace --song 1001 --tags 5001,5002
+pccli services tags replace --song 1001 --arrangement 2001 --clear
+pccli services attachment-types list --all
 ```
 
-Deletes require `--yes` so scripts are explicit and accidental terminal history edits are less risky.
+Tag replacement sends the complete intended set. It removes assignments you leave out. Required and single-selection group rules still apply. Tags classify songs or arrangements; `--themes` remains separate text metadata. Tag groups and attachment types are read-only discovery commands.
 
-## 6. Attach Files and Links
-
-Attach local files, such as PDFs, directly from disk.
+## Inspect scheduling history
 
 ```sh
-pccli services songs attach "Amazing Grace" --file ./lead-sheet.pdf
+pccli services songs schedules 1001 --all
+pccli services songs last-scheduled 1001 --service-type 789
 ```
 
-Attach a file to an arrangement or key when the material is not meant for the whole song.
+These read the song's scheduling associations. They do not edit plans or create a scheduling workflow.
+
+## Delete intentionally
 
 ```sh
-pccli services songs attach "Amazing Grace" --arrangement "Full Band" --file ./full-band.pdf
-pccli services songs attach "Amazing Grace" --arrangement "Full Band" --key "Default" --file ./full-band-g.pdf
+pccli services attachments delete 4001 --song 1001 --arrangement 2001 --yes
+pccli services keys delete 3001 --song 1001 --arrangement 2001 --yes
+pccli services arrangements delete 2001 --song 1001 --yes
+pccli services songs delete 1001 --yes
 ```
 
-Attach links when the material lives outside Planning Center.
+Each example is independent. Deletes require `--yes`, IDs or exact names, and explicit parent context. Confirm the selected scope before running them.
+
+## Export for a script
 
 ```sh
-pccli services songs attach "Amazing Grace" --url "https://example.com/rehearsal-track"
+pccli --json services songs list --all | jq '.data[] | {id, title, ccli_number}'
+pccli --json services arrangements list --song 1001 --all
 ```
 
-For advanced upload workflows, use an existing Planning Center upload UUID.
-
-```sh
-pccli services songs attach "Amazing Grace" --upload-id us1-16207df7-b6cc-4abe-ca1a-306c6f7e423d
-```
-
-## 7. Script the Same Workflow
-
-In scripts, prefer IDs and JSON output.
-
-```sh
-song_id="$(pccli --json services songs list --ccli 22025 | jq -r '.[0].id')"
-pccli --json services songs arrangements "$song_id"
-pccli services songs attach "$song_id" --file ./lead-sheet.pdf
-```
-
-This keeps automation deterministic while preserving the title-based workflow for interactive use.
-
-## Command Reference
-
-For every flag and command form, see the [Services music-library command reference](commands.html).
+The envelope is `{"schema":"pccli/v1","data":...,"meta":...}`. Check the exit code and completeness metadata before processing an export. Use IDs for subsequent commands, and stop for ambiguity or an incomplete lookup. [JSON and errors](commands.html#json-and-errors).

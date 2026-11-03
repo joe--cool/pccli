@@ -5,43 +5,29 @@ nav_order: 5
 
 # Services
 
-Services commands are grouped under `pccli services`.
+pccli is unofficial and is not built, endorsed, or supported by Planning Center.
 
-## Music Library
+Use `pccli services RESOURCE ACTION` to work with the Services song library.
 
-Use music-library commands to find songs, review arrangements and keys, and manage song attachments.
+| Resource | Tasks |
+| --- | --- |
+| `songs` | Find, inspect, create, update, delete, and inspect scheduling history |
+| `arrangements` | Maintain song versions, chord charts, print settings, sequence, and archive state |
+| `keys` | Maintain named keys and alternate keys within an arrangement |
+| `attachments` | List, inspect, add, update, and delete files or links at song, arrangement, or key scope |
+| `tags` | Discover available or assigned tags; replace a song's or arrangement's complete assignment |
+| `tag-groups` | Discover song and arrangement tag classifications |
+| `attachment-types` | Discover available file classifications |
 
-```sh
-pccli services songs list
-pccli services songs search "Amazing"
-pccli services songs show "Amazing Grace"
-pccli services songs arrangements "Amazing Grace"
-pccli services songs keys "Amazing Grace"
-pccli services songs attachments "Amazing Grace"
-```
-
-Follow the full search-to-files workflow in [Managing Your Song Library](managing-your-song-library.html).
-
-Add `--json` to use command output in scripts:
+Start with a read:
 
 ```sh
-pccli --json services songs list --title "Amazing%"
+pccli services songs list --search "Amazing"
+pccli services songs show 1001
+pccli services arrangements list --song 1001
+pccli services keys list --song 1001 --arrangement 2001
 ```
 
-Create or update song metadata when maintaining the library from a script:
+An arrangement always belongs to an explicitly selected song; a key always requires both song and arrangement. There is no inferred first or default arrangement. IDs are visible so follow-up scripts can identify the intended record.
 
-```sh
-pccli services songs create --title "Amazing Grace" --author "John Newton" --ccli 22025
-pccli services songs update "Amazing Grace" --themes "Grace, Hymn"
-pccli services songs arrangements create "Amazing Grace" --name "Full Band" --key G
-pccli services songs keys create "Amazing Grace" "Full Band" --name "Default" --start G
-```
-
-Attach charts, PDFs, or links at the song level, or add `--arrangement` and `--key` to scope the attachment more narrowly:
-
-```sh
-pccli services songs attach "Amazing Grace" --file ./lead-sheet.pdf
-pccli services songs attach "Amazing Grace" --url "https://example.com/rehearsal-track"
-```
-
-[Review the Services music-library command reference](commands.html).
+[Follow the song-library workflow](managing-your-song-library.html), [look up commands](commands.html), or [review editable metadata](song-fields.html).

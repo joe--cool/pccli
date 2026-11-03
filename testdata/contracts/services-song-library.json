@@ -1,0 +1,471 @@
+{
+  "source": "https://api.planningcenteronline.com/services/v2/open_api/2018-11-01",
+  "api_version": "2018-11-01",
+  "retrieved_on": "2026-11-02",
+  "attributes": {
+    "song:create": {
+      "admin": {
+        "type": "string",
+        "flag": "admin"
+      },
+      "author": {
+        "type": "string",
+        "flag": "author"
+      },
+      "ccli_number": {
+        "type": "integer",
+        "flag": "ccli"
+      },
+      "copyright": {
+        "type": "string",
+        "flag": "copyright"
+      },
+      "hidden": {
+        "type": "boolean",
+        "flag": "hidden"
+      },
+      "import_ccli_chord_chart": {
+        "type": "string",
+        "flag": "import-ccli-chord-chart"
+      },
+      "import_ccli_chord_pro": {
+        "type": "string",
+        "flag": "import-ccli-chord-pro"
+      },
+      "import_ccli_lyrics": {
+        "type": "string",
+        "flag": "import-ccli-lyrics"
+      },
+      "themes": {
+        "type": "string",
+        "flag": "themes"
+      },
+      "title": {
+        "type": "string",
+        "flag": "title"
+      }
+    },
+    "song:update": {
+      "admin": {
+        "type": "string",
+        "flag": "admin"
+      },
+      "author": {
+        "type": "string",
+        "flag": "author"
+      },
+      "ccli_number": {
+        "type": "integer",
+        "flag": "ccli"
+      },
+      "copyright": {
+        "type": "string",
+        "flag": "copyright"
+      },
+      "hidden": {
+        "type": "boolean",
+        "flag": "hidden"
+      },
+      "themes": {
+        "type": "string",
+        "flag": "themes"
+      },
+      "title": {
+        "type": "string",
+        "flag": "title"
+      }
+    },
+    "arrangement:create": {
+      "bpm": {
+        "type": "number",
+        "flag": "bpm"
+      },
+      "chord_chart": {
+        "type": "string",
+        "flag": "chord-chart"
+      },
+      "chord_chart_chord_color": {
+        "type": "integer",
+        "flag": "chord-chart-chord-color"
+      },
+      "chord_chart_columns": {
+        "type": "integer",
+        "flag": "chord-chart-columns"
+      },
+      "chord_chart_font": {
+        "type": "string",
+        "flag": "chord-chart-font"
+      },
+      "chord_chart_font_size": {
+        "type": "integer",
+        "flag": "chord-chart-font-size"
+      },
+      "chord_chart_key": {
+        "type": "string",
+        "flag": "chart-key"
+      },
+      "import_ccli_chord_chart": {
+        "type": "string",
+        "flag": "import-ccli-chord-chart"
+      },
+      "import_ccli_chord_pro": {
+        "type": "string",
+        "flag": "import-ccli-chord-pro"
+      },
+      "import_ccli_lyrics": {
+        "type": "string",
+        "flag": "import-ccli-lyrics"
+      },
+      "import_chart_pro": {
+        "type": "string",
+        "flag": "import-chart-pro"
+      },
+      "import_chart_pro_options": {
+        "type": "string",
+        "flag": "import-chart-pro-options"
+      },
+      "import_rehearsal_mix": {
+        "type": "string",
+        "flag": "import-rehearsal-mix"
+      },
+      "import_rehearsal_mix_options": {
+        "type": "string",
+        "flag": "import-rehearsal-mix-options"
+      },
+      "import_rehearsal_pack": {
+        "type": "string",
+        "flag": "import-rehearsal-pack"
+      },
+      "import_rehearsal_pack_options": {
+        "type": "string",
+        "flag": "import-rehearsal-pack-options"
+      },
+      "isrc": {
+        "type": "integer",
+        "flag": "isrc"
+      },
+      "length": {
+        "type": "integer",
+        "flag": "length"
+      },
+      "lyrics_enabled": {
+        "type": "boolean",
+        "flag": "lyrics-enabled"
+      },
+      "meter": {
+        "type": "string",
+        "flag": "meter"
+      },
+      "mtid": {
+        "type": "string",
+        "flag": "mtid"
+      },
+      "name": {
+        "type": "string",
+        "flag": "name"
+      },
+      "notes": {
+        "type": "string",
+        "flag": "notes"
+      },
+      "number_chart_enabled": {
+        "type": "boolean",
+        "flag": "number-chart-enabled"
+      },
+      "numeral_chart_enabled": {
+        "type": "boolean",
+        "flag": "numeral-chart-enabled"
+      },
+      "print_margin": {
+        "type": "string",
+        "flag": "print-margin"
+      },
+      "print_orientation": {
+        "type": "string",
+        "flag": "print-orientation"
+      },
+      "print_page_size": {
+        "type": "string",
+        "flag": "print-page-size"
+      },
+      "rehearsal_mix_id": {
+        "type": "string",
+        "flag": "rehearsal-mix-id"
+      },
+      "rehearsal_mix_thumbnail": {
+        "type": "string",
+        "flag": "rehearsal-mix-thumbnail"
+      },
+      "sequence": {
+        "type": "array",
+        "flag": "sequence"
+      }
+    },
+    "arrangement:update": {
+      "bpm": {
+        "type": "number",
+        "flag": "bpm"
+      },
+      "chord_chart": {
+        "type": "string",
+        "flag": "chord-chart"
+      },
+      "chord_chart_chord_color": {
+        "type": "integer",
+        "flag": "chord-chart-chord-color"
+      },
+      "chord_chart_columns": {
+        "type": "integer",
+        "flag": "chord-chart-columns"
+      },
+      "chord_chart_font": {
+        "type": "string",
+        "flag": "chord-chart-font"
+      },
+      "chord_chart_font_size": {
+        "type": "integer",
+        "flag": "chord-chart-font-size"
+      },
+      "chord_chart_key": {
+        "type": "string",
+        "flag": "chart-key"
+      },
+      "import_chart_pro": {
+        "type": "string",
+        "flag": "import-chart-pro"
+      },
+      "import_chart_pro_options": {
+        "type": "string",
+        "flag": "import-chart-pro-options"
+      },
+      "import_rehearsal_mix": {
+        "type": "string",
+        "flag": "import-rehearsal-mix"
+      },
+      "import_rehearsal_mix_options": {
+        "type": "string",
+        "flag": "import-rehearsal-mix-options"
+      },
+      "import_rehearsal_pack": {
+        "type": "string",
+        "flag": "import-rehearsal-pack"
+      },
+      "import_rehearsal_pack_options": {
+        "type": "string",
+        "flag": "import-rehearsal-pack-options"
+      },
+      "isrc": {
+        "type": "integer",
+        "flag": "isrc"
+      },
+      "length": {
+        "type": "integer",
+        "flag": "length"
+      },
+      "lyrics_enabled": {
+        "type": "boolean",
+        "flag": "lyrics-enabled"
+      },
+      "meter": {
+        "type": "string",
+        "flag": "meter"
+      },
+      "mtid": {
+        "type": "string",
+        "flag": "mtid"
+      },
+      "name": {
+        "type": "string",
+        "flag": "name"
+      },
+      "notes": {
+        "type": "string",
+        "flag": "notes"
+      },
+      "number_chart_enabled": {
+        "type": "boolean",
+        "flag": "number-chart-enabled"
+      },
+      "numeral_chart_enabled": {
+        "type": "boolean",
+        "flag": "numeral-chart-enabled"
+      },
+      "print_margin": {
+        "type": "string",
+        "flag": "print-margin"
+      },
+      "print_orientation": {
+        "type": "string",
+        "flag": "print-orientation"
+      },
+      "print_page_size": {
+        "type": "string",
+        "flag": "print-page-size"
+      },
+      "rehearsal_mix_id": {
+        "type": "string",
+        "flag": "rehearsal-mix-id"
+      },
+      "rehearsal_mix_thumbnail": {
+        "type": "string",
+        "flag": "rehearsal-mix-thumbnail"
+      },
+      "sequence": {
+        "type": "array",
+        "flag": "sequence"
+      }
+    },
+    "key:create": {
+      "alternate_keys": {
+        "type": "string",
+        "flag": "alternate-keys"
+      },
+      "ending_key": {
+        "type": "string",
+        "flag": "end"
+      },
+      "import_ccli_chord_chart": {
+        "type": "string",
+        "flag": "import-ccli-chord-chart"
+      },
+      "import_ccli_chord_chart_options": {
+        "type": "string",
+        "flag": "import-ccli-chord-chart-options"
+      },
+      "import_ccli_lyrics": {
+        "type": "string",
+        "flag": "import-ccli-lyrics"
+      },
+      "import_chart_pro": {
+        "type": "string",
+        "flag": "import-chart-pro"
+      },
+      "import_rehearsal_mix": {
+        "type": "string",
+        "flag": "import-rehearsal-mix"
+      },
+      "import_rehearsal_pack": {
+        "type": "string",
+        "flag": "import-rehearsal-pack"
+      },
+      "name": {
+        "type": "string",
+        "flag": "name"
+      },
+      "starting_key": {
+        "type": "string",
+        "flag": "start"
+      }
+    },
+    "key:update": {
+      "alternate_keys": {
+        "type": "string",
+        "flag": "alternate-keys"
+      },
+      "ending_key": {
+        "type": "string",
+        "flag": "end"
+      },
+      "import_ccli_chord_chart": {
+        "type": "string",
+        "flag": "import-ccli-chord-chart"
+      },
+      "import_ccli_chord_chart_options": {
+        "type": "string",
+        "flag": "import-ccli-chord-chart-options"
+      },
+      "import_ccli_lyrics": {
+        "type": "string",
+        "flag": "import-ccli-lyrics"
+      },
+      "import_chart_pro": {
+        "type": "string",
+        "flag": "import-chart-pro"
+      },
+      "import_rehearsal_mix": {
+        "type": "string",
+        "flag": "import-rehearsal-mix"
+      },
+      "import_rehearsal_pack": {
+        "type": "string",
+        "flag": "import-rehearsal-pack"
+      },
+      "name": {
+        "type": "string",
+        "flag": "name"
+      },
+      "starting_key": {
+        "type": "string",
+        "flag": "start"
+      }
+    },
+    "attachment:create": {
+      "attachment_type_ids": {
+        "type": "string",
+        "flag": "attachment-type-ids"
+      },
+      "content": {
+        "type": "string",
+        "flag": "content"
+      },
+      "file_upload_identifier": {
+        "type": "string",
+        "flag": "upload-id"
+      },
+      "filename": {
+        "type": "string",
+        "flag": "filename"
+      },
+      "import_to_item_details": {
+        "type": "boolean",
+        "flag": "item-details"
+      },
+      "page_order": {
+        "type": "string",
+        "flag": "page-order"
+      },
+      "remote_link": {
+        "type": "string",
+        "flag": "url"
+      },
+      "song_part": {
+        "type": "string",
+        "flag": "song-part"
+      }
+    },
+    "attachment:update": {
+      "attachment_type_ids": {
+        "type": "string",
+        "flag": "attachment-type-ids"
+      },
+      "content": {
+        "type": "string",
+        "flag": "content"
+      },
+      "file_upload_identifier": {
+        "type": "string",
+        "flag": "upload-id"
+      },
+      "filename": {
+        "type": "string",
+        "flag": "filename"
+      },
+      "import_to_item_details": {
+        "type": "boolean",
+        "flag": "item-details"
+      },
+      "page_order": {
+        "type": "string",
+        "flag": "page-order"
+      },
+      "remote_link": {
+        "type": "string",
+        "flag": "url"
+      },
+      "song_part": {
+        "type": "string",
+        "flag": "song-part"
+      }
+    }
+  }
+}

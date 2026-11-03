@@ -1,6 +1,6 @@
 # Recommended architecture and implementation direction
 
-Status: recommended design, independently reviewed by GPT-6 Astra; application implementation has not started.
+Status: design independently reviewed by GPT-6 Astra and subsequently implemented. This document preserves the selected direction; see [Implementation and remaining gaps](implementation.md) for current coverage, refinements, and validation.
 
 Baseline: `d8c596895cdff92b54ce91d89ae61335e5125eb8`. See the [current-state brief](brief.md), [review assignment](architect-prompt.md), and [full Astra report](astra-review.md) for evidence and detailed contracts.
 
