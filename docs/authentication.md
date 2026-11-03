@@ -5,52 +5,47 @@ nav_order: 3
 
 # Authentication
 
-pccli uses Planning Center Personal Access Tokens for authenticated API requests.
+pccli is unofficial and is not built, endorsed, or supported by Planning Center.
 
-<div class="warning-banner">
-  <p><strong>Keep tokens private.</strong> A Personal Access Token acts with your Planning Center user permissions. Do not commit it, paste it into issues, or share it with other users.</p>
-</div>
+## Create a token
 
-## Create a Personal Access Token
+Create a Personal Access Token in your [Planning Center developer account](https://api.planningcenteronline.com/oauth/applications). Follow the [official authentication guide](https://api.planningcenteronline.com/docs/overview/authentication). pccli uses the generated client ID and secret with HTTP Basic Auth.
 
-Planning Center documents token creation in its API authentication guide:
+A token acts with its owner's Planning Center permissions. Keep it private; never commit it or paste it into issues, logs, or shared examples.
 
-- [Planning Center API authentication](https://api.planningcenteronline.com/docs/overview/authentication)
-- [Planning Center developer account](https://api.planningcenteronline.com/oauth/applications)
+## Save your credentials
 
-Create a Personal Access Token, then use the generated `client_id` and `secret`.
-
-## Configure pccli
-
-For project-local config, copy the example env file:
-
-```sh
-cp .env.example .env
-```
-
-Fill in:
-
-```sh
-PCCLI_CLIENT_ID=your_client_id
-PCCLI_CLIENT_SECRET=your_secret
-```
-
-`.env` is ignored by git. For a user-level config that works outside this repo, create:
+For configuration shared across directories:
 
 ```sh
 mkdir -p ~/.pccli
 $EDITOR ~/.pccli/.env
 ```
 
-pccli loads configuration in this order:
+Put these values in the file:
+
+```dotenv
+PCCLI_CLIENT_ID=your_client_id
+PCCLI_CLIENT_SECRET=your_secret
+```
+
+In a repository checkout, you can instead copy `.env.example` to a local `.env` and edit it. The repository ignores `.env`.
+
+Configuration precedence is:
 
 1. Shell environment variables.
-2. `.env` in the current directory.
+2. `.env` in the current working directory.
 3. `~/.pccli/.env`.
 4. Built-in defaults.
 
-This lets a project directory override your user-level config when needed.
+Only the documented `PCCLI_*` configuration names are supported. A malformed dotenv file produces an error without echoing its contents.
 
-## Permissions
+## Verify access
 
-Planning Center API requests act as the user who owns the token. If a command cannot see a song or arrangement, confirm that the token's user has the right Planning Center Services permissions.
+```sh
+pccli services songs list --limit 1
+```
+
+An empty list can still confirm access. Authentication or permission errors require checking the token and its owner's Services access. Help and version do not load credentials.
+
+For mock demonstrations, use `PCCLI_MOCK=true`; this uses local fixtures and does not verify live account access. See [configuration options](commands.html#environment-variables).

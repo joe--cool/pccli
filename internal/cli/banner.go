@@ -49,8 +49,5 @@ func colorMode() string {
 	if value := strings.ToLower(os.Getenv("PCCLI_COLOR")); value != "" {
 		return value
 	}
-	if value := strings.ToLower(os.Getenv("PCO_COLOR")); value != "" {
-		return value
-	}
 	return "auto"
 }

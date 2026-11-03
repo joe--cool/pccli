@@ -2,7 +2,10 @@ package config
 
 import (
 	"fmt"
+	"net/url"
 	"os"
+	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 
@@ -29,7 +32,9 @@ type Config struct {
 }
 
 func Load() (Config, error) {
-	loadDotenvFiles()
+	if err := loadDotenvFiles(); err != nil {
+		return Config{}, err
+	}
 
 	v := viper.New()
 	v.SetEnvPrefix("PCCLI")
@@ -41,41 +46,42 @@ func Load() (Config, error) {
 	setDefault(v, "timeout", DefaultTimeout.String())
 	setDefault(v, "mock-fixture", "testdata/mocks/services-library.json")
 	setDefault(v, "color", "auto")
+	setDefault(v, "mock", "false")
 	setDefault(v, "user-agent", "pccli/dev")
 
-	timeoutValue := getString(v, "timeout", "PCO_TIMEOUT")
+	timeoutValue := v.GetString("timeout")
 	timeout, err := time.ParseDuration(timeoutValue)
 	if err != nil {
 		return Config{}, fmt.Errorf("invalid PCCLI_TIMEOUT %q: %w", timeoutValue, err)
 	}
 
-	cfg := Config{
-		ClientID:     getString(v, "client-id", "PCO_CLIENT_ID"),
-		ClientSecret: getString(v, "client-secret", "PCO_CLIENT_SECRET"),
-		BaseURL:      strings.TrimRight(getString(v, "base-url", "PCO_BASE_URL"), "/"),
-		UploadURL:    strings.TrimRight(getString(v, "upload-url", "PCO_UPLOAD_URL"), "/"),
-		Timeout:      timeout,
-		Mock:         getBool(v, "mock", "PCO_MOCK"),
-		MockFixture:  getString(v, "mock-fixture", "PCO_MOCK_FIXTURE"),
-		Color:        strings.ToLower(getString(v, "color", "PCO_COLOR")),
-		UserAgent:    getString(v, "user-agent", "PCO_USER_AGENT"),
+	mock, err := strconv.ParseBool(v.GetString("mock"))
+	if err != nil {
+		return Config{}, fmt.Errorf("invalid PCCLI_MOCK: expected true or false")
 	}
 
-	if cfg.ClientID == "" {
-		cfg.ClientID = os.Getenv("PLANNING_CENTER_CLIENT_ID")
-	}
-	if cfg.ClientSecret == "" {
-		cfg.ClientSecret = os.Getenv("PLANNING_CENTER_SECRET")
+	cfg := Config{
+		ClientID:     v.GetString("client-id"),
+		ClientSecret: v.GetString("client-secret"),
+		BaseURL:      strings.TrimRight(v.GetString("base-url"), "/"),
+		UploadURL:    strings.TrimRight(v.GetString("upload-url"), "/"),
+		Timeout:      timeout,
+		Mock:         mock,
+		MockFixture:  v.GetString("mock-fixture"),
+		Color:        strings.ToLower(v.GetString("color")),
+		UserAgent:    v.GetString("user-agent"),
 	}
 
 	if cfg.Color != "auto" && cfg.Color != "always" && cfg.Color != "never" {
 		return Config{}, fmt.Errorf("invalid PCCLI_COLOR %q: expected auto, always, or never", cfg.Color)
 	}
-	if cfg.BaseURL == "" {
-		return Config{}, fmt.Errorf("PCCLI_BASE_URL cannot be empty")
+	if cfg.Timeout <= 0 {
+		return Config{}, fmt.Errorf("PCCLI_TIMEOUT must be positive")
 	}
-	if cfg.UploadURL == "" {
-		return Config{}, fmt.Errorf("PCCLI_UPLOAD_URL cannot be empty")
+	for _, endpoint := range []struct{ name, value string }{{"PCCLI_BASE_URL", cfg.BaseURL}, {"PCCLI_UPLOAD_URL", cfg.UploadURL}} {
+		if err := validateURL(endpoint.name, endpoint.value); err != nil {
+			return Config{}, err
+		}
 	}
 	if !cfg.Mock && (cfg.ClientID == "" || cfg.ClientSecret == "") {
 		return Config{}, fmt.Errorf("missing Planning Center credentials: set PCCLI_CLIENT_ID and PCCLI_CLIENT_SECRET in .env or the environment")
@@ -88,56 +94,36 @@ func setDefault(v *viper.Viper, key string, value any) {
 	v.SetDefault(key, value)
 }
 
-func loadDotenvFiles() {
-	loadIfExists(".env")
+// Shell values win over project values, which win over user-level values.
+func loadDotenvFiles() error {
+	if err := loadIfExists(".env"); err != nil {
+		return err
+	}
 	home, err := os.UserHomeDir()
 	if err != nil || home == "" {
-		return
+		return nil
 	}
-	loadIfExists(home + string(os.PathSeparator) + ".pccli" + string(os.PathSeparator) + ".env")
+	return loadIfExists(filepath.Join(home, ".pccli", ".env"))
 }
 
-func loadIfExists(path string) {
-	if _, err := os.Stat(path); err == nil {
-		_ = godotenv.Load(path)
-	}
-}
-
-func getString(v *viper.Viper, key string, aliases ...string) string {
-	if value := os.Getenv("PCCLI_" + envKey(key)); value != "" {
-		return value
-	}
-	for _, alias := range aliases {
-		if value := os.Getenv(alias); value != "" {
-			return value
+func loadIfExists(path string) error {
+	if _, err := os.Stat(path); err != nil {
+		if os.IsNotExist(err) {
+			return nil
 		}
+		return fmt.Errorf("cannot access configuration file %s", path)
 	}
-	return v.GetString(key)
+	if err := godotenv.Load(path); err != nil {
+		// Parser errors can include source text; never echo credential lines.
+		return fmt.Errorf("cannot load configuration file %s", path)
+	}
+	return nil
 }
 
-func getBool(v *viper.Viper, key string, aliases ...string) bool {
-	if value, ok := parseBoolEnv(os.Getenv("PCCLI_" + envKey(key))); ok {
-		return value
+func validateURL(name, value string) error {
+	endpoint, err := url.Parse(value)
+	if err != nil || endpoint.Hostname() == "" || (endpoint.Scheme != "http" && endpoint.Scheme != "https") || endpoint.User != nil || endpoint.RawQuery != "" || endpoint.Fragment != "" || endpoint.Path != "" {
+		return fmt.Errorf("%s must be an HTTP or HTTPS origin without credentials, path, query, or fragment", name)
 	}
-	for _, alias := range aliases {
-		if value, ok := parseBoolEnv(os.Getenv(alias)); ok {
-			return value
-		}
-	}
-	return v.GetBool(key)
-}
-
-func envKey(key string) string {
-	return strings.ToUpper(strings.NewReplacer("-", "_", ".", "_").Replace(key))
-}
-
-func parseBoolEnv(value string) (bool, bool) {
-	switch strings.ToLower(value) {
-	case "1", "t", "true", "y", "yes", "on":
-		return true, true
-	case "0", "f", "false", "n", "no", "off":
-		return false, true
-	default:
-		return false, false
-	}
+	return nil
 }
