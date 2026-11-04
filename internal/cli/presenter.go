@@ -224,6 +224,17 @@ func text(v any) string {
 	}
 }
 func renderResource(r output.Renderer, value any) error {
+	if result, ok := value.(services.NeededPositionResult); ok {
+		if e := renderResource(r, result.NeededPosition); e != nil {
+			return e
+		}
+		requested := ""
+		if result.RequestedPositionID != nil {
+			requested = *result.RequestedPositionID
+		}
+		return r.KeyValues([][2]string{{"Outcome", result.Outcome}, {"Unverified fields", strings.Join(result.UnverifiedFields, ", ")}, {"Requested position ID", requested}})
+	}
+
 	if update, ok := value.(services.AttachmentUpdateResult); ok {
 		if e := renderResource(r, update.Attachment); e != nil {
 			return e

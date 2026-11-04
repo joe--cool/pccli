@@ -49,7 +49,27 @@
     "PlanPerson": {
       "name": "string",
       "status": "string",
-      "team_position_name": "string"
+      "team_position_name": "string",
+      "notes": "string",
+      "decline_reason": "string",
+      "prepare_notification": "boolean",
+      "can_accept_partial": "boolean",
+      "notification_prepared_at": "string",
+      "notification_sent_at": "string"
+    },
+    "Person": {
+      "full_name": "string",
+      "archived": "boolean",
+      "archived_at": "string"
+    },
+    "TeamPosition": {
+      "name": "string",
+      "sequence": "integer"
+    },
+    "NeededPosition": {
+      "quantity": "integer",
+      "team_position_name": "string",
+      "scheduled_to": "string"
     }
   },
   "update": {
@@ -76,6 +96,15 @@
       "starts_at": "string",
       "ends_at": "string",
       "time_type": "string"
+    },
+    "PlanPerson": {
+      "status": "string",
+      "notes": "string",
+      "decline_reason": "string",
+      "team_position_name": "string"
+    },
+    "NeededPosition": {
+      "quantity": "integer"
     }
   },
   "paths": {
@@ -103,7 +132,8 @@
       "POST"
     ],
     "/service_types/{service_type_id}/plans/{plan_id}/team_members": [
-      "GET"
+      "GET",
+      "POST"
     ],
     "/series/{series_id}": [
       "GET"
@@ -114,6 +144,32 @@
       "DELETE"
     ],
     "/service_types/{service_type_id}/plans/{plan_id}/plan_times/{plan_time_id}": [
+      "GET",
+      "PATCH",
+      "DELETE"
+    ],
+    "/teams/{team_id}/people": [
+      "GET"
+    ],
+    "/teams/{team_id}/people/{person_id}": [
+      "GET"
+    ],
+    "/teams/{team_id}/team_positions": [
+      "GET"
+    ],
+    "/teams/{team_id}/team_positions/{team_position_id}": [
+      "GET"
+    ],
+    "/service_types/{service_type_id}/plans/{plan_id}/team_members/{team_member_id}": [
+      "GET",
+      "PATCH",
+      "DELETE"
+    ],
+    "/service_types/{service_type_id}/plans/{plan_id}/needed_positions": [
+      "GET",
+      "POST"
+    ],
+    "/service_types/{service_type_id}/plans/{plan_id}/needed_positions/{needed_position_id}": [
       "GET",
       "PATCH",
       "DELETE"
@@ -144,6 +200,20 @@
       "starts_at": "string",
       "ends_at": "string",
       "time_type": "string"
+    },
+    "PlanPerson": {
+      "person_id": "string",
+      "team_id": "string",
+      "status": "string",
+      "notes": "string",
+      "decline_reason": "string",
+      "team_position_name": "string",
+      "prepare_notification": "boolean"
+    },
+    "NeededPosition": {
+      "quantity": "integer",
+      "team_id": "string",
+      "team_position_id": "string"
     }
   },
   "actions": {

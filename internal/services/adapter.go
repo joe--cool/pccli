@@ -19,6 +19,7 @@ type record struct {
 	rel      json.RawMessage
 	parents  Scope
 	planning PlanningScope
+	teamID   string
 }
 
 func decodeRecord(r planningcenter.Resource[json.RawMessage], kind string) (record, error) {
@@ -100,6 +101,23 @@ func (r record) model(dst any) error {
 	case *PlanTime:
 		model.ServiceTypeID = r.planning.ServiceType
 		model.PlanID = r.planning.Plan
+	case *NeededPosition:
+		model.ServiceTypeID = r.planning.ServiceType
+		model.PlanID = r.planning.Plan
+		var err error
+		if model.TeamID, err = r.relatedID("team", "Team"); err != nil {
+			return err
+		}
+		if model.TimeID, err = r.relatedID("time", "PlanTime"); err != nil {
+			return err
+		}
+		if model.TimePreferenceOptionID, err = r.relatedID("time_preference_option", "TimePreferenceOption"); err != nil {
+			return err
+		}
+	case *TeamPerson:
+		model.TeamID = r.teamID
+	case *TeamPosition:
+		model.TeamID = r.teamID
 	case *ScheduledPerson:
 		var err error
 		if model.PersonID, err = r.relatedID("person", "Person"); err != nil {
@@ -146,6 +164,10 @@ func (r record) scope(name, kind, id string) error {
 }
 func (r record) validateScope() error {
 	switch r.kind {
+	case "TeamPosition":
+		if r.teamID != "" {
+			return r.scope("team", "Team", r.teamID)
+		}
 	case "Plan":
 		if _, err := r.relatedID("series", "Series"); err != nil {
 			return err
@@ -153,7 +175,14 @@ func (r record) validateScope() error {
 		if r.planning.ServiceType != "" {
 			return r.scope("service_type", "ServiceType", r.planning.ServiceType)
 		}
-	case "Item", "PlanTime", "PlanPerson":
+	case "Item", "PlanTime", "PlanPerson", "NeededPosition":
+		if r.kind == "NeededPosition" {
+			for name, kind := range map[string]string{"team": "Team", "time": "PlanTime", "time_preference_option": "TimePreferenceOption"} {
+				if _, err := r.relatedID(name, kind); err != nil {
+					return err
+				}
+			}
+		}
 		if r.kind == "Item" {
 			for name, kind := range map[string]string{"song": "Song", "arrangement": "Arrangement", "key": "Key"} {
 				if _, err := r.relatedID(name, kind); err != nil {
@@ -381,7 +410,8 @@ func recordHash(r record) ([32]byte, error) {
 		Relationships any
 		Parents       Scope
 		Planning      PlanningScope
-	}{r.id, r.kind, r.attrs, relationships, r.parents, r.planning})
+		TeamID        string
+	}{r.id, r.kind, r.attrs, relationships, r.parents, r.planning, r.teamID})
 	if err != nil {
 		return [32]byte{}, fail("invalid_response", "invalid resource snapshot")
 	}
@@ -554,6 +584,8 @@ func (r record) inPath(path string) record {
 			continue
 		}
 		switch p {
+		case "teams":
+			r.teamID = id
 		case "service_types":
 			r.planning.ServiceType = id
 		case "plans":

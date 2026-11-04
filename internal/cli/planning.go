@@ -255,12 +255,19 @@ func newScheduledPeopleCommand(j *bool) *cobra.Command {
 		func(ctx context.Context, l *services.Library, s services.PlanningScope, emit func(services.ScheduledPerson) error) (services.ListMeta, error) {
 			return l.WalkScheduledPeople(ctx, s, emit)
 		}))
+	addScheduledPeopleCommands(g, j)
 	return g
 }
 
 func planningTable[T any](r output.Renderer, items []T) (bool, error) {
 	var columns []string
 	switch any(items[0]).(type) {
+	case services.TeamPerson:
+		columns = []string{"id", "team_id", "full_name", "archived", "archived_at"}
+	case services.TeamPosition:
+		columns = []string{"id", "team_id", "name", "sequence"}
+	case services.NeededPosition:
+		columns = []string{"id", "team_id", "team_position_name", "quantity"}
 	case services.ServiceType:
 		columns = []string{"id", "name", "frequency", "archived_at"}
 	case services.Plan:

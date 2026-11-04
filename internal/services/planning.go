@@ -74,6 +74,13 @@ type PlanTime struct {
 	TimeType      *string `json:"time_type"`
 }
 type ScheduledPerson struct {
+	Notes                  *string `json:"notes"`
+	DeclineReason          *string `json:"decline_reason"`
+	PrepareNotification    *bool   `json:"prepare_notification"`
+	CanAcceptPartial       *bool   `json:"can_accept_partial"`
+	NotificationPreparedAt *string `json:"notification_prepared_at"`
+	NotificationSentAt     *string `json:"notification_sent_at"`
+
 	PersonID         *string `json:"person_id"`
 	TeamID           *string `json:"team_id"`
 	ID               string  `json:"id"`
@@ -135,6 +142,12 @@ func planningType(kind string) any {
 		return &PlanTime{}
 	case "PlanPerson":
 		return &ScheduledPerson{}
+	case "Person":
+		return &TeamPerson{}
+	case "TeamPosition":
+		return &TeamPosition{}
+	case "NeededPosition":
+		return &NeededPosition{}
 	}
 	return nil
 }
@@ -178,7 +191,7 @@ func validatePlanningAttributes(kind string, attrs map[string]json.RawMessage) e
 			}
 		}
 	}
-	if kind == "ServiceType" || kind == "Team" {
+	if kind == "ServiceType" || kind == "Team" || kind == "TeamPosition" {
 		var name string
 		if json.Unmarshal(attrs["name"], &name) != nil || strings.TrimSpace(name) == "" {
 			return fail("invalid_response", "resource name missing or invalid")
@@ -224,7 +237,7 @@ func (l *Library) selectPlanning(ctx context.Context, path, kind, target string,
 		if !planningVisible(r, includeArchived) {
 			return nil
 		}
-		if kind == "Plan" || kind == "Item" || kind == "PlanTime" {
+		if kind == "Plan" || kind == "Item" || kind == "PlanTime" || kind == "PlanPerson" || kind == "Person" || kind == "NeededPosition" {
 			if raw, ok := r.attrs[field]; !ok || string(raw) == "null" {
 				return nil
 			}
@@ -540,8 +553,15 @@ func (r record) teamScope() error {
 }
 
 func planningVisible(r record, includeArchived bool) bool {
-	if includeArchived || (r.kind != "ServiceType" && r.kind != "Team") {
+	if includeArchived || (r.kind != "ServiceType" && r.kind != "Team" && r.kind != "Person") {
 		return true
+	}
+	if r.kind == "Person" {
+		var state *bool
+		_ = json.Unmarshal(r.attrs["archived"], &state)
+		if state != nil && *state {
+			return false
+		}
 	}
 	var archived *string
 	_ = json.Unmarshal(r.attrs["archived_at"], &archived)

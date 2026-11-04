@@ -156,6 +156,24 @@ func (l *Library) DeletePlanTime(ctx context.Context, s PlanningScope, target st
 	return l.deletePlanningChild(ctx, path, "PlanTime", s, row.id)
 }
 func verifyPlanningChildFields(kind string, row record, attrs map[string]any) error {
+	if kind == "PlanPerson" {
+		others := map[string]any{}
+		for name, value := range attrs {
+			if name != "status" {
+				others[name] = value
+				continue
+			}
+			var status string
+			if json.Unmarshal(row.attrs[name], &status) != nil {
+				return fail("verification_failed", "assignment status was not confirmed")
+			}
+			got, e := canonicalScheduleStatus(status)
+			if e != nil || got != value {
+				return fail("verification_failed", "assignment status differs from requested value")
+			}
+		}
+		return verify(row, others)
+	}
 	if kind != "PlanTime" {
 		return verify(row, attrs)
 	}

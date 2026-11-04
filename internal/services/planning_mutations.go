@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"strings"
 
@@ -41,6 +42,24 @@ func writePlanningChild[T any](ctx context.Context, l *Library, method, path, ki
 	if e != nil {
 		return failed(kind+" write submitted but readback failed", e)
 	}
+	if kind == "PlanPerson" {
+		var partial *bool
+		_ = json.Unmarshal(read.attrs["can_accept_partial"], &partial)
+		if partial != nil && *partial {
+			return failed("assignment write submitted but returned partial or split-time assignment", nil)
+		}
+	}
+	if kind == "NeededPosition" {
+		for name, relatedKind := range map[string]string{"time": "PlanTime", "time_preference_option": "TimePreferenceOption"} {
+			id, e := read.relatedID(name, relatedKind)
+			if e != nil {
+				return failed("needed-position write submitted but time scope was invalid", e)
+			}
+			if id != nil {
+				return failed("needed-position write submitted but readback became time-specific", nil)
+			}
+		}
+	}
 	verifyAttrs := map[string]any{}
 	for name, v := range attrs {
 		if !strings.HasSuffix(name, "_id") {
@@ -57,7 +76,7 @@ func writePlanningChild[T any](ctx context.Context, l *Library, method, path, ki
 			}
 			continue
 		}
-		relatedKind := map[string]string{"song": "Song", "arrangement": "Arrangement", "key": "Key"}[name]
+		relatedKind := map[string]string{"song": "Song", "arrangement": "Arrangement", "key": "Key", "person": "Person", "team": "Team"}[name]
 		got, e := read.relatedID(name, relatedKind)
 		if e != nil {
 			return failed("write submitted but linked identity is invalid", e)

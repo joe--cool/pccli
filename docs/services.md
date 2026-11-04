@@ -16,7 +16,10 @@ Use `pccli services RESOURCE ACTION` to inspect service plans and maintain the S
 | `items` | Build and inspect a plan's order, link songs, reorder items, and delete with confirmation |
 | `plan-times` | Create, inspect, update, and delete individual service, rehearsal, and other times |
 | `teams` | Inspect teams associated with a service type |
-| `scheduled-people` | Inspect plan assignments and response status |
+| `team-people` | Discover team members as scheduling candidates |
+| `team-positions` | Discover available positions within a team |
+| `scheduled-people` | Create, inspect, update, and delete whole-plan assignments |
+| `needed-positions` | Track whole-plan unfilled quantities with honest position-ID verification |
 | `songs` | Find, inspect, create, update, delete, and inspect scheduling history |
 | `arrangements` | Maintain song versions, chord charts, print settings, sequence, and archive state |
 | `keys` | Maintain named keys and alternate keys within an arrangement |

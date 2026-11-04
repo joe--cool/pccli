@@ -649,7 +649,11 @@
           "attributes": {
             "name": "Alex Sample",
             "status": "C",
-            "team_position_name": "Vocals"
+            "team_position_name": "Vocals",
+            "notes": "",
+            "decline_reason": "",
+            "prepare_notification": false,
+            "can_accept_partial": false
           },
           "relationships": {
             "plan": {
@@ -684,7 +688,11 @@
           "attributes": {
             "name": "Jordan Example",
             "status": "U",
-            "team_position_name": "Keys"
+            "team_position_name": "Keys",
+            "notes": "",
+            "decline_reason": "",
+            "prepare_notification": false,
+            "can_accept_partial": false
           },
           "relationships": {
             "plan": {
@@ -788,6 +796,186 @@
               "type": "Plan",
               "id": "4001"
             }
+          }
+        }
+      }
+    },
+    "GET /services/v2/teams/6001/people": {
+      "data": [
+        {
+          "type": "Person",
+          "id": "9001",
+          "attributes": {
+            "full_name": "Alex Sample",
+            "archived": false,
+            "archived_at": null
+          }
+        },
+        {
+          "type": "Person",
+          "id": "9002",
+          "attributes": {
+            "full_name": "Jordan Example",
+            "archived": false,
+            "archived_at": null
+          }
+        }
+      ]
+    },
+    "GET /services/v2/teams/6001/people/9001": {
+      "data": {
+        "type": "Person",
+        "id": "9001",
+        "attributes": {
+          "full_name": "Alex Sample",
+          "archived": false,
+          "archived_at": null
+        }
+      }
+    },
+    "GET /services/v2/teams/6001/people/9002": {
+      "data": {
+        "type": "Person",
+        "id": "9002",
+        "attributes": {
+          "full_name": "Jordan Example",
+          "archived": false,
+          "archived_at": null
+        }
+      }
+    },
+    "GET /services/v2/teams/6001/team_positions": {
+      "data": [
+        {
+          "type": "TeamPosition",
+          "id": "10001",
+          "attributes": {
+            "name": "Vocals",
+            "sequence": 1
+          },
+          "relationships": {
+            "team": {
+              "data": {
+                "type": "Team",
+                "id": "6001"
+              }
+            }
+          }
+        },
+        {
+          "type": "TeamPosition",
+          "id": "10002",
+          "attributes": {
+            "name": "Keys",
+            "sequence": 2
+          },
+          "relationships": {
+            "team": {
+              "data": {
+                "type": "Team",
+                "id": "6001"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "GET /services/v2/teams/6001/team_positions/10001": {
+      "data": {
+        "type": "TeamPosition",
+        "id": "10001",
+        "attributes": {
+          "name": "Vocals",
+          "sequence": 1
+        },
+        "relationships": {
+          "team": {
+            "data": {
+              "type": "Team",
+              "id": "6001"
+            }
+          }
+        }
+      }
+    },
+    "GET /services/v2/teams/6001/team_positions/10002": {
+      "data": {
+        "type": "TeamPosition",
+        "id": "10002",
+        "attributes": {
+          "name": "Keys",
+          "sequence": 2
+        },
+        "relationships": {
+          "team": {
+            "data": {
+              "type": "Team",
+              "id": "6001"
+            }
+          }
+        }
+      }
+    },
+    "GET /services/v2/service_types/3001/plans/4001/needed_positions": {
+      "data": [
+        {
+          "type": "NeededPosition",
+          "id": "11001",
+          "attributes": {
+            "quantity": 1,
+            "team_position_name": "Vocals",
+            "scheduled_to": "plan"
+          },
+          "relationships": {
+            "team": {
+              "data": {
+                "type": "Team",
+                "id": "6001"
+              }
+            },
+            "plan": {
+              "data": {
+                "type": "Plan",
+                "id": "4001"
+              }
+            },
+            "time": {
+              "data": null
+            },
+            "time_preference_option": {
+              "data": null
+            }
+          }
+        }
+      ]
+    },
+    "GET /services/v2/service_types/3001/plans/4001/needed_positions/11001": {
+      "data": {
+        "type": "NeededPosition",
+        "id": "11001",
+        "attributes": {
+          "quantity": 1,
+          "team_position_name": "Vocals",
+          "scheduled_to": "plan"
+        },
+        "relationships": {
+          "team": {
+            "data": {
+              "type": "Team",
+              "id": "6001"
+            }
+          },
+          "plan": {
+            "data": {
+              "type": "Plan",
+              "id": "4001"
+            }
+          },
+          "time": {
+            "data": null
+          },
+          "time_preference_option": {
+            "data": null
           }
         }
       }

@@ -91,6 +91,45 @@ Updates preserve omitted fields. Changing only a start or end validates the resu
 
 Readback compares timestamp instants at nanosecond precision, so equivalent `Z` and numeric-offset representations can verify successfully. JSON and human output retain the provider's returned timestamp text. Changes affect only the selected time; bulk changes to later plans, scheduling people, assigning teams or positions to times, and reminder rules are outside these commands. Every write uses independent readback and the same recovery information as item writes. Deletes require `--yes` and verify HTTP 404 afterward. The videos continue to demonstrate reads with static mock data.
 
+## Schedule a whole-plan team
+
+Discover members and positions before creating an assignment:
+
+```sh
+pccli services team-people list --service-type 3001 --team 6001 --all
+pccli services team-positions list --service-type 3001 --team 6001 --all
+pccli services scheduled-people create --service-type 3001 --plan 4001 --team 6001 --person 9001 --position 10001
+pccli services scheduled-people show 8001 --service-type 3001 --plan 4001
+pccli services scheduled-people update 8001 --service-type 3001 --plan 4001 --status confirmed --notes "Bring your folder"
+pccli services scheduled-people delete 8001 --service-type 3001 --plan 4001 --yes
+```
+
+Team people are **membership candidates**, not a promise of availability, position eligibility, background-check clearance, or permission to schedule. Planning Center makes those final decisions. IDs avoid duplicate-name ambiguity; write selectors require exact names or IDs and traverse complete candidate collections.
+
+These mutations support teams whose returned `schedule_to` is explicitly `plan`. Split-time teams, unavailable scheduling mode, and assignments known to permit partial acceptance are rejected before writing. The position must belong to the team. Assignments store the position's name, so duplicate or case-colliding names within that team are rejected even when a position ID is supplied.
+
+Creation defaults to **Unconfirmed** and explicitly sends `prepare_notification: false`. `--status` accepts `unconfirmed`, `confirmed`, `declined`, or `U`, `C`, `D`; readback accepts equivalent provider spellings while JSON retains the returned value. Optional `--notes` and `--decline-reason` preserve explicit empty strings. No command prepares or sends a notification on your behalf. Updates omit notification-preparation fields and preserve any existing state; previously prepared notifications remain under Planning Center's existing behavior.
+
+Updates can change status, notes, decline reason, or `--position`. Optional `--team` guards the existing assignment's exact team; it does not move the assignment. Changing the person or team requires deleting and creating an assignment explicitly. Creation and updates require current team membership and known nonarchived person state. `team-people` reads exclude known archived people by default, while `--include-archived` includes returned archived records for inspection. Unknown archive state remains visible as unavailable and is not proof of activity; it blocks scheduling changes. `--include-archived` never authorizes scheduling an archived person.
+
+Deleting an exact scoped assignment does not require the person to remain active or in the team, so departed-member assignments can be cleaned up. Team scope, whole-plan mode, and `--yes` still apply. Every mutation performs independent readback or verifies HTTP 404 after deletion; failures retain known record IDs and parent context.
+
+## Track unfilled positions
+
+```sh
+pccli services needed-positions list --service-type 3001 --plan 4001 --all
+pccli services needed-positions create --service-type 3001 --plan 4001 --team 6001 --position 10001 --quantity 1
+pccli services needed-positions show 11001 --service-type 3001 --plan 4001
+pccli services needed-positions update 11001 --service-type 3001 --plan 4001 --quantity 0
+pccli services needed-positions delete 11001 --service-type 3001 --plan 4001 --yes
+```
+
+Quantity is required and nonnegative; zero is transmitted explicitly. These commands support whole-plan teams and reject records with explicit time or time-preference relationships. The provider's `scheduled_to` string is retained without assigning it an undocumented meaning. Missing optional relationships remain unavailable; they do not establish that a record has no time context.
+
+Creation sends the selected position ID, but the API does not expose that ID for independent readback. A successful create therefore reports **`outcome: accepted`**, **`unverified_fields: ["team_position_id"]`**, and the separate **`requested_position_id`**. Readback still verifies quantity, team identity, and the readable position name. Inspect the record in Planning Center when exact position identity matters. Quantity updates report `verified` after readback; the model never invents a canonical position ID from the requested value.
+
+Split-time scheduling, automatic scheduling, invitation sending, and time-specific needed positions are outside these commands. Static mock fixtures demonstrate the reads; stateful request tests establish the wire and recovery behavior, not live account eligibility or delivery.
+
 ## Check plan readiness
 
 {% include terminal-demo.html name="planning-demo" title="Check Sunday's plan readiness" caption="Review Gathered in Grace, confirm its service time, inspect available teams, then read assignment responses. Under 90 seconds; mock data." %}
@@ -139,4 +178,4 @@ pccli services plans delete 4001 --service-type 3001 --yes
 
 Deletion requires `--yes`, validates the exact identity, and verifies that the plan returns HTTP 404 afterward. A verification failure means the request was accepted but the final state could not be confirmed; inspect the resource before retrying.
 
-Plan copying, scheduling changes, and notifications remain outside this interface. Mock mode supports the read journeys above; its static fixture does not emulate updates or prove live account permissions.
+Plan copying and notification sending remain outside this interface. Mock mode supports the read journeys above; its static fixture does not emulate updates or prove live account permissions.

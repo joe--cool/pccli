@@ -174,6 +174,17 @@ func (l *Library) recheckPlanningRecord(ctx context.Context, path string, row re
 	if e != nil {
 		return e
 	}
+	if row.kind == "NeededPosition" {
+		for name, kind := range map[string]string{"time": "PlanTime", "time_preference_option": "TimePreferenceOption"} {
+			id, e := current.relatedID(name, kind)
+			if e != nil {
+				return e
+			}
+			if id != nil {
+				return fail("unsupported_capability", "time-specific needed positions cannot be changed by whole-plan commands")
+			}
+		}
+	}
 	if !samePlanningAttributes(row, current) {
 		return changed(row.kind)
 	}
@@ -187,6 +198,9 @@ func (l *Library) recheckPlanningRecord(ctx context.Context, path string, row re
 		_ = json.Unmarshal(current.rel, &next)
 	}
 	links := map[string]string{"song": "Song", "arrangement": "Arrangement", "key": "Key"}
+	if row.kind == "NeededPosition" {
+		links = map[string]string{"team": "Team", "time": "PlanTime", "time_preference_option": "TimePreferenceOption"}
+	}
 	if row.kind == "PlanPerson" {
 		links = map[string]string{"person": "Person", "team": "Team"}
 	}
@@ -346,6 +360,19 @@ func samePlanningAttributes(a, b record) bool {
 	var attrsA, attrsB any
 	if json.Unmarshal(rawA, &attrsA) != nil || json.Unmarshal(rawB, &attrsB) != nil {
 		return false
+	}
+	if a.kind == "PlanPerson" {
+		for _, attrs := range []any{attrsA, attrsB} {
+			m, ok := attrs.(map[string]any)
+			if !ok {
+				return false
+			}
+			if status, ok := m["status"].(string); ok {
+				if canonical, e := canonicalScheduleStatus(status); e == nil {
+					m["status"] = canonical
+				}
+			}
+		}
 	}
 	if a.kind == "PlanTime" {
 		for _, attrs := range []any{attrsA, attrsB} {
