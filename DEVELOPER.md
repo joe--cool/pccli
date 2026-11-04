@@ -18,9 +18,11 @@ go vet ./...
 go build -o bin/pccli ./cmd/pccli
 ```
 
-Read [AGENTS.md](AGENTS.md) for the behavioral rules. The [architecture review](design/architecture-review/README.md) records the design and its historical baseline; current code and tests establish implemented behavior.
+Read [AGENTS.md](AGENTS.md) for the behavioral rules and the [command reference](docs/commands.md) for the public interface.
 
 ## Follow a request through the code
+
+pccli supports Services song-library maintenance: songs, arrangements, keys, attachments, tags, and scheduling context. Plans, teams, people, and scheduling administration are outside this interface. Keep commands product-first and resource-first, with explicit parents and consistent actions.
 
 | Location | Responsibility |
 | --- | --- |
@@ -36,13 +38,21 @@ The CLI depends on Services workflows, which depend on the typed adapter and sha
 
 The machine contract is `pccli/v1`. List metadata distinguishes returned limits from complete selections; detail output distinguishes requested empty components from unrequested expansions. JSON is staged before publication, and output failures remain errors. Human output suppresses default noise while preserving useful metadata and explicit IDs.
 
+For `--json --all`, Services walkers retain one page plus O(N) ID/hash metadata for consistency checks. Explicit song sorting uses bounded private disk runs. The CLI stages the encoded result in a private temporary file and publishes it only after traversal succeeds. Walk callbacks can run before a later failure; a new caller must preserve that staging boundary. Propagate cancellation and clean up temporary files. A failure during the final stdout copy can still leave partial bytes and must exit nonzero.
+
 ## Preserve operator intent
 
 Typed pointer fields preserve omitted versus explicitly supplied mutation values. CLI binders use flag presence, not zero-value checks. Validate the entire input before lookup or upload. API field types can be surprising: alternate keys are a string containing JSON, import fields are strings, and some accepted action fields have no readable equivalent.
 
-Resolve names from complete candidate sets. Page failure, changed filters, malformed data, ambiguity, inconsistent visibility, or contradictory scope must stop the workflow before side effects. Display limits do not cap identity resolution. Revalidate scoped destinations before attaching an upload receipt. Do not automatically replay writes after an unknown result.
+Resolve names from complete candidate sets. Page failure, changed filters, malformed data, ambiguity, inconsistent visibility, or contradictory scope must stop the workflow before side effects. Display limits do not cap identity resolution. Revalidate scoped destinations before attaching an upload receipt. Do not automatically replay writes after an unknown result. Multi-request workflows are not remote transactions: pagination does not create a snapshot, and destination rechecks cannot eliminate concurrent changes.
 
-Services version `2018-11-01` is explicit. Verify each changed capability against the current official documentation; do not turn a read association into a write promise without evidence. Separate API acceptance, readable value verification, and asynchronous provider completion.
+Services version `2018-11-01` is explicit. Verify each changed capability against the current official documentation; do not turn a read association into a write promise without evidence. Separate API acceptance, readable value verification, and asynchronous provider completion. Attachment updates can accept write-only `song_part` and attachment-type fields without confirming their effects through readback. CCLI-only song creation can return a resolved title rather than the numeric lookup string; verify the documented import outcome instead of requiring literal title equality.
+
+## Maintain API capability evidence
+
+[testdata/contracts/services-song-library.json](testdata/contracts/services-song-library.json) is a versioned test fixture, derived from the official Services OpenAPI document linked in its `source` field. It records assignable Song, Arrangement, Key, and Attachment create/update fields, wire types, CLI flags, API version, and retrieval date. Keep that provenance: it explains the contract being tested.
+
+When adding or changing an assignable field, independently check the upstream schema and endpoint, then update the typed input, flag binding, fixture, user field reference, and wire/readback tests together. [coverage_test.go](internal/cli/coverage_test.go) compares the inventory with CLI flag types and typed Song/Arrangement/Key inputs; changing the fixture merely to match the implementation would defeat the check. The field inventory supplements endpoint and lifecycle tests; it does not prove account permissions or provider completion.
 
 ## Test the contract
 
@@ -54,7 +64,7 @@ go build -o bin/pccli ./cmd/pccli
 
 Tests should prove decisions and wire behavior: method, path, filters, pagination, field presence/types, version, Basic Auth, scoped parent checks, response validation, readback, upload recovery, cancellation, and no automatic write replay. Assert **zero writes/uploads** on incomplete or ambiguous selection. Include malformed/null attributes and duplicate IDs, not only happy-path fixture data.
 
-CLI tests cover both plain and JSON results, parse errors before credential loading, stdout/stderr separation, exit codes, empty collections, false/zero values, terminal controls, and writer failures. Update affected command examples in the same change. Coverage reports can guide inspection, but a percentage is not proof that a workflow is safe.
+CLI tests cover both plain and JSON results, parse errors before credential loading, stdout/stderr separation, exit codes, empty collections, false/zero values, terminal controls, and writer failures. Update affected command examples in the same change. Coverage reports can guide inspection, but a percentage is not proof that a workflow is safe. [workflow_journeys_test.go](internal/cli/workflow_journeys_test.go) exercises stateful plain/JSON lifecycles, including all three attachment scopes; [export_test.go](internal/services/export_test.go) covers paging, sorting, payload retention, cancellation, and temporary-file cleanup. Use `go test -race ./...` when changing shared state or cancellation behavior.
 
 Run examples with isolated configuration when testing credential-free behavior. Never inspect real dotenv secrets. For a mock read from the repository:
 
@@ -63,7 +73,7 @@ PCCLI_MOCK=true go run ./cmd/pccli services songs list
 PCCLI_MOCK=true go run ./cmd/pccli --json services arrangements list --song 1001 --all
 ```
 
-Mock mode uses the configured fixture relative to the working directory. Static routes are not a stateful Planning Center emulator and cannot establish real provider imports, permissions, or mutation effects. Report request-contract and mock verification separately from authorized live validation.
+Mock mode uses the configured fixture relative to the working directory. Static routes are not a stateful Planning Center emulator and cannot establish real provider imports, permissions, or mutation effects. Report request-contract and mock verification separately from authorized live validation. Live acceptance requires an explicitly authorized account and disposable records; synthetic tests cannot establish real permissions, provider licensing, upload expiry, or production effects.
 
 ## Update dependencies deliberately
 
@@ -89,7 +99,9 @@ Do not claim a vulnerability check passed unless it completed for the code being
 
 ## Documentation, banner, and demos
 
-Public `docs/` content teaches installation, authentication, setup-first quick start, workflows, commands, metadata fields, and machine output. Keep research/comparisons in design documents, issues, or PRs. Keep README brief and make the unofficial status visible.
+Public `docs/` content teaches installation, authentication, setup-first quick start, workflows, commands, metadata fields, and machine output. Keep README brief and make the unofficial status visible. This guide holds current architecture, contract maintenance, and contributor workflows; AGENTS.md holds working rules.
+
+Keep change-specific audits, AI review prompts/reports, comparisons, transition plans, branch status, and completed validation logs in issues or pull requests. Extract lasting decisions into the relevant maintained documentation rather than committing a parallel status packet. Keep executable evidence—contract fixtures, behavior tests, and demo sources—in the repository.
 
 The read-only documentation videos use mock fixtures:
 

@@ -1,6 +1,6 @@
 # Repository Instructions
 
-This repository builds `pccli`, an unofficial Go CLI for Planning Center. Design a reliable user journey rather than a thin wrapper around API endpoints. There is no backward-compatibility requirement for the replaced song-library interface: use the current contract directly, without legacy commands, environment aliases, or serializers.
+This repository builds `pccli`, an unofficial Go CLI for Planning Center. Design a reliable user journey rather than a thin wrapper around API endpoints. Use one documented command grammar, environment vocabulary, and machine-output contract, without parallel legacy interfaces.
 
 ## Before changing behavior
 
@@ -54,6 +54,6 @@ This repository builds `pccli`, an unofficial Go CLI for Planning Center. Design
 ## Documentation and demos
 
 - Update user docs in the same change as user-visible behavior. Keep README concise; public Pages content under `docs/` covers installation, authentication, setup-first quick start, workflows, fields, and command reference. Make the unofficial status clear.
-- Check examples against actual help and mock execution. Keep research trails and architecture rationale out of public product docs.
+- Check examples against actual help and mock execution. Keep current contributor architecture and constraints in DEVELOPER.md. Put change-specific audits, AI review prompts/reports, transition plans, and validation logs in issues or PRs, rather than committed status packets. Keep research trails out of public product docs.
 - Update the affected `scripts/*demo.tape` recordings whenever demonstrated commands change; use the isolated recorder, readable step pauses, and a final hold. Keep page captions and text alternatives synchronized. Record read-only mock journeys unless a stateful mock explicitly supports the demonstrated writes. Generated demos are built from tapes, not edited by hand.
 - For banner changes edit `scripts/banner.ansi`, run `mise run banner`, and build; keep the embedded copy synchronized.
