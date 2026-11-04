@@ -5,78 +5,51 @@ nav_order: 4
 
 # Quick Start
 
-This guide gets pccli installed, authenticated, and verified with a basic Planning Center command.
+pccli is an unofficial Planning Center tool, not built, endorsed, or supported by Planning Center. This guide installs it, configures access, and verifies a basic read.
 
 ## 1. Install
 
 ```sh
 go install github.com/joe--cool/pccli/cmd/pccli@latest
+pccli --version
 ```
 
-## 2. Set Up Access
+You can also use a [release binary](installation.html).
 
-Create a `.env` file with your Planning Center Personal Access Token:
+## 2. Authenticate
+
+Create a [Personal Access Token](https://api.planningcenteronline.com/oauth/applications), then save its values in `~/.pccli/.env`:
 
 ```sh
+mkdir -p ~/.pccli
+$EDITOR ~/.pccli/.env
+```
+
+```dotenv
 PCCLI_CLIENT_ID=your_client_id
 PCCLI_CLIENT_SECRET=your_secret
 ```
 
-The token's Planning Center user must have access to the product data you want to use. For Services song-library commands, confirm that user can view the Services music library in Planning Center.
+See [authentication](authentication.html) for permissions and project-local configuration.
 
-## 3. Confirm pccli Runs
-
-```sh
-pccli
-```
-
-You should see the pccli banner and command help.
-
-## 4. Choose a Product
-
-Planning Center product commands start at the product name:
+## 3. Verify basic access
 
 ```sh
+pccli --help
 pccli services --help
+pccli services songs list --limit 1
 ```
 
-## 5. Verify Planning Center Access
-
-Run a basic read command against Planning Center Services:
-
-```sh
-pccli services songs list
-```
-
-If you know part of a song title, search for it:
-
-```sh
-pccli services songs search "Amazing"
-```
-
-Open one result by exact title or ID:
-
-```sh
-pccli services songs show "Amazing Grace"
-```
-
-## 6. Use JSON for Automation
-
-```sh
-pccli --json services songs list --author "Newton"
-```
-
-JSON output is intended for scripts and repeatable checks. Human output stays compact by default.
-
-## Try Without API Access
-
-Use mock mode for demos and local documentation checks:
+The last command reads Services using your account permissions. An empty result is valid. To try the interface without API access:
 
 ```sh
 PCCLI_MOCK=true pccli services songs list
 ```
 
-## Next Steps
+## Choose your next task
 
-- Manage songs, arrangements, keys, PDFs, and links in [Managing Your Song Library](managing-your-song-library.html).
-- Look up every flag in the [Services music-library command reference](commands.html).
+- [Find and maintain songs, arrangements, keys, files, and tags](managing-your-song-library.html).
+- [Look up a command](commands.html).
+- [Use JSON in a script](commands.html#json-and-errors).
+
+The available product workflow is currently Services song-library management.

@@ -63,7 +63,7 @@ func TestClientReturnsAPIErrorDetails(t *testing.T) {
 	if apiErr.StatusCode != http.StatusForbidden {
 		t.Fatalf("unexpected status: %d", apiErr.StatusCode)
 	}
-	if got := apiErr.Error(); got != "Planning Center API returned HTTP 403: permission denied" {
+	if got := apiErr.Error(); got != "Planning Center API returned HTTP 403" {
 		t.Fatalf("unexpected error string: %q", got)
 	}
 }
@@ -85,7 +85,7 @@ func TestClientRetriesGetAfterRateLimit(t *testing.T) {
 		Timeout:   time.Second,
 		UserAgent: "pccli-test",
 	}, transport)
-	client.sleep = func(time.Duration) {}
+	client.wait = func(context.Context, time.Duration) error { return nil }
 
 	var response Collection[struct{}]
 	if err := client.Get(context.Background(), "/services/v2/songs", nil, &response); err != nil {

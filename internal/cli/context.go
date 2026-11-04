@@ -19,11 +19,3 @@ func appFrom(cmd *cobra.Command) *app {
 	value, _ := cmd.Context().Value(appKey{}).(*app)
 	return value
 }
-
-func mustApp(cmd *cobra.Command) *app {
-	app := appFrom(cmd.Root())
-	if app == nil {
-		panic("application was not initialized")
-	}
-	return app
-}

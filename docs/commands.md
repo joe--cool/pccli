@@ -5,290 +5,203 @@ nav_order: 6
 
 # Services Music Library Commands
 
-Services commands use this shape:
+pccli is unofficial and is not built, endorsed, or supported by Planning Center. Commands follow `pccli services RESOURCE ACTION`. Use `--help` on any command for its installed flags.
 
-```sh
-pccli services RESOURCE ACTION
-```
+## Shared behavior
 
-## Global Flags
-
-| Flag | Description |
+| Option or rule | Behavior |
 | --- | --- |
-| `--json` | Write machine-readable JSON. |
-| `-h`, `--help` | Show help. |
-| `-v`, `--version` | Show the pccli version. |
+| `--json` | Versioned machine output; supported on every data command |
+| `--help`, `-h` | Help without credentials |
+| `--version`, `-v` | Root version without credentials |
+| `--visibility visible\|hidden\|all` | Select existing songs; default `visible`, including parent lookups and direct IDs |
+| `--include-archived` | Explicitly include archived arrangements where arrangement context is available |
+| `--limit N` | Total results to display, default 25; positive integer |
+| `--all` | Return the complete selected collection; conflicts with an explicit `--limit` |
+| `--yes` | Required for every delete; never bypasses target validation |
 
-## Song Arguments
+### IDs, names, and parents
 
-Commands that accept `SONG` can use a Planning Center song ID or a title/search term.
+Targets accept a positive decimal ID or name. Use `id:1001` to force an ID and `name:1001` to force an exact numeric name. `name:Amazing Grace` forces an exact name. Exact name matching is case-insensitive. Read targets prefer an exact match, then accept a unique literal partial match. Writes and parent flags require IDs or exact names. Duplicate exact names are ambiguous; use the displayed IDs to choose.
 
-For read-only commands, a search term is accepted when it resolves to one clear song. For write commands, use a song ID or the exact song title shown by search results. Exact title matching in pccli is case-insensitive.
+Search uses literal text, not API wildcard syntax. `%` and `_` are ordinary characters. `songs list --title TEXT` is an exact case-insensitive filter; `--search TEXT` is a literal contains filter. They conflict with each other.
 
-Hidden songs are excluded from song lookup and song ID checks by default. Use `--hidden` on supported commands when you intentionally want to work with hidden songs.
+Arrangements require `--song SONG`. Keys require `--song SONG --arrangement ARRANGEMENT`. There is no automatic first/default arrangement. Attachment scope is a song, optionally an arrangement, optionally a key; `--key` requires `--arrangement`. Parent flags use the same visibility and ambiguity rules across follow-up commands.
 
-If multiple songs share the same title, pccli will not guess. Use `songs search` to compare the ID, author, and CCLI number, then run the follow-up command with the song ID.
+Lookups traverse all candidate pages before choosing a target. Display limits never limit identity resolution. Page failures, malformed records, or ambiguous matches stop the operation.
 
-```sh
-pccli services songs search "Amazing"
-pccli services songs show "Amazing Grace"
-pccli services songs show 1001
-pccli services songs show "Lamb of God"
+## Songs
+
+```text
+pccli services songs list [filters] [--limit N | --all]
+pccli services songs show SONG [--arrangement ARRANGEMENT]
+pccli services songs create --title TITLE [metadata]
+pccli services songs create --ccli NUMBER [metadata]
+pccli services songs update SONG [metadata] [--visibility STATE]
+pccli services songs delete SONG --yes [--visibility STATE]
+pccli services songs schedules SONG [--limit N | --all]
+pccli services songs last-scheduled SONG --service-type ID [--limit N | --all]
 ```
 
-## Arrangement and Key Arguments
+List filters:
 
-Commands that accept `ARRANGEMENT` or `KEY` can use the Planning Center ID or the exact name. Read-only arrangement and key commands also accept a unique partial name.
-
-When an arrangement is optional, pccli uses the default arrangement: an arrangement named `Default` when one exists, otherwise the first arrangement returned by Planning Center.
-
-## `pccli services songs list`
-
-Search songs in the Services music library.
-
-```sh
-pccli services songs list [flags]
-```
-
-| Flag | Description |
+| Flag | Meaning |
 | --- | --- |
-| `-q`, `--search <value>` | Search song titles using a contains match. |
-| `--title <value>` | Filter by title. Supports Planning Center wildcard values such as `Amazing%`. |
-| `--author <value>` | Filter by author. Supports wildcard values. |
-| `--ccli <number>` | Filter by CCLI number. |
-| `--hidden` | Show only hidden songs. |
-| `--key <value>` | Filter by key, such as `G` or `Cm`. |
-| `--meter <value>` | Filter by meter, such as `4/4`. |
-| `--themes <value>` | Filter by themes. |
-| `--order <value>` | Planning Center order value, such as `title` or `-updated_at`. |
-| `--limit <number>` | Number of songs to fetch. Default: `25`. |
+| `--search TEXT`, `-q TEXT` | Literal title contains match |
+| `--title TEXT` | Literal exact title |
+| `--author TEXT` | Exact case-insensitive author |
+| `--ccli NUMBER` | Positive CCLI number |
+| `--themes TEXT` | Exact case-insensitive themes text |
+| `--order FIELD` | `title`, `created_at`, `updated_at`, or `last_scheduled_at`; prefix `-` to reverse |
+| `--visibility STATE` | `visible`, `hidden`, or `all` |
 
-## `pccli services songs search`
+`last-scheduled` requires a positive `--service-type ID` because Planning Center schedules the same song within different service types.
 
-Search song titles and show matching IDs for follow-up commands.
+Show gives song metadata and an arrangement overview. Only `--arrangement` expands a selected arrangement and its keys. Empty related collections succeed; an explicitly requested missing target fails. Use `--include-archived` to include archived versions.
+
+Create requires `--title` or `--ccli`. With CCLI alone, pccli uses Planning Center's documented title-based metadata import. Song metadata flags are listed in the [field reference](song-fields.html#songs).
+
+Visibility selects the existing record; `--hidden` changes its state:
 
 ```sh
-pccli services songs search QUERY [flags]
+pccli services songs update 1001 --hidden=true
+pccli services songs update 1001 --visibility hidden --hidden=false
 ```
 
-| Flag | Description |
+## Arrangements
+
+```text
+pccli services arrangements list --song SONG [--limit N | --all]
+pccli services arrangements show ARRANGEMENT --song SONG
+pccli services arrangements create --song SONG --name NAME [metadata]
+pccli services arrangements update ARRANGEMENT --song SONG [metadata]
+pccli services arrangements delete ARRANGEMENT --song SONG --yes
+pccli services arrangements archive ARRANGEMENT --song SONG
+pccli services arrangements unarchive ARRANGEMENT --song SONG --include-archived
+pccli services arrangements sections ARRANGEMENT --song SONG
+```
+
+Use `--include-archived` to select archived versions explicitly; ordinary lists and lookups exclude them. All commands accept song visibility selection. `sections` reads the sections derived from a chord chart; `--sequence` changes the order of full section labels.
+
+The [arrangement field reference](song-fields.html#arrangements) covers chart text, pitch, tempo, notes, sequence, print settings, and provider import fields. Chart pitch uses `--chart-key`; `--key` selects a key record only in attachment scope.
+
+## Keys
+
+```text
+pccli services keys list --song SONG --arrangement ARRANGEMENT [--limit N | --all]
+pccli services keys show KEY --song SONG --arrangement ARRANGEMENT
+pccli services keys create --song SONG --arrangement ARRANGEMENT --name NAME --start PITCH [metadata]
+pccli services keys update KEY --song SONG --arrangement ARRANGEMENT [metadata]
+pccli services keys delete KEY --song SONG --arrangement ARRANGEMENT --yes
+```
+
+Starting and ending pitches use `--start` and `--end`. On create, omitted `--end` defaults to `--start`. All commands accept `--visibility` and `--include-archived`. See [key fields](song-fields.html#keys) for alternate-key JSON and provider imports.
+
+## Attachments
+
+```text
+pccli services attachments list --song SONG [--arrangement ARRANGEMENT [--key KEY]] [--limit N | --all]
+pccli services attachments show ATTACHMENT --song SONG [--arrangement ARRANGEMENT [--key KEY]]
+pccli services attachments add --song SONG [--arrangement ARRANGEMENT [--key KEY]] SOURCE [metadata]
+pccli services attachments update ATTACHMENT --song SONG [--arrangement ARRANGEMENT [--key KEY]] [metadata]
+pccli services attachments delete ATTACHMENT --song SONG [--arrangement ARRANGEMENT [--key KEY]] --yes
+```
+
+Every operation uses the selected association; a song list does not imply all child attachments. Attachment targets use an ID or filename. Use IDs for repeated filenames.
+
+| Flag | Add | Update |
+| --- | --- | --- |
+| `--file PATH` | Upload a local regular file | Use `--upload-id` or `--content` for replacement |
+| `--upload-id UUID` | Attach an existing upload receipt | Replace with an existing upload receipt |
+| `--url URL` | HTTP(S) link without URL credentials | Replace or explicitly clear link |
+| `--content TEXT` | Inline content | Replace or explicitly clear content |
+| `--filename TEXT` | Destination filename | Change filename |
+| `--attachment-type-ids TEXT` | File classification IDs | Replace classification IDs |
+| `--page-order TEXT` | Planning Center page order string | Change page order |
+| `--song-part TEXT` | Song section label | Change song section label |
+| `--item-details=true\|false` | Set item-details import state | Change item-details import state |
+
+Add requires exactly one nonempty source: `--file`, `--upload-id`, `--url`, or `--content`. Update accepts at most one nonempty replacement source. Both accept `--visibility` and `--include-archived` for parent selection.
+
+Attachment updates return `outcome: verified` when requested values can be checked through readback. `outcome: accepted` and `unverified_fields` identify values the API accepted but does not expose for confirmation. Inspect the attachment in Planning Center when those effects matter.
+
+File upload and attachment creation are separate stages. If a later stage fails, keep the reported upload receipt, expiry, destination, and outcome. A rejection differs from an unknown result: inspect the destination before retrying an unknown result. Reuse `--upload-id` only after confirming that the attachment was not created; do not upload the file again automatically.
+
+## Tags and catalogs
+
+```text
+pccli services tags list [--song SONG [--arrangement ARRANGEMENT]] [--limit N | --all]
+pccli services tags replace --song SONG [--arrangement ARRANGEMENT] --tags TAG,TAG
+pccli services tags replace --song SONG [--arrangement ARRANGEMENT] --clear
+pccli services tag-groups list [--limit N | --all]
+pccli services attachment-types list [--limit N | --all]
+```
+
+Unscoped `tags list` discovers tags for songs and arrangements; a scope lists assignments. `replace` sends the **entire desired tag set**, not an addition. `--clear` explicitly removes assignments and conflicts with `--tags`. Tags are selected by ID or exact case-insensitive name. Duplicate names across groups require IDs. Required groups and single-selection rules are enforced.
+
+Tags belong to songs or arrangements, not key records. Scoped tag commands accept `--visibility` and `--include-archived`. Tag groups and attachment types are read-only catalogs. Song `--themes` is text metadata and is separate from relational tags.
+
+## JSON and errors
+
+{% include terminal-demo.html name="json-demo" title="Export songs for a script" caption="Inspect the JSON envelope and completeness, then extract song IDs and titles with jq." %}
+
+<details markdown="1">
+<summary>Read the JSON export steps</summary>
+
+These examples use Bash and require [jq](https://jqlang.org/). Enable pipeline error propagation first:
+
+```sh
+set -o pipefail
+pccli --json services songs list --all | jq '{schema, meta}'
+pccli --json services songs list --all | jq '.data[] | {id, title}'
+```
+
+The mock export reports schema **pccli/v1**, **returned: 2**, **has_more: false**, and **complete: true**. The second command extracts **1001 / Amazing Grace** and **1002 / Great Is Thy Faithfulness**. Hidden songs remain excluded by default even with `--all`. In automation, stop on a nonzero pipeline status before using the result; `jq` succeeding alone does not establish that pccli succeeded.
+
+</details>
+
+Successful data commands write one envelope to stdout:
+
+```json
+{
+  "schema": "pccli/v1",
+  "data": [],
+  "meta": {"returned": 0, "has_more": false, "complete": true}
+}
+```
+
+List `meta` describes the returned selection. `has_more: true` and `complete: false` mean the display limit omitted results; use `--all` to export all selected results. Detail results carry completeness metadata for requested child collections. An unrequested song expansion is `null`, distinct from a requested empty array. IDs remain strings; machine output retains false, zero, and empty values.
+
+```sh
+pccli --json services songs list --all | jq '.data[] | {id, title}'
+pccli --json services songs show 1001 --arrangement 2001
+```
+
+Errors go to stderr; JSON errors use the same schema version with an `error` object containing a stable `code`, `message`, and relevant candidates or recovery information. A failure before publication emits no success result to stdout. A broken output pipe can still leave partial bytes; check the exit code before using an export.
+
+| Exit | Meaning |
 | --- | --- |
-| `--hidden` | Search hidden songs instead of visible songs. |
-| `--limit <number>` | Number of songs to fetch. Default: `10`. |
+| `0` | Success |
+| `1` | Operational, incomplete, verification, or unknown-outcome failure |
+| `2` | Invalid command, arguments, or values |
+| `130` | Interrupt or cancellation |
+| `143` | Termination signal |
 
-## `pccli services songs show`
+Never treat a write error as permission to replay it automatically. The request may have reached Planning Center even when its response was lost.
 
-Show details for one song, including its arrangements and the selected arrangement's keys.
+## Environment variables
 
-```sh
-pccli services songs show SONG
-pccli services songs show SONG ARRANGEMENT
-```
-
-| Flag | Description |
+| Variable | Purpose / default |
 | --- | --- |
-| `--hidden` | Show a hidden song and include hidden status in the output. |
+| `PCCLI_CLIENT_ID` | Personal Access Token client ID |
+| `PCCLI_CLIENT_SECRET` | Personal Access Token secret |
+| `PCCLI_MOCK` | `true` uses local fixtures; default `false` |
+| `PCCLI_MOCK_FIXTURE` | Default `testdata/mocks/services-library.json`, relative to the working directory |
+| `PCCLI_BASE_URL` | API origin; default `https://api.planningcenteronline.com` |
+| `PCCLI_UPLOAD_URL` | Upload origin; default `https://upload.planningcenteronline.com` |
+| `PCCLI_TIMEOUT` | Positive Go duration per HTTP request; default `30s` |
+| `PCCLI_COLOR` | `auto`, `always`, or `never`; default `auto` |
+| `PCCLI_USER_AGENT` | HTTP user agent; default `pccli/dev` |
+| `NO_COLOR` | Nonempty disables automatic color; explicit `always` wins |
 
-## `pccli services songs create`
-
-Create a song in the Services music library.
-
-```sh
-pccli services songs create --title "Amazing Grace" --author "John Newton" --ccli 22025
-```
-
-If you only know the CCLI number, `--ccli` can be used without `--title`; pccli sends the CCLI number in the Planning Center-supported metadata lookup field.
-
-| Flag | Description |
-| --- | --- |
-| `--title <value>` | Song title. |
-| `--author <value>` | Song author. |
-| `--admin <value>` | Song administrator. |
-| `--ccli <number>` | CCLI number. |
-| `--copyright <value>` | Copyright text. |
-| `--hidden` | Create the song as hidden. |
-| `--themes <value>` | Themes or tags text. |
-
-## `pccli services songs update`
-
-Update song metadata.
-
-```sh
-pccli services songs update SONG --themes "Grace, Hymn"
-```
-
-The update command accepts the same metadata flags as `create`.
-
-## `pccli services songs delete`
-
-Delete a song. Use an ID or exact title and pass `--yes` to make deletion explicit.
-
-```sh
-pccli services songs delete SONG --yes
-```
-
-| Flag | Description |
-| --- | --- |
-| `--hidden` | Delete a hidden song. |
-| `--yes` | Confirm deletion. |
-
-## `pccli services songs arrangements`
-
-List arrangements for one song, or show one arrangement with its keys.
-
-```sh
-pccli services songs arrangements SONG [flags]
-pccli services songs arrangements SONG ARRANGEMENT
-```
-
-| Flag | Description |
-| --- | --- |
-| `--hidden` | Look up arrangements for a hidden song. |
-| `--limit <number>` | Number of arrangements to fetch. Default: `25`. |
-
-### `pccli services songs arrangements create`
-
-Create an arrangement for a song.
-
-```sh
-pccli services songs arrangements create SONG --name "Full Band" --key G --bpm 72 --meter 4/4 --length 4:15
-```
-
-### `pccli services songs arrangements update`
-
-Update arrangement metadata. Use an arrangement ID or exact arrangement name.
-
-```sh
-pccli services songs arrangements update SONG ARRANGEMENT --bpm 74
-```
-
-### `pccli services songs arrangements delete`
-
-Delete an arrangement. Use an arrangement ID or exact arrangement name and pass `--yes`.
-
-```sh
-pccli services songs arrangements delete SONG ARRANGEMENT --yes
-```
-
-Arrangement create and update flags:
-
-| Flag | Description |
-| --- | --- |
-| `--name <value>` | Arrangement name. Required for create. |
-| `--key <value>` | Chord chart key, such as `G` or `Cm`. |
-| `--bpm <number>` | Beats per minute. |
-| `--meter <value>` | Meter, such as `4/4`. |
-| `--length <value>` | Length as seconds or `m:ss`. |
-| `--lyrics-enabled` | Enable lyrics for the arrangement. |
-| `--notes <value>` | Arrangement notes. |
-| `--sequence <values>` | Comma-separated sequence, such as `V1,V2,C`. |
-| `--hidden` | Create, update, or delete the arrangement on a hidden song. |
-
-## `pccli services songs keys`
-
-List available keys for an arrangement. If `ARRANGEMENT` is omitted, pccli uses the default arrangement.
-
-```sh
-pccli services songs keys SONG [ARRANGEMENT] [flags]
-```
-
-| Flag | Description |
-| --- | --- |
-| `--hidden` | Look up keys for a hidden song. |
-| `--limit <number>` | Number of keys to fetch. Default: `25`. |
-
-### `pccli services songs keys create`
-
-Create a key for an arrangement. If `ARRANGEMENT` is omitted, pccli uses the default arrangement.
-
-```sh
-pccli services songs keys create SONG --name "Female Lead" --start Bb
-pccli services songs keys create SONG ARRANGEMENT --name "Female Lead" --start Bb --end Bb
-```
-
-### `pccli services songs keys update`
-
-Update key metadata. Use arrangement and key IDs or exact names.
-
-```sh
-pccli services songs keys update SONG ARRANGEMENT KEY --start A --end A
-```
-
-### `pccli services songs keys delete`
-
-Delete a key. Use arrangement and key IDs or exact names and pass `--yes`.
-
-```sh
-pccli services songs keys delete SONG ARRANGEMENT KEY --yes
-```
-
-Key create and update flags:
-
-| Flag | Description |
-| --- | --- |
-| `--name <value>` | Key name. Required for create. |
-| `--start <value>` | Starting key, such as `G` or `Cm`. Required for create. |
-| `--end <value>` | Ending key. Defaults to the starting key on create. |
-| `--hidden` | Create, update, or delete the key on a hidden song. |
-
-## `pccli services songs attachments`
-
-List song, arrangement, or key attachments.
-
-```sh
-pccli services songs attachments SONG [flags]
-pccli services songs attachments SONG --arrangement ARRANGEMENT
-pccli services songs attachments SONG --arrangement ARRANGEMENT --key KEY
-```
-
-| Flag | Description |
-| --- | --- |
-| `--arrangement <value>` | Scope attachments to an arrangement ID or exact name. |
-| `--key <value>` | Scope attachments to a key ID or exact name. Requires `--arrangement`. |
-| `--hidden` | Look up attachments for a hidden song. |
-| `--filename <value>` | Filter by filename. |
-| `--type <value>` | Filter by Planning Center attachment type. |
-| `--limit <number>` | Number of attachments to fetch. Default: `25`. |
-
-## `pccli services songs attach`
-
-Attach a file, Planning Center upload UUID, link, or inline content to a song. Add `--arrangement` and `--key` when the attachment belongs to a specific arrangement or key.
-
-```sh
-pccli services songs attach SONG --file ./lead-sheet.pdf
-pccli services songs attach SONG --url "https://example.com/rehearsal-track"
-pccli services songs attach SONG --upload-id us1-16207df7-b6cc-4abe-ca1a-306c6f7e423d
-```
-
-| Flag | Description |
-| --- | --- |
-| `--file <path>` | Upload and attach a local file such as a PDF. |
-| `--upload-id <uuid>` | Attach an existing Planning Center upload UUID. |
-| `--url <url>` | Attach a remote link. |
-| `--content <value>` | Attach inline attachment content. |
-| `--filename <value>` | Filename to show in Planning Center. |
-| `--attachment-type-ids <ids>` | Comma-separated Planning Center attachment type IDs. |
-| `--item-details` | Import this attachment to item details. |
-| `--page-order <value>` | Planning Center page order value. |
-| `--song-part <value>` | Song part label for generated charts. |
-| `--arrangement <value>` | Scope attachment to an arrangement ID or exact name. |
-| `--key <value>` | Scope attachment to a key ID or exact name. Requires `--arrangement`. |
-| `--hidden` | Attach to a hidden song. |
-
-## Environment Variables
-
-| Variable | Description |
-| --- | --- |
-| `PCCLI_CLIENT_ID` | Planning Center Personal Access Token client ID. |
-| `PCCLI_CLIENT_SECRET` | Planning Center Personal Access Token secret. |
-| `PCCLI_MOCK` | Use local mock responses when set to `true`. |
-| `PCCLI_MOCK_FIXTURE` | Path to the mock fixture file. |
-| `PCCLI_BASE_URL` | Planning Center API base URL. |
-| `PCCLI_UPLOAD_URL` | Planning Center file upload base URL. |
-| `PCCLI_TIMEOUT` | HTTP request timeout. Default: `30s`. |
-| `PCCLI_COLOR` | Color mode: `auto`, `always`, or `never`. |
-| `NO_COLOR` | Disable color when `PCCLI_COLOR` is not `always`. |
-
-## Config File Loading
-
-pccli reads configuration from shell environment variables first, then `.env` in the current directory, then `~/.pccli/.env`, then built-in defaults.
+Endpoint overrides must be HTTP(S) origins without credentials, path, query, or fragment. Precedence is shell environment, local `.env`, `~/.pccli/.env`, then defaults. No legacy environment aliases are supported.

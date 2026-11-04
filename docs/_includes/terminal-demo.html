@@ -1,0 +1,7 @@
+<figure class="demo-figure">
+  <video class="terminal-demo" controls playsinline preload="none" width="1100" height="680" poster="{{ '/assets/' | append: include.name | append: '-poster.png' | relative_url }}" aria-label="{{ include.title | escape }}" aria-describedby="{{ include.name }}-description">
+    <source src="{{ '/assets/' | append: include.name | append: '.mp4' | relative_url }}" type="video/mp4">
+    <p><a href="{{ '/assets/' | append: include.name | append: '.mp4' | relative_url }}">Download {{ include.title | escape }}</a>, or read the steps below.</p>
+  </video>
+  <figcaption id="{{ include.name }}-description">{{ include.caption | escape }} Silent mock recording. Play, pause, or scrub at your own pace; playback stops at the end.</figcaption>
+</figure>

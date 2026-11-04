@@ -18,5 +18,5 @@ tidy:
 demo:
 	PCCLI_MOCK=true go run ./cmd/pccli services songs list
 
-vhs: build
-	PATH="$(PWD)/bin:$(PATH)" vhs scripts/demo.tape
+vhs:
+	sh scripts/record-demos.sh

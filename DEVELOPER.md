@@ -1,8 +1,8 @@
 # Developer Guide
 
-## Tooling
+## Start locally
 
-Use Go `1.26.4` or newer patch releases in the same major/minor line. `.mise.toml` pins the expected toolchain and common release/demo tools:
+Install the exact tools pinned in `.mise.toml`: Go 1.27.3, golangci-lint, GoReleaser, and VHS.
 
 ```sh
 mise install
@@ -10,98 +10,132 @@ mise run test
 mise run build
 ```
 
-The Makefile mirrors the common commands for contributors who do not use mise.
-
-## Project Shape
-
-- `cmd/pccli`: executable entrypoint.
-- `internal/cli`: Cobra command tree and command-specific behavior.
-- `internal/config`: dotenv and environment configuration.
-- `internal/planningcenter`: Planning Center JSON-API HTTP client.
-- `internal/services`: Services-domain use cases.
-- `internal/output`: JSON and terminal rendering.
-- `testdata/mocks`: deterministic mock API responses.
-- `scripts/banner.ansi`: source for the banner asset.
-- `internal/cli/banner.ansi`: embedded copy used by the Go binary.
-
-## Dependencies
-
-Use maintained libraries for solved problems. Current choices:
-
-- Cobra for subcommands and flags.
-- Viper plus godotenv for env/config loading.
-- Charmbracelet Lip Gloss for terminal-aware styling and tables.
-- GoReleaser for cross-platform release binaries.
-- VHS for terminal demos.
-
-Before adding a dependency or building custom infrastructure, check the current ecosystem and use the latest compatible release. Run:
+The Makefile mirrors test, build, lint, banner, demo, and VHS tasks. Without mise, use the pinned Go toolchain and run:
 
 ```sh
-go get -u ./...
-go mod tidy
 go test ./...
+go vet ./...
+go build -o bin/pccli ./cmd/pccli
 ```
 
-## Releases
+Read [AGENTS.md](AGENTS.md) for the behavioral rules and the [command reference](docs/commands.md) for the public interface.
 
-Use Conventional Commits for commit messages. Release Please reads the commit history, maintains the release PR, updates `CHANGELOG.md`, creates the version tag, and publishes the GitHub release. When a release is created, the same workflow runs GoReleaser to attach cross-platform binaries and checksums.
+## Follow a request through the code
 
-For best GitHub Actions behavior, configure a `RELEASE_PLEASE_TOKEN` repository secret with a fine-grained PAT that can write contents and pull requests. The workflow falls back to `GITHUB_TOKEN`, but GitHub suppresses some follow-up workflow triggers from events created with that token.
+pccli supports Services song-library maintenance: songs, arrangements, keys, attachments, tags, and scheduling context. Plans, teams, people, and scheduling administration are outside this interface. Keep commands product-first and resource-first, with explicit parents and consistent actions.
 
-Use the standard SemVer mapping:
+| Location | Responsibility |
+| --- | --- |
+| `cmd/pccli` | Entry point, signal context, process exit |
+| `internal/cli` | Cobra resources/actions, explicit flag presence, lazy dependency construction, product views, machine envelope and errors |
+| `internal/services` | Typed product inputs/models, Services adapter, pagination, identity/scope/visibility policy, workflows, mutation verification and recovery |
+| `internal/planningcenter` | HTTP Basic Auth, origin/redirect checks, selected API version, JSON:API envelopes, bounded GET retries and streamed multipart upload |
+| `internal/config` | Environment/dotenv precedence and validation |
+| `internal/output` | Terminal-safe text, display-width formatting, styling, tables, raw JSON encoder |
+| `testdata/mocks` | Static deterministic mock routes for reads and demos |
 
-1. `fix:` for patch releases.
-2. `feat:` for minor releases.
-3. `feat!:` or a `BREAKING CHANGE:` footer for major releases.
+The CLI depends on Services workflows, which depend on the typed adapter and shared HTTP transport. Keep selection and mutation policy out of Cobra; keep endpoint mechanics out of command constructors. The small HTTP interface is a test seam, not a mirrored public workflow API.
 
-Do not hand-edit generated release PR content unless correcting release notes before merge.
+The machine contract is `pccli/v1`. List metadata distinguishes returned limits from complete selections; detail output distinguishes requested empty components from unrequested expansions. JSON is staged before publication, and output failures remain errors. Human output suppresses default noise while preserving useful metadata and explicit IDs.
 
-## AI-Assisted Contributions
+For `--json --all`, Services walkers retain one page plus O(N) ID/hash metadata for consistency checks. Explicit song sorting uses bounded private disk runs. The CLI stages the encoded result in a private temporary file and publishes it only after traversal succeeds. Walk callbacks can run before a later failure; a new caller must preserve that staging boundary. Propagate cancellation and clean up temporary files. A failure during the final stdout copy can still leave partial bytes and must exit nonzero.
 
-AI tools are welcome, but contributors are responsible for the code they submit. Please do not open PRs that pass unverified AI output on to maintainers to debug or validate. Before submitting, read the generated changes, confirm them against the relevant API docs and surrounding code, run the tests, and be prepared to explain the behavior.
+## Preserve operator intent
 
-## Feature Standard
+Typed pointer fields preserve omitted versus explicitly supplied mutation values. CLI binders use flag presence, not zero-value checks. Validate the entire input before lookup or upload. API field types can be surprising: alternate keys are a string containing JSON, import fields are strings, and some accepted action fields have no readable equivalent.
 
-Each feature starts with a user journey, not an endpoint list. For Planning Center work, confirm the current official docs and relevant community experience before choosing the command shape. Decide whether the work belongs under an existing domain command or needs a new subcommand group.
+Resolve names from complete candidate sets. Page failure, changed filters, malformed data, ambiguity, inconsistent visibility, or contradictory scope must stop the workflow before side effects. Display limits do not cap identity resolution. Revalidate scoped destinations before attaching an upload receipt. Do not automatically replay writes after an unknown result. Multi-request workflows are not remote transactions: pagination does not create a snapshot, and destination rechecks cannot eliminate concurrent changes.
 
-## Command Design
+Services version `2018-11-01` is explicit. Verify each changed capability against the current official documentation; do not turn a read association into a write promise without evidence. Separate API acceptance, readable value verification, and asynchronous provider completion. Attachment updates can accept write-only `song_part` and attachment-type fields without confirming their effects through readback. CCLI-only song creation can return a resolved title rather than the numeric lookup string; verify the documented import outcome instead of requiring literal title equality.
 
-Follow the shape used by mature product-oriented CLIs: start with the Planning Center product, then keep workflows resource-first and shallow. Prefer `pccli services songs list` over deeper API-shaped paths like `pccli services library songs list`.
+## Maintain API capability evidence
 
-Use this decision order:
+[testdata/contracts/services-song-library.json](testdata/contracts/services-song-library.json) is a versioned test fixture, derived from the official Services OpenAPI document linked in its `source` field. It records assignable Song, Arrangement, Key, and Attachment create/update fields, wire types, CLI flags, API version, and retrieval date. Keep that provenance: it explains the contract being tested.
 
-1. Start with the Planning Center product: `services`, `people`, `giving`.
-2. Add the user-facing resource or workflow noun: `songs`, `plans`, `donors`.
-3. Put the action next: `list`, `show`, `create`, `update`, `archive`.
-4. Use flags for filters and context instead of extra hierarchy.
-5. Add more hierarchy only when users naturally distinguish the workflows that way.
-6. Keep aliases out until there is released usage to preserve.
+When adding or changing an assignable field, independently check the upstream schema and endpoint, then update the typed input, flag binding, fixture, user field reference, and wire/readback tests together. [coverage_test.go](internal/cli/coverage_test.go) compares the inventory with CLI flag types and typed Song/Arrangement/Key inputs; changing the fixture merely to match the implementation would defeat the check. The field inventory supplements endpoint and lifecycle tests; it does not prove account permissions or provider completion.
 
-Default to read-only operations first. For write operations, require explicit flags for destructive changes, support `--json`, and design for non-interactive automation before adding prompts.
+## Test the contract
 
-Branding belongs on the root intro/help screen and in documentation demos. Do not print the banner from resource commands, JSON output, scripts, or errors; command output should stay composable.
+```sh
+go test ./...
+go vet ./...
+go build -o bin/pccli ./cmd/pccli
+```
 
-When changing the banner, edit `scripts/banner.ansi`, then run:
+Tests should prove decisions and wire behavior: method, path, filters, pagination, field presence/types, version, Basic Auth, scoped parent checks, response validation, readback, upload recovery, cancellation, and no automatic write replay. Assert **zero writes/uploads** on incomplete or ambiguous selection. Include malformed/null attributes and duplicate IDs, not only happy-path fixture data.
+
+CLI tests cover both plain and JSON results, parse errors before credential loading, stdout/stderr separation, exit codes, empty collections, false/zero values, terminal controls, and writer failures. Update affected command examples in the same change. Coverage reports can guide inspection, but a percentage is not proof that a workflow is safe. [workflow_journeys_test.go](internal/cli/workflow_journeys_test.go) exercises stateful plain/JSON lifecycles, including all three attachment scopes; [export_test.go](internal/services/export_test.go) covers paging, sorting, payload retention, cancellation, and temporary-file cleanup. Use `go test -race ./...` when changing shared state or cancellation behavior.
+
+Run examples with isolated configuration when testing credential-free behavior. Never inspect real dotenv secrets. For a mock read from the repository:
+
+```sh
+PCCLI_MOCK=true go run ./cmd/pccli services songs list
+PCCLI_MOCK=true go run ./cmd/pccli --json services arrangements list --song 1001 --all
+```
+
+Mock mode uses the configured fixture relative to the working directory. Static routes are not a stateful Planning Center emulator and cannot establish real provider imports, permissions, or mutation effects. Report request-contract and mock verification separately from authorized live validation. Live acceptance requires an explicitly authorized account and disposable records; synthetic tests cannot establish real permissions, provider licensing, upload expiry, or production effects.
+
+## Update dependencies deliberately
+
+Use Cobra for commands, Viper/godotenv for configuration, Lip Gloss v2 for styling/tables, and Go's HTTP/JSON/context packages for transport mechanics. Prefer a maintained library over custom infrastructure when it materially improves the workflow.
+
+Before changing a dependency, inspect its current stable release, Go requirement, release notes, and major-version import path. Update selected modules deliberately, for example:
+
+```sh
+go list -m -u all
+go get charm.land/lipgloss/v2@VERSION
+go mod tidy
+go test ./...
+go vet ./...
+```
+
+Replace `VERSION` with the verified intended release. Review `go.mod` and `go.sum`; understand new transitive modules and remove unused dependencies. Use the official Go download metadata and support policy when changing the Go pin, then update `.mise.toml`, `go.mod`, and relevant docs together. Keep release/demo/lint tool versions reproducible. A vulnerability scan supplements testing:
+
+```sh
+go run golang.org/x/vuln/cmd/govulncheck@latest ./...
+```
+
+Do not claim a vulnerability check passed unless it completed for the code being reviewed.
+
+## Documentation, banner, and demos
+
+Public `docs/` content teaches installation, authentication, setup-first quick start, workflows, commands, metadata fields, and machine output. Keep README brief and make the unofficial status visible. This guide holds current architecture, contract maintenance, and contributor workflows; AGENTS.md holds working rules.
+
+Keep change-specific audits, AI review prompts/reports, comparisons, transition plans, branch status, and completed validation logs in issues or pull requests. Extract lasting decisions into the relevant maintained documentation rather than committing a parallel status packet. Keep executable evidence—contract fixtures, behavior tests, and demo sources—in the repository.
+
+The read-only documentation videos use mock fixtures:
+
+```sh
+mise run vhs
+```
+
+This builds the binary and runs `scripts/record-demos.sh`. The recorder copies only the binary, tapes, and mock fixture into a temporary directory, with an empty home and a clean environment. It publishes the MP4/poster set only after all recordings finish. Pages uses the same script with its host-built binary and a network-disabled container built from `scripts/Dockerfile.demos` (pinned VHS plus Debian’s jq package) before building Jekyll. Local VHS needs `ttyd`, FFmpeg, and `jq`; the recorder checks them before starting. The container build uses an empty context, so no checkout or dotenv files are sent as build input.
+
+| Tape | Placement | Teaching goal |
+| --- | --- | --- |
+| `scripts/demo.tape` | Front page | Find a song, understand its versions, select a key |
+| `scripts/attachment-demo.tape` | File-placement workflow | Compare song, arrangement, and key destinations |
+| `scripts/json-demo.tape` | JSON reference | Inspect completeness, then extract fields for scripts |
+
+Keep recordings focused on one journey. Use the shared `demo-settings.tape` for readable type and dimensions. Introduce each step with a short shell comment, hold the command for one second before Enter, and leave small results for 7–10 seconds and denser detail views for 12 seconds. Clear the screen only between completed steps. End with a useful result and a 10-second hold. Include a representative result poster, an accurate caption, and equivalent readable steps on the page.
+
+Embed videos through `docs/_includes/terminal-demo.html`: native controls, no autoplay or looping, and no media preload. This gives readers time to pause, inspect, and replay. The recordings are silent; the page text supplies the same instructions and expected outcomes. MP4s/posters are ignored generated assets, regenerated by Pages. To review locally, record, inspect the posters and result frames, and watch the timing/ending in a browser before committing tape changes.
+
+Do not demonstrate writes with static mock responses that cannot represent changed state. Check every taped command against the current CLI. Never record from a credential-bearing working directory.
+
+The banner source is `scripts/banner.ansi`; the embedded copy is `internal/cli/banner.ansi`. After changing it:
 
 ```sh
 mise run banner
 mise run build
 ```
 
-The generated binary under `bin/` is ignored and should not be committed.
+Do not commit binaries under `bin/` or hand-edit generated demo assets.
 
-## Documentation Standard
+## Review and release
 
-Public documentation lives in `docs/` and is built by GitHub Pages. Treat it like product documentation for CLI users:
+Contributors own the validity of AI-assisted output. Read the diff, explain the behavior and limits, run the appropriate checks, and do not hand maintainers unverified generated changes.
 
-1. Start with the task users are trying to complete.
-2. Keep pages short and navigable: installation, authentication, quick start, and command reference.
-3. Link to official Planning Center docs for Planning Center-owned procedures, such as creating API credentials.
-4. Include runnable commands and expected concepts, not internal research notes.
-5. Do not publish comparisons to other CLIs, research logs, or implementation rationale in `docs/`; keep that in issues, PR notes, or developer guidance.
-6. Make the unofficial status visible anywhere a new user may enter the docs.
-7. Keep terminal demos generated from `scripts/*.tape`; do not hand-edit generated GIFs.
+Use Conventional Commits: `fix:` for corrections, `feat:` for new behavior, and `!` or a `BREAKING CHANGE:` footer for breaking contracts. Release Please maintains the release PR, changelog, tag, and GitHub release; GoReleaser attaches cross-platform binaries and checksums when the release is created. Do not manually rewrite generated release content except to correct release notes before merge.
 
-When command behavior changes, update the command reference and any affected quick-start examples in the same change.
-
-The quick start should stay setup-first: install, authenticate, confirm the CLI runs, then choose a Planning Center product. Do not make one feature area look like the permanent entry point for the whole product.
+The release workflow uses `RELEASE_PLEASE_TOKEN` when configured and otherwise `GITHUB_TOKEN`. Token configuration belongs in repository secrets, never checked-in files or logs.

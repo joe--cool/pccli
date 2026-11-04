@@ -103,7 +103,12 @@
             "has_chord_chart": true,
             "has_chords": true,
             "lyrics_enabled": true,
-            "sequence_short": ["V1", "V2", "V3", "V4"]
+            "sequence_short": [
+              "V1",
+              "V2",
+              "V3",
+              "V4"
+            ]
           }
         },
         {
@@ -118,7 +123,11 @@
             "has_chord_chart": true,
             "has_chords": true,
             "lyrics_enabled": true,
-            "sequence_short": ["V1", "V2", "V4"]
+            "sequence_short": [
+              "V1",
+              "V2",
+              "V4"
+            ]
           }
         }
       ]
@@ -136,7 +145,12 @@
           "has_chord_chart": true,
           "has_chords": true,
           "lyrics_enabled": true,
-          "sequence_short": ["V1", "V2", "V3", "V4"]
+          "sequence_short": [
+            "V1",
+            "V2",
+            "V3",
+            "V4"
+          ]
         }
       }
     },
@@ -151,7 +165,11 @@
           "length": 255,
           "chord_chart_key": "G",
           "lyrics_enabled": true,
-          "sequence_short": ["V1", "V2", "V3"]
+          "sequence_short": [
+            "V1",
+            "V2",
+            "V3"
+          ]
         }
       }
     },
@@ -168,7 +186,12 @@
           "has_chord_chart": true,
           "has_chords": true,
           "lyrics_enabled": true,
-          "sequence_short": ["V1", "V2", "V3", "V4"]
+          "sequence_short": [
+            "V1",
+            "V2",
+            "V3",
+            "V4"
+          ]
         }
       }
     },
@@ -289,6 +312,105 @@
           "content_type": "application/pdf",
           "file_size": 330240,
           "file_upload_identifier": "us1-demo-upload",
+          "downloadable": true,
+          "pco_type": "PDF"
+        }
+      }
+    },
+    "GET /services/v2/songs/1002": {
+      "data": {
+        "id": "1002",
+        "type": "Song",
+        "attributes": {
+          "title": "Great Is Thy Faithfulness",
+          "author": "Thomas Chisholm",
+          "ccli_number": 18723,
+          "hidden": false,
+          "themes": "Faithfulness",
+          "primary_key": "D"
+        }
+      }
+    },
+    "GET /services/v2/songs/1001/arrangements/2002": {
+      "data": {
+        "id": "2002",
+        "type": "Arrangement",
+        "attributes": {
+          "name": "Acoustic",
+          "bpm": 68,
+          "meter": "3/4",
+          "length": 238,
+          "chord_chart_key": "D",
+          "has_chord_chart": true,
+          "has_chords": true,
+          "lyrics_enabled": true,
+          "sequence_short": [
+            "V1",
+            "V2",
+            "V4"
+          ]
+        }
+      }
+    },
+    "GET /services/v2/songs/1001/arrangements/2001/keys/3001": {
+      "data": {
+        "id": "3001",
+        "type": "Key",
+        "attributes": {
+          "name": "Default",
+          "starting_key": "G",
+          "ending_key": "G"
+        }
+      }
+    },
+    "GET /services/v2/songs/1001/arrangements/2001/keys/3002": {
+      "data": {
+        "id": "3002",
+        "type": "Key",
+        "attributes": {
+          "name": "Female Lead",
+          "starting_key": "Bb",
+          "ending_key": "Bb"
+        }
+      }
+    },
+    "GET /services/v2/songs/1001/attachments/4001": {
+      "data": {
+        "id": "4001",
+        "type": "Attachment",
+        "attributes": {
+          "display_name": "Lead Sheet",
+          "filename": "amazing-grace-lead-sheet.pdf",
+          "content_type": "application/pdf",
+          "file_size": 245760,
+          "downloadable": true,
+          "pco_type": "PDF"
+        }
+      }
+    },
+    "GET /services/v2/songs/1001/arrangements/2001/attachments/4002": {
+      "data": {
+        "id": "4002",
+        "type": "Attachment",
+        "attributes": {
+          "display_name": "Full Band Chart",
+          "filename": "amazing-grace-full-band.pdf",
+          "content_type": "application/pdf",
+          "file_size": 327680,
+          "downloadable": true,
+          "pco_type": "PDF"
+        }
+      }
+    },
+    "GET /services/v2/songs/1001/arrangements/2001/keys/3001/attachments/4003": {
+      "data": {
+        "id": "4003",
+        "type": "Attachment",
+        "attributes": {
+          "display_name": "Full Band G Chart",
+          "filename": "amazing-grace-full-band-g.pdf",
+          "content_type": "application/pdf",
+          "file_size": 330240,
           "downloadable": true,
           "pco_type": "PDF"
         }

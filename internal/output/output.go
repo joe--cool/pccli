@@ -7,10 +7,12 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"unicode"
 
-	"github.com/charmbracelet/lipgloss"
-	"github.com/charmbracelet/lipgloss/table"
-	"github.com/muesli/termenv"
+	"github.com/charmbracelet/x/ansi"
+
+	"charm.land/lipgloss/v2"
+	"charm.land/lipgloss/v2/table"
 	"golang.org/x/term"
 )
 
@@ -22,9 +24,6 @@ type Renderer struct {
 
 func NewRenderer(out io.Writer, jsonOutput bool, colorMode string) Renderer {
 	color := colorEnabled(out, colorMode)
-	if color {
-		lipgloss.SetColorProfile(termenv.TrueColor)
-	}
 	return Renderer{
 		Out:   out,
 		JSON:  jsonOutput,
@@ -39,6 +38,7 @@ func (r Renderer) WriteJSON(value any) error {
 }
 
 func (r Renderer) Title(value string) string {
+	value = SafeText(value)
 	if !r.color {
 		return value
 	}
@@ -46,6 +46,7 @@ func (r Renderer) Title(value string) string {
 }
 
 func (r Renderer) Section(value string) string {
+	value = SafeText(value)
 	if !r.color {
 		return strings.ToUpper(value)
 	}
@@ -53,6 +54,7 @@ func (r Renderer) Section(value string) string {
 }
 
 func (r Renderer) Muted(value string) string {
+	value = SafeText(value)
 	if !r.color {
 		return value
 	}
@@ -60,6 +62,7 @@ func (r Renderer) Muted(value string) string {
 }
 
 func (r Renderer) Emphasis(value string) string {
+	value = SafeText(value)
 	if !r.color {
 		return value
 	}
@@ -72,6 +75,12 @@ func (r Renderer) Table(headers []string, rows [][]string) error {
 		return err
 	}
 
+	headers = safeRow(headers)
+	cleanRows := make([][]string, len(rows))
+	for i, row := range rows {
+		cleanRows[i] = safeRow(row)
+	}
+
 	t := table.New().
 		Border(lipgloss.NormalBorder()).
 		BorderTop(false).
@@ -80,7 +89,7 @@ func (r Renderer) Table(headers []string, rows [][]string) error {
 		BorderRight(false).
 		BorderColumn(false).
 		Headers(headers...).
-		Rows(rows...)
+		Rows(cleanRows...)
 
 	if r.color {
 		headerStyle := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#2465F5"))
@@ -109,10 +118,16 @@ func (r Renderer) KeyValues(rows [][2]string) error {
 		return r.WriteJSON(values)
 	}
 
+	cleanRows := make([][2]string, len(rows))
+	for i, row := range rows {
+		cleanRows[i] = [2]string{SafeText(row[0]), SafeText(row[1])}
+	}
+	rows = cleanRows
+
 	width := 0
 	for _, row := range rows {
-		if len(row[0]) > width {
-			width = len(row[0])
+		if lipgloss.Width(row[0]) > width {
+			width = lipgloss.Width(row[0])
 		}
 	}
 	for _, row := range rows {
@@ -120,7 +135,7 @@ func (r Renderer) KeyValues(rows [][2]string) error {
 		if r.color {
 			label = lipgloss.NewStyle().Bold(true).Render(label)
 		}
-		if _, err := fmt.Fprintf(r.Out, "%-*s  %s\n", width, label, row[1]); err != nil {
+		if _, err := fmt.Fprintf(r.Out, "%s%s  %s\n", label, strings.Repeat(" ", width-lipgloss.Width(label)), row[1]); err != nil {
 			return err
 		}
 	}
@@ -186,4 +201,23 @@ func colorEnabled(out io.Writer, mode string) bool {
 		file, ok := out.(*os.File)
 		return ok && term.IsTerminal(int(file.Fd()))
 	}
+}
+
+// SafeText turns untrusted API text into one printable terminal field. JSON
+// encoding deliberately retains original values for machine consumers.
+func SafeText(value string) string {
+	return strings.Map(func(r rune) rune {
+		if unicode.IsControl(r) {
+			return ' '
+		}
+		return r
+	}, ansi.Strip(value))
+}
+
+func safeRow(row []string) []string {
+	clean := make([]string, len(row))
+	for i, value := range row {
+		clean[i] = SafeText(value)
+	}
+	return clean
 }

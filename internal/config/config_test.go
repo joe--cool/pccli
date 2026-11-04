@@ -123,3 +123,53 @@ func writeFile(t *testing.T, path string, content string) {
 		t.Fatalf("write %s: %v", path, err)
 	}
 }
+
+func TestLoadValidatesSettings(t *testing.T) {
+	for _, test := range []struct{ name, value string }{
+		{"PCCLI_BASE_URL", "/relative"},
+		{"PCCLI_BASE_URL", "https://example.com/prefix"},
+		{"PCCLI_MOCK", "maybe"},
+		{"PCCLI_BASE_URL", "https://user:secret@example.com"},
+		{"PCCLI_BASE_URL", "https://example.com?token=secret"},
+		{"PCCLI_UPLOAD_URL", "ftp://example.com"},
+		{"PCCLI_TIMEOUT", "0s"},
+		{"PCCLI_TIMEOUT", "-1s"},
+		{"PCCLI_TIMEOUT", "forever"},
+		{"PCCLI_COLOR", "rainbow"},
+	} {
+		t.Run(test.name+"/"+test.value, func(t *testing.T) {
+			t.Chdir(t.TempDir())
+			t.Setenv("HOME", t.TempDir())
+			clearConfigEnv(t)
+			t.Setenv("PCCLI_MOCK", "true")
+			t.Setenv(test.name, test.value)
+			if _, err := Load(); err == nil {
+				t.Fatal("expected invalid configuration error")
+			}
+		})
+	}
+}
+
+func TestLoadIgnoresLegacyCredentialAliases(t *testing.T) {
+	t.Chdir(t.TempDir())
+	t.Setenv("HOME", t.TempDir())
+	clearConfigEnv(t)
+	t.Setenv("PCO_CLIENT_ID", "legacy-client")
+	t.Setenv("PCO_CLIENT_SECRET", "legacy-secret")
+	t.Setenv("PLANNING_CENTER_CLIENT_ID", "other-client")
+	t.Setenv("PLANNING_CENTER_SECRET", "other-secret")
+	if _, err := Load(); err == nil {
+		t.Fatal("legacy aliases must not supply credentials")
+	}
+}
+
+func TestLoadDoesNotExposeMalformedDotenv(t *testing.T) {
+	t.Chdir(t.TempDir())
+	t.Setenv("HOME", t.TempDir())
+	clearConfigEnv(t)
+	writeFile(t, ".env", "invalid!secret=value\n")
+	_, err := Load()
+	if err == nil || err.Error() != "cannot load configuration file .env" {
+		t.Fatalf("expected sanitized load error, got %v", err)
+	}
+}
