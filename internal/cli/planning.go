@@ -93,7 +93,7 @@ func newServiceTypesCommand(j *bool) *cobra.Command {
 	return g
 }
 func newPlansCommand(j *bool) *cobra.Command {
-	g := group("plans", "Inspect plans and maintain their titles")
+	g := group("plans", "Create, inspect, update, and delete service plans")
 	var s services.PlanningScope
 	var o services.ListOptions
 	var filter string
@@ -147,7 +147,7 @@ func newPlansCommand(j *bool) *cobra.Command {
 	var update services.PlanningScope
 	var patch services.PlanPatch
 	b := newBindings()
-	c = dataCommand("update PLAN", "Change or clear plan title and series title", 1, func(c *cobra.Command, args []string) error {
+	c = dataCommand("update PLAN", "Change plan labels, visibility, series, or reminders", 1, func(c *cobra.Command, args []string) error {
 		if e := b.apply(c); e != nil {
 			return e
 		}
@@ -170,7 +170,11 @@ func newPlansCommand(j *bool) *cobra.Command {
 	planningSelection(c, &update, false)
 	b.str(c, "title", "plan title; empty explicitly clears", &patch.Title)
 	b.str(c, "series-title", "series title; empty explicitly clears", &patch.SeriesTitle)
+	b.str(c, "series-id", "existing series ID; conflicts with --series-title", &patch.SeriesID)
+	b.boolean(c, "public", "enable or disable public access", &patch.Public)
+	b.boolean(c, "reminders-disabled", "disable or enable plan reminders", &patch.RemindersDisabled)
 	g.AddCommand(c)
+	addPlanLifecycleCommands(g, j)
 	return g
 }
 func newItemsCommand(j *bool) *cobra.Command {

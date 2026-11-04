@@ -22,6 +22,8 @@ type ServiceType struct {
 	ArchivedAt *string `json:"archived_at"`
 }
 type Plan struct {
+	SeriesID             *string `json:"series_id"`
+	RemindersDisabled    *bool   `json:"reminders_disabled"`
 	ID                   string  `json:"id"`
 	ServiceTypeID        string  `json:"service_type_id"`
 	Title                *string `json:"title"`
@@ -87,14 +89,33 @@ type PlanListOptions struct {
 	ListOptions
 	Filter string
 }
-type PlanPatch struct {
+type PlanCreate struct {
 	Title       *string `json:"title,omitempty"`
 	SeriesTitle *string `json:"series_title,omitempty"`
+	SeriesID    *string `json:"series_id,omitempty"`
+	Public      *bool   `json:"public,omitempty"`
+}
+type PlanPatch struct {
+	Title             *string `json:"title,omitempty"`
+	SeriesTitle       *string `json:"series_title,omitempty"`
+	SeriesID          *string `json:"series_id,omitempty"`
+	Public            *bool   `json:"public,omitempty"`
+	RemindersDisabled *bool   `json:"reminders_disabled,omitempty"`
 }
 
+func ValidatePlanCreate(p PlanCreate) error { return validatePlanSeries(p.SeriesID, p.SeriesTitle) }
 func ValidatePlanPatch(p PlanPatch) error {
-	if p.Title == nil && p.SeriesTitle == nil {
-		return fail("invalid_input", "at least one of title or series-title is required")
+	if len(fields(p)) == 0 {
+		return fail("invalid_input", "at least one plan field is required")
+	}
+	return validatePlanSeries(p.SeriesID, p.SeriesTitle)
+}
+func validatePlanSeries(id, title *string) error {
+	if id != nil && title != nil {
+		return fail("invalid_input", "series-id and series-title are mutually exclusive")
+	}
+	if id != nil && !validID(*id) {
+		return fail("invalid_input", "series-id must be a positive decimal ID")
 	}
 	return nil
 }
@@ -313,6 +334,7 @@ func (l *Library) UpdatePlan(ctx context.Context, s PlanningScope, target string
 	if e := ValidatePlanPatch(p); e != nil {
 		return m, e
 	}
+	p.SeriesID = canonicalPlanSeries(p.SeriesID)
 	if _, _, _, e := ParseSelector(target); e != nil {
 		return m, e
 	}
@@ -324,13 +346,10 @@ func (l *Library) UpdatePlan(ctx context.Context, s PlanningScope, target string
 	if e != nil {
 		return m, e
 	}
-	attrs := map[string]any{}
-	if p.Title != nil {
-		attrs["title"] = *p.Title
+	if e = l.checkPlanSeries(ctx, p.SeriesID); e != nil {
+		return m, e
 	}
-	if p.SeriesTitle != nil {
-		attrs["series_title"] = *p.SeriesTitle
-	}
+	attrs := fields(p)
 	path := serviceTypePath(s.ServiceType) + "/plans/" + r.id
 	current, e := l.api.get(ctx, path, "Plan", r.id)
 	if e != nil {
@@ -339,22 +358,7 @@ func (l *Library) UpdatePlan(ctx context.Context, s PlanningScope, target string
 	if !reflect.DeepEqual(current.attrs, r.attrs) {
 		return m, changed("Plan")
 	}
-	updated, e := l.api.mutate(ctx, "PATCH", path, "Plan", attrs)
-	if e != nil {
-		return m, e
-	}
-	if updated.id != r.id {
-		return m, fail("outcome_unknown", "write submitted but response identified a different plan")
-	}
-	updated, e = l.api.get(ctx, path, "Plan", r.id)
-	if e != nil {
-		return m, &Error{Code: "verification_failed", Message: "plan update submitted but readback failed; inspect the plan before retrying", Cause: e}
-	}
-	if e = verify(updated, attrs); e != nil {
-		return m, e
-	}
-	e = updated.model(&m)
-	return m, e
+	return l.writePlan(ctx, "PATCH", path, r.id, attrs, p.SeriesID)
 }
 
 func (l *Library) ListItems(ctx context.Context, s PlanningScope, o ListOptions) (ListResult[Item], error) {

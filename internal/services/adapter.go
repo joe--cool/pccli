@@ -77,6 +77,10 @@ func (r record) model(dst any) error {
 		model.SongID = r.parents.Song
 		model.ArrangementID = r.parents.Arrangement
 	case *Plan:
+		var err error
+		if model.SeriesID, err = r.relatedID("series", "Series"); err != nil {
+			return err
+		}
 		model.ServiceTypeID = r.planning.ServiceType
 	case *Item:
 		model.ServiceTypeID = r.planning.ServiceType
@@ -143,6 +147,9 @@ func (r record) scope(name, kind, id string) error {
 func (r record) validateScope() error {
 	switch r.kind {
 	case "Plan":
+		if _, err := r.relatedID("series", "Series"); err != nil {
+			return err
+		}
 		if r.planning.ServiceType != "" {
 			return r.scope("service_type", "ServiceType", r.planning.ServiceType)
 		}

@@ -1,7 +1,7 @@
 {
   "source": "https://api.planningcenteronline.com/services/v2/open_api/2018-11-01",
   "api_version": "2018-11-01",
-  "retrieved_on": "2026-11-03",
+  "retrieved_on": "2026-11-04",
   "read": {
     "ServiceType": {
       "name": "string",
@@ -20,7 +20,8 @@
       "needed_positions_count": "integer",
       "total_length": "integer",
       "public": "boolean",
-      "planning_center_url": "string"
+      "planning_center_url": "string",
+      "reminders_disabled": "boolean"
     },
     "Item": {
       "title": "string",
@@ -52,7 +53,10 @@
   "update": {
     "Plan": {
       "title": "string",
-      "series_title": "string"
+      "public": "boolean",
+      "series_id": "string",
+      "series_title": "string",
+      "reminders_disabled": "boolean"
     }
   },
   "paths": {
@@ -60,11 +64,13 @@
       "GET"
     ],
     "/service_types/{service_type_id}/plans": [
-      "GET"
+      "GET",
+      "POST"
     ],
     "/service_types/{service_type_id}/plans/{plan_id}": [
       "GET",
-      "PATCH"
+      "PATCH",
+      "DELETE"
     ],
     "/service_types/{service_type_id}/plans/{plan_id}/items": [
       "GET"
@@ -77,6 +83,17 @@
     ],
     "/service_types/{service_type_id}/plans/{plan_id}/team_members": [
       "GET"
+    ],
+    "/series/{series_id}": [
+      "GET"
     ]
+  },
+  "create": {
+    "Plan": {
+      "title": "string",
+      "public": "boolean",
+      "series_id": "string",
+      "series_title": "string"
+    }
   }
 }

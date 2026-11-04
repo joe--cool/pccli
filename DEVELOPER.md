@@ -22,7 +22,7 @@ Read [AGENTS.md](AGENTS.md) for the behavioral rules and the [command reference]
 
 ## Follow a request through the code
 
-pccli supports Services song-library maintenance and service-planning inspection: service types, plans, ordered items, times, teams, and scheduled people. Plan title and series title updates are verified through a separate GET. Plan creation/copy/deletion, item/time editing, scheduling changes, and notifications remain outside this interface. Keep commands product-first and resource-first, with explicit parents and consistent actions.
+pccli supports Services song-library maintenance and service-planning inspection: service types, plans, ordered items, times, teams, and scheduled people. Ordinary undated plan creation, plan label/public/reminder updates, Series assignment, and plan deletion use separate readback. Plan copying, item/time editing, scheduling changes, and notifications remain outside this interface. Keep commands product-first and resource-first, with explicit parents and consistent actions.
 
 | Location | Responsibility |
 | --- | --- |
@@ -40,7 +40,7 @@ The machine contract is `pccli/v1`. List metadata distinguishes returned limits 
 
 For `--json --all`, Services walkers retain one page plus O(N) ID/hash metadata for consistency checks. Explicit song sorting uses bounded private disk runs. The CLI stages the encoded result in a private temporary file and publishes it only after traversal succeeds. Walk callbacks can run before a later failure; a new caller must preserve that staging boundary. Propagate cancellation and clean up temporary files. A failure during the final stdout copy can still leave partial bytes and must exit nonzero.
 
-Planning reads use a separate `PlanningScope`, explicit service-type and plan parents, and typed nullable models in `planning.go`. Optional absent values stay unavailable rather than becoming invented zero/false values. Shared teams may have a different original service-type owner; validate plural service-type membership when supplied. Known archived service types/teams require explicit selection; local inclusion cannot recover server-omitted records. Name-based planning selection exhausts pages before choosing an identity. Plan updates re-read the selected ID before PATCH to detect changed attributes and validate the scoped parent and always perform GET readback afterward. Concurrent changes remain possible between requests.
+Planning reads use a separate `PlanningScope`, explicit service-type and plan parents, and typed nullable models in `planning.go`. Optional absent values stay unavailable rather than becoming invented zero/false values. Shared teams may have a different original service-type owner; validate plural service-type membership when supplied. Known archived service types/teams require explicit selection; local inclusion cannot recover server-omitted records. Name-based planning selection exhausts pages before choosing an identity. Plan updates re-read the selected ID before PATCH to detect changed attributes and validate the scoped parent and always perform GET readback afterward. Concurrent changes remain possible between requests. Planning write errors retain validated created IDs and parent context in `PlanningRecovery`, exposed as `error.recovery` alongside the unchanged attachment recovery contract. Do not treat a later verification failure as permission to repeat creation.
 
 ## Preserve operator intent
 

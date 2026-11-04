@@ -64,14 +64,36 @@ The recording ends on the response summary. Use the written commands above for e
 
 </details>
 
-## Maintain plan labels
+## Create and maintain plans
+
+Create an empty, undated plan in an explicit service type:
+
+```sh
+pccli services plans create --service-type 3001 --title "Advent Sunday"
+pccli services plans create --service-type 3001
+```
+
+Labels are optional. Supplying no labels creates an untitled plan; `--title ""` explicitly requests an empty title. Ordinary creation does not copy items, people, notes, or times. Keep the returned plan ID for follow-up commands. Public access can be set explicitly with `--public=true|false`.
+
+Update labels or settings:
 
 ```sh
 pccli services plans update 4001 --service-type 3001 --title "Gathered in Grace"
 pccli services plans update 4001 --service-type 3001 --series-title "Life Together"
 pccli services plans update 4001 --service-type 3001 --series-title ""
+pccli services plans update 4001 --service-type 3001 --public=false --reminders-disabled=true
 ```
 
-Omitted fields remain unchanged. An explicit empty value requests clearing that field. The API must return the same value during readback for pccli to report success. A successful request followed by a failed readback reports a verification error; inspect the plan before retrying. pccli never automatically replays updates.
+Use `--series-id ID` to assign an existing Series by positive decimal ID; pccli validates it before writing and checks the returned series relationship afterward. `--series-id` conflicts with `--series-title`. Public access and reminder settings accept explicit true or false.
 
-Plan creation, copying, deletion, item editing, time editing, scheduling changes, and notifications are outside this interface. Mock mode supports the read journeys above; its static fixture does not emulate updates or prove live account permissions.
+Omitted fields remain unchanged. An explicit empty value requests clearing that field. The API must return the same value during readback for pccli to report success. A successful request followed by a failed readback reports a verification error; inspect the plan before retrying. pccli never automatically replays updates. If creation succeeds but later verification fails, the error includes a recovery record with the returned plan ID, service type, stage, and created receipt. Keep that identity and inspect it before creating another plan. JSON errors expose this as `error.recovery`; human errors print the same recovery information.
+
+Delete only the intended plan after checking its ID:
+
+```sh
+pccli services plans delete 4001 --service-type 3001 --yes
+```
+
+Deletion requires `--yes`, validates the exact identity, and verifies that the plan returns HTTP 404 afterward. A verification failure means the request was accepted but the final state could not be confirmed; inspect the resource before retrying.
+
+Plan copying, item editing, time editing, scheduling changes, and notifications remain outside this interface. Mock mode supports the read journeys above; its static fixture does not emulate updates or prove live account permissions.

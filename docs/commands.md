@@ -37,7 +37,9 @@ pccli services service-types list [--limit N | --all] [--include-archived]
 pccli services service-types show SERVICE_TYPE [--include-archived]
 pccli services plans list --service-type SERVICE_TYPE [--filter future|past|no_dates] [--limit N | --all]
 pccli services plans show PLAN --service-type SERVICE_TYPE
-pccli services plans update PLAN --service-type SERVICE_TYPE [--title TEXT] [--series-title TEXT]
+pccli services plans create --service-type SERVICE_TYPE [--title TEXT] [--series-title TEXT | --series-id ID] [--public=true|false]
+pccli services plans update PLAN --service-type SERVICE_TYPE [--title TEXT] [--series-title TEXT | --series-id ID] [--public=true|false] [--reminders-disabled=true|false]
+pccli services plans delete PLAN --service-type SERVICE_TYPE --yes
 pccli services items list --service-type SERVICE_TYPE --plan PLAN [--limit N | --all]
 pccli services items show ITEM --service-type SERVICE_TYPE --plan PLAN
 pccli services plan-times list --service-type SERVICE_TYPE --plan PLAN [--limit N | --all]
@@ -48,7 +50,7 @@ pccli services scheduled-people list --service-type SERVICE_TYPE --plan PLAN [--
 
 Every descendant accepts `--include-archived` when selecting an archived service-type parent. Planning Center must return the record for local archive inclusion to work. Planning commands do not use song `--visibility`. Plans may be untitled; use IDs to select them. Read targets support unique literal partial names/titles, while parents and updates require exact names/titles or IDs. Dates are not selectors.
 
-Plan updates require at least one label flag; explicit empty values clear fields. Updates are checked with GET readback. Items retain provider order and expose sequence and service position. Scheduled-person records identify assignments, with related person/team IDs where provided. Missing optional values remain `null` in machine output. Plan creation, copying, deletion, item/time editing, scheduling changes, and notifications are not supported. [Follow the planning workflow](planning-a-service.html).
+Plan creation makes one undated plan and accepts no labels or an explicit empty title. Plan updates require at least one field flag; explicit empty labels and false booleans are transmitted. `--series-id` requires a positive decimal ID and conflicts with `--series-title`. The Series is read before writing and its relationship is checked afterward. Creates and updates are checked with GET readback. Delete requires `--yes` and verifies HTTP 404 afterward. Items retain provider order and expose sequence and service position. Scheduled-person records identify assignments, with related person/team IDs where provided. Missing optional values remain `null` in machine output. Plan copying, item/time editing, scheduling changes, and notifications are not supported. [Follow the planning workflow](planning-a-service.html).
 
 ## Songs
 
