@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Services - pccli</title>
+    <meta name="description" content="An unofficial Planning Center command line tool.">
+    <link href="https://fonts.googleapis.com/css?family=Inconsolata|Lato:300,400,700" rel="stylesheet">
+    <link rel="stylesheet" href="/pccli/versions/v1/assets/css/site.css">
+  <!-- pccli-canonical -->
+<!-- /pccli-canonical -->
+<meta name="robots" content="noindex, follow">
+</head>
+  <body>
+<div class="release-banner" role="note">
+  <p>Archived v1 documentation (pccli-v1.0.0).</p>
+  <nav aria-label="Release documentation">
+    <a href="/pccli/">Latest documentation</a>
+    <a href="/pccli/releases.html">Releases</a>
+    <a href="/pccli/downloads.html">Downloads</a>
+  </nav>
+</div>
+
+    <header class="site-header">
+      <a class="brand" href="/pccli/versions/v1/">
+        <span class="brand-mark">pc</span>
+        <span class="brand-name">pccli</span>
+        <span class="brand-pill">Unofficial</span>
+      </a>
+      <nav class="top-nav" aria-label="Top navigation">
+        <a href="/pccli/versions/v1/quick-start.html">Quick Start</a>
+        <a href="/pccli/versions/v1/services.html">Services</a>
+        <a href="https://github.com/joe--cool/pccli">Repository</a>
+      </nav>
+    </header>
+
+    <div class="docs-shell">
+      <aside class="sidebar" aria-label="Documentation navigation">
+        <nav>
+          <p class="nav-title">Start</p>
+          <a href="/pccli/versions/v1/">Getting Started</a>
+          <a href="/pccli/versions/v1/installation.html">Installation</a>
+          <a href="/pccli/versions/v1/authentication.html">Authentication</a>
+          <a href="/pccli/versions/v1/quick-start.html">Quick Start</a>
+          <p class="nav-title">Services</p>
+          <a href="/pccli/versions/v1/services.html">Overview</a>
+          <a href="/pccli/versions/v1/managing-your-song-library.html">Managing Your Song Library</a>
+          <a href="/pccli/versions/v1/commands.html">Music Library Commands</a>
+          <p class="nav-title">Links</p>
+          <a href="https://github.com/joe--cool/pccli">GitHub Repository</a>
+          <a href="https://api.planningcenteronline.com/docs/">Planning Center API Docs</a>
+        </nav>
+      </aside>
+
+      <main class="content">
+        <h1 id="services">Services</h1>
+
+<p>Services commands are grouped under <code class="language-plaintext highlighter-rouge">pccli services</code>.</p>
+
+<h2 id="music-library">Music Library</h2>
+
+<p>Use music-library commands to find songs, review arrangements and keys, and manage song attachments.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services songs list
+pccli services songs search <span class="s2">"Amazing"</span>
+pccli services songs show <span class="s2">"Amazing Grace"</span>
+pccli services songs arrangements <span class="s2">"Amazing Grace"</span>
+pccli services songs keys <span class="s2">"Amazing Grace"</span>
+pccli services songs attachments <span class="s2">"Amazing Grace"</span>
+</code></pre></div></div>
+
+<p>Follow the full search-to-files workflow in <a href="managing-your-song-library.html">Managing Your Song Library</a>.</p>
+
+<p>Add <code class="language-plaintext highlighter-rouge">--json</code> to use command output in scripts:</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli <span class="nt">--json</span> services songs list <span class="nt">--title</span> <span class="s2">"Amazing%"</span>
+</code></pre></div></div>
+
+<p>Create or update song metadata when maintaining the library from a script:</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services songs create <span class="nt">--title</span> <span class="s2">"Amazing Grace"</span> <span class="nt">--author</span> <span class="s2">"John Newton"</span> <span class="nt">--ccli</span> 22025
+pccli services songs update <span class="s2">"Amazing Grace"</span> <span class="nt">--themes</span> <span class="s2">"Grace, Hymn"</span>
+pccli services songs arrangements create <span class="s2">"Amazing Grace"</span> <span class="nt">--name</span> <span class="s2">"Full Band"</span> <span class="nt">--key</span> G
+pccli services songs keys create <span class="s2">"Amazing Grace"</span> <span class="s2">"Full Band"</span> <span class="nt">--name</span> <span class="s2">"Default"</span> <span class="nt">--start</span> G
+</code></pre></div></div>
+
+<p>Attach charts, PDFs, or links at the song level, or add <code class="language-plaintext highlighter-rouge">--arrangement</code> and <code class="language-plaintext highlighter-rouge">--key</code> to scope the attachment more narrowly:</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services songs attach <span class="s2">"Amazing Grace"</span> <span class="nt">--file</span> ./lead-sheet.pdf
+pccli services songs attach <span class="s2">"Amazing Grace"</span> <span class="nt">--url</span> <span class="s2">"https://example.com/rehearsal-track"</span>
+</code></pre></div></div>
+
+<p><a href="commands.html">Review the Services music-library command reference</a>.</p>
+
+      </main>
+    </div>
+  </body>
+</html>

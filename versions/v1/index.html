@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Getting Started - pccli</title>
+    <meta name="description" content="An unofficial Planning Center command line tool.">
+    <link href="https://fonts.googleapis.com/css?family=Inconsolata|Lato:300,400,700" rel="stylesheet">
+    <link rel="stylesheet" href="/pccli/versions/v1/assets/css/site.css">
+  <!-- pccli-canonical -->
+<!-- /pccli-canonical -->
+<meta name="robots" content="noindex, follow">
+</head>
+  <body>
+<div class="release-banner" role="note">
+  <p>Archived v1 documentation (pccli-v1.0.0).</p>
+  <nav aria-label="Release documentation">
+    <a href="/pccli/">Latest documentation</a>
+    <a href="/pccli/releases.html">Releases</a>
+    <a href="/pccli/downloads.html">Downloads</a>
+  </nav>
+</div>
+
+    <header class="site-header">
+      <a class="brand" href="/pccli/versions/v1/">
+        <span class="brand-mark">pc</span>
+        <span class="brand-name">pccli</span>
+        <span class="brand-pill">Unofficial</span>
+      </a>
+      <nav class="top-nav" aria-label="Top navigation">
+        <a href="/pccli/versions/v1/quick-start.html">Quick Start</a>
+        <a href="/pccli/versions/v1/services.html">Services</a>
+        <a href="https://github.com/joe--cool/pccli">Repository</a>
+      </nav>
+    </header>
+
+    <div class="docs-shell">
+      <aside class="sidebar" aria-label="Documentation navigation">
+        <nav>
+          <p class="nav-title">Start</p>
+          <a href="/pccli/versions/v1/">Getting Started</a>
+          <a href="/pccli/versions/v1/installation.html">Installation</a>
+          <a href="/pccli/versions/v1/authentication.html">Authentication</a>
+          <a href="/pccli/versions/v1/quick-start.html">Quick Start</a>
+          <p class="nav-title">Services</p>
+          <a href="/pccli/versions/v1/services.html">Overview</a>
+          <a href="/pccli/versions/v1/managing-your-song-library.html">Managing Your Song Library</a>
+          <a href="/pccli/versions/v1/commands.html">Music Library Commands</a>
+          <p class="nav-title">Links</p>
+          <a href="https://github.com/joe--cool/pccli">GitHub Repository</a>
+          <a href="https://api.planningcenteronline.com/docs/">Planning Center API Docs</a>
+        </nav>
+      </aside>
+
+      <main class="content">
+        <h1 id="pccli">pccli</h1>
+
+<p><code class="language-plaintext highlighter-rouge">pccli</code> is an unofficial command line tool for working with Planning Center from a terminal or script. Commands are organized by Planning Center product so each workflow starts from the part of Planning Center you already know.</p>
+
+<div class="info-banner">
+  <p><strong>Unofficial project:</strong> pccli is not built, endorsed, or supported by Planning Center. Use it with the same care you would use for any third-party API client.</p>
+</div>
+
+<h2 id="start">Start</h2>
+
+<ol>
+  <li><a href="installation.html">Install pccli</a>.</li>
+  <li><a href="authentication.html">Configure authentication</a>.</li>
+  <li><a href="quick-start.html">Run the quick start</a>.</li>
+</ol>
+
+<h2 id="products">Products</h2>
+
+<h3 id="services">Services</h3>
+
+<p>Use Services commands to search the music library, confirm songs, review arrangements and keys, and manage song files.</p>
+
+<p><a href="services.html">Open the Services guide</a></p>
+
+<p><a href="managing-your-song-library.html">Learn how to manage your song library</a></p>
+
+<h2 id="example">Example</h2>
+
+<p>The terminal recording was not archived; use the written examples below.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services songs search <span class="s2">"Amazing"</span>
+pccli services songs show <span class="s2">"Amazing Grace"</span>
+pccli services songs arrangements <span class="s2">"Amazing Grace"</span>
+</code></pre></div></div>
+
+      </main>
+    </div>
+  </body>
+</html>

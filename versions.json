@@ -1,0 +1,24 @@
+{
+  "schema": 1,
+  "latest": "v2.0.1",
+  "latest_major": "v2",
+  "majors": [
+    {
+      "major": "v2",
+      "tag": "v2.0.1",
+      "docs_url": "/pccli/versions/v2/",
+      "commit": "b825268b60268446fce61bf4449fba34b620da0f"
+    },
+    {
+      "major": "v1",
+      "tag": "pccli-v1.0.0",
+      "docs_url": "/pccli/versions/v1/",
+      "commit": "76b6db2610049401bf258dbc4aa6a1cbf240803c",
+      "legacy_text_only": true
+    }
+  ],
+  "tags": {
+    "v2.0.1": "b825268b60268446fce61bf4449fba34b620da0f",
+    "pccli-v1.0.0": "76b6db2610049401bf258dbc4aa6a1cbf240803c"
+  }
+}

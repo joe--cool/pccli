@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Managing Your Song Library - pccli</title>
+    <meta name="description" content="An unofficial Planning Center command line tool.">
+    <link href="https://fonts.googleapis.com/css?family=Inconsolata|Lato:300,400,700" rel="stylesheet">
+    <link rel="stylesheet" href="/pccli/assets/css/site.css">
+  <!-- pccli-canonical -->
+<link rel="canonical" href="https://joe--cool.github.io/pccli/managing-your-song-library.html">
+<!-- /pccli-canonical -->
+</head>
+  <body>
+    <div class="docs-version" role="note" aria-label="Documentation version">
+      
+        <strong>pccli v2.0.1</strong> documentation (v2).
+      
+      <a href="/pccli/latest/">Latest release documentation</a>
+      <span aria-hidden="true"> · </span>
+      <a href="/pccli/releases.html">All releases</a>
+      <span aria-hidden="true"> · </span>
+      <a href="/pccli/downloads.html">Downloads</a>
+    </div>
+
+    <header class="site-header">
+      <a class="brand" href="/pccli/">
+        <span class="brand-mark">pc</span>
+        <span class="brand-name">pccli</span>
+        <span class="brand-pill">Unofficial</span>
+      </a>
+      <nav class="top-nav" aria-label="Top navigation">
+        <a href="/pccli/quick-start.html">Quick Start</a>
+        <a href="/pccli/services.html">Services</a>
+        <a href="/pccli/latest/">Latest docs</a>
+        <a href="/pccli/releases.html">Releases</a>
+        <a href="/pccli/downloads.html">Downloads</a>
+        <a href="https://github.com/joe--cool/pccli">Repository</a>
+      </nav>
+    </header>
+
+    <div class="docs-shell">
+      <aside class="sidebar" aria-label="Documentation navigation">
+        <nav>
+          <p class="nav-title">Start</p>
+          <a href="/pccli/">Getting Started</a>
+          <a href="/pccli/installation.html">Installation</a>
+          <a href="/pccli/authentication.html">Authentication</a>
+          <a href="/pccli/quick-start.html">Quick Start</a>
+          <p class="nav-title">Services</p>
+          <a href="/pccli/services.html">Overview</a>
+          <a href="/pccli/managing-your-song-library.html">Managing Your Song Library</a>
+          <a href="/pccli/commands.html">Music Library Commands</a>
+          <a href="/pccli/song-fields.html">Editable Song Fields</a>
+          <p class="nav-title">Releases</p>
+          <a href="/pccli/">Latest Release Documentation</a>
+          <a href="/pccli/releases.html">Release History</a>
+          <a href="/pccli/downloads.html">Download pccli</a>
+          <p class="nav-title">Links</p>
+          <a href="https://github.com/joe--cool/pccli">GitHub Repository</a>
+          <a href="https://api.planningcenteronline.com/docs/">Planning Center API Docs</a>
+        </nav>
+      </aside>
+
+      <main class="content">
+        <h1 id="managing-your-song-library">Managing Your Song Library</h1>
+
+<p>pccli is an unofficial Planning Center tool, not built, endorsed, or supported by Planning Center. Start by finding a song, confirm its identity, then select the version and destination you mean to maintain. Example IDs below are placeholders; use IDs from your results.</p>
+
+<h2 id="find-and-inspect">Find and inspect</h2>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services songs list <span class="nt">--search</span> <span class="s2">"Amazing"</span>
+pccli services songs list <span class="nt">--title</span> <span class="s2">"Amazing Grace"</span>
+pccli services songs show 1001
+pccli services songs show 1001 <span class="nt">--arrangement</span> 2001
+</code></pre></div></div>
+
+<p>Search text is literal. Use <code class="language-plaintext highlighter-rouge">--visibility hidden</code> to inspect hidden songs, or <code class="language-plaintext highlighter-rouge">--visibility all</code> to include both states. Exact names are case-insensitive. A unique partial target works for reads; duplicate matches require an ID. Song show gives an overview and expands keys only when you select an arrangement.</p>
+
+<h2 id="choose-an-arrangement-and-key">Choose an arrangement and key</h2>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services arrangements list <span class="nt">--song</span> 1001
+pccli services arrangements show 2001 <span class="nt">--song</span> 1001
+pccli services keys list <span class="nt">--song</span> 1001 <span class="nt">--arrangement</span> 2001
+pccli services keys show 3001 <span class="nt">--song</span> 1001 <span class="nt">--arrangement</span> 2001
+pccli services arrangements sections 2001 <span class="nt">--song</span> 1001
+</code></pre></div></div>
+
+<p>Parent flags accept IDs or exact names. An arrangement is always explicit for key operations; pccli never chooses the first or a named default arrangement for you. The sections command helps inspect full labels before changing sequence.</p>
+
+<h2 id="maintain-metadata-and-charts">Maintain metadata and charts</h2>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services songs create <span class="nt">--title</span> <span class="s2">"Amazing Grace"</span> <span class="nt">--author</span> <span class="s2">"John Newton"</span> <span class="nt">--ccli</span> 22025
+pccli services songs update 1001 <span class="nt">--themes</span> <span class="s2">"Grace, Hymn"</span>
+pccli services arrangements create <span class="nt">--song</span> 1001 <span class="nt">--name</span> <span class="s2">"Full Band"</span> <span class="nt">--chart-key</span> G <span class="nt">--bpm</span> 72 <span class="nt">--meter</span> 4/4 <span class="nt">--length</span> 4:15
+pccli services arrangements update 2001 <span class="nt">--song</span> 1001 <span class="nt">--notes</span> <span class="s2">"Verse, chorus, repeat"</span> <span class="nt">--sequence</span> <span class="s1">'Verse 1,Chorus 1,Verse 2'</span>
+pccli services keys create <span class="nt">--song</span> 1001 <span class="nt">--arrangement</span> 2001 <span class="nt">--name</span> <span class="s2">"Female Lead"</span> <span class="nt">--start</span> Bb
+pccli services keys update 3001 <span class="nt">--song</span> 1001 <span class="nt">--arrangement</span> 2001 <span class="nt">--start</span> A <span class="nt">--end</span> A
+</code></pre></div></div>
+
+<p>Updates change only supplied fields. For example, <code class="language-plaintext highlighter-rouge">--notes ""</code> requests a clear and <code class="language-plaintext highlighter-rouge">--lyrics-enabled=false</code> turns lyrics off. Invalid empty or numeric values fail clearly. <a href="song-fields.html">All metadata fields</a> include chord-chart text, print settings, alternate keys, and provider imports.</p>
+
+<p>To hide or restore a song, select its current visibility independently from its new state:</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services songs update 1001 <span class="nt">--hidden</span><span class="o">=</span><span class="nb">true
+</span>pccli services songs update 1001 <span class="nt">--visibility</span> hidden <span class="nt">--hidden</span><span class="o">=</span><span class="nb">false</span>
+</code></pre></div></div>
+
+<h2 id="archive-a-version-without-deleting-it">Archive a version without deleting it</h2>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services arrangements archive 2001 <span class="nt">--song</span> 1001
+pccli services arrangements list <span class="nt">--song</span> 1001 <span class="nt">--include-archived</span>
+pccli services arrangements unarchive 2001 <span class="nt">--song</span> 1001 <span class="nt">--include-archived</span>
+</code></pre></div></div>
+
+<p>Ordinary arrangement lookups exclude archived versions. Follow-up operations on an archived arrangement require <code class="language-plaintext highlighter-rouge">--include-archived</code> explicitly.</p>
+
+<h2 id="place-files-and-links-in-the-right-scope">Place files and links in the right scope</h2>
+
+<p>A file can belong to a song, arrangement, or key. The recording compares the three destinations before you add anything.</p>
+
+<figure class="demo-figure">
+  <video class="terminal-demo" controls="" playsinline="" preload="none" width="1100" height="680" poster="/pccli/assets/attachment-demo-poster.png" aria-label="Choose an attachment destination" aria-describedby="attachment-demo-description">
+    <source src="/pccli/assets/attachment-demo.mp4" type="video/mp4" />
+    <p><a href="/pccli/assets/attachment-demo.mp4">Download Choose an attachment destination</a>, or read the steps below.</p>
+  </video>
+  <figcaption id="attachment-demo-description">Inspect song-wide, Full Band, and key-specific files for the same song. Silent mock recording. Play, pause, or scrub at your own pace; playback stops at the end.</figcaption>
+</figure>
+
+<details>
+  <summary>Read the file-placement steps</summary>
+
+  <div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services attachments list <span class="nt">--song</span> 1001
+pccli services attachments list <span class="nt">--song</span> 1001 <span class="nt">--arrangement</span> 2001
+pccli services attachments list <span class="nt">--song</span> 1001 <span class="nt">--arrangement</span> 2001 <span class="nt">--key</span> 3001
+</code></pre></div>  </div>
+
+  <p>The mock song has <strong>Lead Sheet (4001)</strong> at song scope, <strong>Full Band Chart (4002)</strong> at arrangement scope, and <strong>Full Band G Chart (4003)</strong> at key scope. Each list shows only that destination. Use the same parent flags when adding or updating a file; a key-specific file requires both its song and arrangement.</p>
+
+</details>
+
+<p>List the association where you intend to place it:</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services attachments list <span class="nt">--song</span> 1001
+pccli services attachments list <span class="nt">--song</span> 1001 <span class="nt">--arrangement</span> 2001
+pccli services attachments list <span class="nt">--song</span> 1001 <span class="nt">--arrangement</span> 2001 <span class="nt">--key</span> 3001
+pccli services attachments add <span class="nt">--song</span> 1001 <span class="nt">--arrangement</span> 2001 <span class="nt">--file</span> ./full-band.pdf
+pccli services attachments add <span class="nt">--song</span> 1001 <span class="nt">--arrangement</span> 2001 <span class="nt">--key</span> 3001 <span class="nt">--url</span> https://example.com/chart.pdf <span class="nt">--filename</span> chart.pdf
+pccli services attachments show 4001 <span class="nt">--song</span> 1001 <span class="nt">--arrangement</span> 2001
+pccli services attachments update 4001 <span class="nt">--song</span> 1001 <span class="nt">--arrangement</span> 2001 <span class="nt">--filename</span> full-band-revised.pdf
+</code></pre></div></div>
+
+<p>Choose one add source: local <code class="language-plaintext highlighter-rouge">--file</code>, existing <code class="language-plaintext highlighter-rouge">--upload-id</code>, <code class="language-plaintext highlighter-rouge">--url</code>, or inline <code class="language-plaintext highlighter-rouge">--content</code>. Updates can change metadata or replace a source with <code class="language-plaintext highlighter-rouge">--upload-id</code>, <code class="language-plaintext highlighter-rouge">--url</code>, or <code class="language-plaintext highlighter-rouge">--content</code>. Read the outcome: <code class="language-plaintext highlighter-rouge">verified</code> confirms readable requested values; <code class="language-plaintext highlighter-rouge">accepted</code> lists fields that cannot be confirmed through API readback.</p>
+
+<p>If an upload succeeds but attachment creation fails, keep the recovery receipt. Inspect the destination before retrying an unknown outcome. Reuse the receipt with <code class="language-plaintext highlighter-rouge">--upload-id</code> only after confirming it was not attached. <a href="commands.html#attachments">Attachment reference</a>.</p>
+
+<h2 id="classify-with-tags">Classify with tags</h2>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services tag-groups list <span class="nt">--all</span>
+pccli services tags list <span class="nt">--all</span>
+pccli services tags list <span class="nt">--song</span> 1001
+pccli services tags replace <span class="nt">--song</span> 1001 <span class="nt">--tags</span> 5001,5002
+pccli services tags replace <span class="nt">--song</span> 1001 <span class="nt">--arrangement</span> 2001 <span class="nt">--clear</span>
+pccli services attachment-types list <span class="nt">--all</span>
+</code></pre></div></div>
+
+<p>Tag replacement sends the complete intended set. It removes assignments you leave out. Required and single-selection group rules still apply. Tags classify songs or arrangements; <code class="language-plaintext highlighter-rouge">--themes</code> remains separate text metadata. Tag groups and attachment types are read-only discovery commands.</p>
+
+<h2 id="inspect-scheduling-history">Inspect scheduling history</h2>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services songs schedules 1001 <span class="nt">--all</span>
+pccli services songs last-scheduled 1001 <span class="nt">--service-type</span> 789
+</code></pre></div></div>
+
+<p>These read the song’s scheduling associations. They do not edit plans or create a scheduling workflow.</p>
+
+<h2 id="delete-intentionally">Delete intentionally</h2>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services attachments delete 4001 <span class="nt">--song</span> 1001 <span class="nt">--arrangement</span> 2001 <span class="nt">--yes</span>
+pccli services keys delete 3001 <span class="nt">--song</span> 1001 <span class="nt">--arrangement</span> 2001 <span class="nt">--yes</span>
+pccli services arrangements delete 2001 <span class="nt">--song</span> 1001 <span class="nt">--yes</span>
+pccli services songs delete 1001 <span class="nt">--yes</span>
+</code></pre></div></div>
+
+<p>Each example is independent. Deletes require <code class="language-plaintext highlighter-rouge">--yes</code>, IDs or exact names, and explicit parent context. Confirm the selected scope before running them.</p>
+
+<h2 id="export-for-a-script">Export for a script</h2>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli <span class="nt">--json</span> services songs list <span class="nt">--all</span> | jq <span class="s1">'.data[] | {id, title, ccli_number}'</span>
+pccli <span class="nt">--json</span> services arrangements list <span class="nt">--song</span> 1001 <span class="nt">--all</span>
+</code></pre></div></div>
+
+<p>The envelope is <code class="language-plaintext highlighter-rouge">{"schema":"pccli/v1","data":...,"meta":...}</code>. Check the exit code and completeness metadata before processing an export. Use IDs for subsequent commands, and stop for ambiguity or an incomplete lookup. <a href="commands.html#json-and-errors">JSON and errors</a>.</p>
+
+      </main>
+    </div>
+  </body>
+</html>

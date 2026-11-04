@@ -1,0 +1,436 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Services Music Library Commands - pccli</title>
+    <meta name="description" content="An unofficial Planning Center command line tool.">
+    <link href="https://fonts.googleapis.com/css?family=Inconsolata|Lato:300,400,700" rel="stylesheet">
+    <link rel="stylesheet" href="/pccli/assets/css/site.css">
+  <!-- pccli-canonical -->
+<link rel="canonical" href="https://joe--cool.github.io/pccli/commands.html">
+<!-- /pccli-canonical -->
+</head>
+  <body>
+    <div class="docs-version" role="note" aria-label="Documentation version">
+      
+        <strong>pccli v2.0.1</strong> documentation (v2).
+      
+      <a href="/pccli/latest/">Latest release documentation</a>
+      <span aria-hidden="true"> · </span>
+      <a href="/pccli/releases.html">All releases</a>
+      <span aria-hidden="true"> · </span>
+      <a href="/pccli/downloads.html">Downloads</a>
+    </div>
+
+    <header class="site-header">
+      <a class="brand" href="/pccli/">
+        <span class="brand-mark">pc</span>
+        <span class="brand-name">pccli</span>
+        <span class="brand-pill">Unofficial</span>
+      </a>
+      <nav class="top-nav" aria-label="Top navigation">
+        <a href="/pccli/quick-start.html">Quick Start</a>
+        <a href="/pccli/services.html">Services</a>
+        <a href="/pccli/latest/">Latest docs</a>
+        <a href="/pccli/releases.html">Releases</a>
+        <a href="/pccli/downloads.html">Downloads</a>
+        <a href="https://github.com/joe--cool/pccli">Repository</a>
+      </nav>
+    </header>
+
+    <div class="docs-shell">
+      <aside class="sidebar" aria-label="Documentation navigation">
+        <nav>
+          <p class="nav-title">Start</p>
+          <a href="/pccli/">Getting Started</a>
+          <a href="/pccli/installation.html">Installation</a>
+          <a href="/pccli/authentication.html">Authentication</a>
+          <a href="/pccli/quick-start.html">Quick Start</a>
+          <p class="nav-title">Services</p>
+          <a href="/pccli/services.html">Overview</a>
+          <a href="/pccli/managing-your-song-library.html">Managing Your Song Library</a>
+          <a href="/pccli/commands.html">Music Library Commands</a>
+          <a href="/pccli/song-fields.html">Editable Song Fields</a>
+          <p class="nav-title">Releases</p>
+          <a href="/pccli/">Latest Release Documentation</a>
+          <a href="/pccli/releases.html">Release History</a>
+          <a href="/pccli/downloads.html">Download pccli</a>
+          <p class="nav-title">Links</p>
+          <a href="https://github.com/joe--cool/pccli">GitHub Repository</a>
+          <a href="https://api.planningcenteronline.com/docs/">Planning Center API Docs</a>
+        </nav>
+      </aside>
+
+      <main class="content">
+        <h1 id="services-music-library-commands">Services Music Library Commands</h1>
+
+<p>pccli is unofficial and is not built, endorsed, or supported by Planning Center. Commands follow <code class="language-plaintext highlighter-rouge">pccli services RESOURCE ACTION</code>. Use <code class="language-plaintext highlighter-rouge">--help</code> on any command for its installed flags.</p>
+
+<h2 id="shared-behavior">Shared behavior</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Option or rule</th>
+      <th>Behavior</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--json</code></td>
+      <td>Versioned machine output; supported on every data command</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--help</code>, <code class="language-plaintext highlighter-rouge">-h</code></td>
+      <td>Help without credentials</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--version</code>, <code class="language-plaintext highlighter-rouge">-v</code></td>
+      <td>Root version without credentials</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--visibility visible\|hidden\|all</code></td>
+      <td>Select existing songs; default <code class="language-plaintext highlighter-rouge">visible</code>, including parent lookups and direct IDs</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--include-archived</code></td>
+      <td>Explicitly include archived arrangements where arrangement context is available</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--limit N</code></td>
+      <td>Total results to display, default 25; positive integer</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--all</code></td>
+      <td>Return the complete selected collection; conflicts with an explicit <code class="language-plaintext highlighter-rouge">--limit</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--yes</code></td>
+      <td>Required for every delete; never bypasses target validation</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="ids-names-and-parents">IDs, names, and parents</h3>
+
+<p>Targets accept a positive decimal ID or name. Use <code class="language-plaintext highlighter-rouge">id:1001</code> to force an ID and <code class="language-plaintext highlighter-rouge">name:1001</code> to force an exact numeric name. <code class="language-plaintext highlighter-rouge">name:Amazing Grace</code> forces an exact name. Exact name matching is case-insensitive. Read targets prefer an exact match, then accept a unique literal partial match. Writes and parent flags require IDs or exact names. Duplicate exact names are ambiguous; use the displayed IDs to choose.</p>
+
+<p>Search uses literal text, not API wildcard syntax. <code class="language-plaintext highlighter-rouge">%</code> and <code class="language-plaintext highlighter-rouge">_</code> are ordinary characters. <code class="language-plaintext highlighter-rouge">songs list --title TEXT</code> is an exact case-insensitive filter; <code class="language-plaintext highlighter-rouge">--search TEXT</code> is a literal contains filter. They conflict with each other.</p>
+
+<p>Arrangements require <code class="language-plaintext highlighter-rouge">--song SONG</code>. Keys require <code class="language-plaintext highlighter-rouge">--song SONG --arrangement ARRANGEMENT</code>. There is no automatic first/default arrangement. Attachment scope is a song, optionally an arrangement, optionally a key; <code class="language-plaintext highlighter-rouge">--key</code> requires <code class="language-plaintext highlighter-rouge">--arrangement</code>. Parent flags use the same visibility and ambiguity rules across follow-up commands.</p>
+
+<p>Lookups traverse all candidate pages before choosing a target. Display limits never limit identity resolution. Page failures, malformed records, or ambiguous matches stop the operation.</p>
+
+<h2 id="songs">Songs</h2>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services songs list [filters] [--limit N | --all]
+pccli services songs show SONG [--arrangement ARRANGEMENT]
+pccli services songs create --title TITLE [metadata]
+pccli services songs create --ccli NUMBER [metadata]
+pccli services songs update SONG [metadata] [--visibility STATE]
+pccli services songs delete SONG --yes [--visibility STATE]
+pccli services songs schedules SONG [--limit N | --all]
+pccli services songs last-scheduled SONG --service-type ID [--limit N | --all]
+</code></pre></div></div>
+
+<p>List filters:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Flag</th>
+      <th>Meaning</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--search TEXT</code>, <code class="language-plaintext highlighter-rouge">-q TEXT</code></td>
+      <td>Literal title contains match</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--title TEXT</code></td>
+      <td>Literal exact title</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--author TEXT</code></td>
+      <td>Exact case-insensitive author</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--ccli NUMBER</code></td>
+      <td>Positive CCLI number</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--themes TEXT</code></td>
+      <td>Exact case-insensitive themes text</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--order FIELD</code></td>
+      <td><code class="language-plaintext highlighter-rouge">title</code>, <code class="language-plaintext highlighter-rouge">created_at</code>, <code class="language-plaintext highlighter-rouge">updated_at</code>, or <code class="language-plaintext highlighter-rouge">last_scheduled_at</code>; prefix <code class="language-plaintext highlighter-rouge">-</code> to reverse</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--visibility STATE</code></td>
+      <td><code class="language-plaintext highlighter-rouge">visible</code>, <code class="language-plaintext highlighter-rouge">hidden</code>, or <code class="language-plaintext highlighter-rouge">all</code></td>
+    </tr>
+  </tbody>
+</table>
+
+<p><code class="language-plaintext highlighter-rouge">last-scheduled</code> requires a positive <code class="language-plaintext highlighter-rouge">--service-type ID</code> because Planning Center schedules the same song within different service types.</p>
+
+<p>Show gives song metadata and an arrangement overview. Only <code class="language-plaintext highlighter-rouge">--arrangement</code> expands a selected arrangement and its keys. Empty related collections succeed; an explicitly requested missing target fails. Use <code class="language-plaintext highlighter-rouge">--include-archived</code> to include archived versions.</p>
+
+<p>Create requires <code class="language-plaintext highlighter-rouge">--title</code> or <code class="language-plaintext highlighter-rouge">--ccli</code>. With CCLI alone, pccli uses Planning Center’s documented title-based metadata import. Song metadata flags are listed in the <a href="song-fields.html#songs">field reference</a>.</p>
+
+<p>Visibility selects the existing record; <code class="language-plaintext highlighter-rouge">--hidden</code> changes its state:</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services songs update 1001 <span class="nt">--hidden</span><span class="o">=</span><span class="nb">true
+</span>pccli services songs update 1001 <span class="nt">--visibility</span> hidden <span class="nt">--hidden</span><span class="o">=</span><span class="nb">false</span>
+</code></pre></div></div>
+
+<h2 id="arrangements">Arrangements</h2>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services arrangements list --song SONG [--limit N | --all]
+pccli services arrangements show ARRANGEMENT --song SONG
+pccli services arrangements create --song SONG --name NAME [metadata]
+pccli services arrangements update ARRANGEMENT --song SONG [metadata]
+pccli services arrangements delete ARRANGEMENT --song SONG --yes
+pccli services arrangements archive ARRANGEMENT --song SONG
+pccli services arrangements unarchive ARRANGEMENT --song SONG --include-archived
+pccli services arrangements sections ARRANGEMENT --song SONG
+</code></pre></div></div>
+
+<p>Use <code class="language-plaintext highlighter-rouge">--include-archived</code> to select archived versions explicitly; ordinary lists and lookups exclude them. All commands accept song visibility selection. <code class="language-plaintext highlighter-rouge">sections</code> reads the sections derived from a chord chart; <code class="language-plaintext highlighter-rouge">--sequence</code> changes the order of full section labels.</p>
+
+<p>The <a href="song-fields.html#arrangements">arrangement field reference</a> covers chart text, pitch, tempo, notes, sequence, print settings, and provider import fields. Chart pitch uses <code class="language-plaintext highlighter-rouge">--chart-key</code>; <code class="language-plaintext highlighter-rouge">--key</code> selects a key record only in attachment scope.</p>
+
+<h2 id="keys">Keys</h2>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services keys list --song SONG --arrangement ARRANGEMENT [--limit N | --all]
+pccli services keys show KEY --song SONG --arrangement ARRANGEMENT
+pccli services keys create --song SONG --arrangement ARRANGEMENT --name NAME --start PITCH [metadata]
+pccli services keys update KEY --song SONG --arrangement ARRANGEMENT [metadata]
+pccli services keys delete KEY --song SONG --arrangement ARRANGEMENT --yes
+</code></pre></div></div>
+
+<p>Starting and ending pitches use <code class="language-plaintext highlighter-rouge">--start</code> and <code class="language-plaintext highlighter-rouge">--end</code>. On create, omitted <code class="language-plaintext highlighter-rouge">--end</code> defaults to <code class="language-plaintext highlighter-rouge">--start</code>. All commands accept <code class="language-plaintext highlighter-rouge">--visibility</code> and <code class="language-plaintext highlighter-rouge">--include-archived</code>. See <a href="song-fields.html#keys">key fields</a> for alternate-key JSON and provider imports.</p>
+
+<h2 id="attachments">Attachments</h2>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services attachments list --song SONG [--arrangement ARRANGEMENT [--key KEY]] [--limit N | --all]
+pccli services attachments show ATTACHMENT --song SONG [--arrangement ARRANGEMENT [--key KEY]]
+pccli services attachments add --song SONG [--arrangement ARRANGEMENT [--key KEY]] SOURCE [metadata]
+pccli services attachments update ATTACHMENT --song SONG [--arrangement ARRANGEMENT [--key KEY]] [metadata]
+pccli services attachments delete ATTACHMENT --song SONG [--arrangement ARRANGEMENT [--key KEY]] --yes
+</code></pre></div></div>
+
+<p>Every operation uses the selected association; a song list does not imply all child attachments. Attachment targets use an ID or filename. Use IDs for repeated filenames.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Flag</th>
+      <th>Add</th>
+      <th>Update</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--file PATH</code></td>
+      <td>Upload a local regular file</td>
+      <td>Use <code class="language-plaintext highlighter-rouge">--upload-id</code> or <code class="language-plaintext highlighter-rouge">--content</code> for replacement</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--upload-id UUID</code></td>
+      <td>Attach an existing upload receipt</td>
+      <td>Replace with an existing upload receipt</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--url URL</code></td>
+      <td>HTTP(S) link without URL credentials</td>
+      <td>Replace or explicitly clear link</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--content TEXT</code></td>
+      <td>Inline content</td>
+      <td>Replace or explicitly clear content</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--filename TEXT</code></td>
+      <td>Destination filename</td>
+      <td>Change filename</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--attachment-type-ids TEXT</code></td>
+      <td>File classification IDs</td>
+      <td>Replace classification IDs</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--page-order TEXT</code></td>
+      <td>Planning Center page order string</td>
+      <td>Change page order</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--song-part TEXT</code></td>
+      <td>Song section label</td>
+      <td>Change song section label</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--item-details=true\|false</code></td>
+      <td>Set item-details import state</td>
+      <td>Change item-details import state</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Add requires exactly one nonempty source: <code class="language-plaintext highlighter-rouge">--file</code>, <code class="language-plaintext highlighter-rouge">--upload-id</code>, <code class="language-plaintext highlighter-rouge">--url</code>, or <code class="language-plaintext highlighter-rouge">--content</code>. Update accepts at most one nonempty replacement source. Both accept <code class="language-plaintext highlighter-rouge">--visibility</code> and <code class="language-plaintext highlighter-rouge">--include-archived</code> for parent selection.</p>
+
+<p>Attachment updates return <code class="language-plaintext highlighter-rouge">outcome: verified</code> when requested values can be checked through readback. <code class="language-plaintext highlighter-rouge">outcome: accepted</code> and <code class="language-plaintext highlighter-rouge">unverified_fields</code> identify values the API accepted but does not expose for confirmation. Inspect the attachment in Planning Center when those effects matter.</p>
+
+<p>File upload and attachment creation are separate stages. If a later stage fails, keep the reported upload receipt, expiry, destination, and outcome. A rejection differs from an unknown result: inspect the destination before retrying an unknown result. Reuse <code class="language-plaintext highlighter-rouge">--upload-id</code> only after confirming that the attachment was not created; do not upload the file again automatically.</p>
+
+<h2 id="tags-and-catalogs">Tags and catalogs</h2>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services tags list [--song SONG [--arrangement ARRANGEMENT]] [--limit N | --all]
+pccli services tags replace --song SONG [--arrangement ARRANGEMENT] --tags TAG,TAG
+pccli services tags replace --song SONG [--arrangement ARRANGEMENT] --clear
+pccli services tag-groups list [--limit N | --all]
+pccli services attachment-types list [--limit N | --all]
+</code></pre></div></div>
+
+<p>Unscoped <code class="language-plaintext highlighter-rouge">tags list</code> discovers tags for songs and arrangements; a scope lists assignments. <code class="language-plaintext highlighter-rouge">replace</code> sends the <strong>entire desired tag set</strong>, not an addition. <code class="language-plaintext highlighter-rouge">--clear</code> explicitly removes assignments and conflicts with <code class="language-plaintext highlighter-rouge">--tags</code>. Tags are selected by ID or exact case-insensitive name. Duplicate names across groups require IDs. Required groups and single-selection rules are enforced.</p>
+
+<p>Tags belong to songs or arrangements, not key records. Scoped tag commands accept <code class="language-plaintext highlighter-rouge">--visibility</code> and <code class="language-plaintext highlighter-rouge">--include-archived</code>. Tag groups and attachment types are read-only catalogs. Song <code class="language-plaintext highlighter-rouge">--themes</code> is text metadata and is separate from relational tags.</p>
+
+<h2 id="json-and-errors">JSON and errors</h2>
+
+<figure class="demo-figure">
+  <video class="terminal-demo" controls="" playsinline="" preload="none" width="1100" height="680" poster="/pccli/assets/json-demo-poster.png" aria-label="Export songs for a script" aria-describedby="json-demo-description">
+    <source src="/pccli/assets/json-demo.mp4" type="video/mp4" />
+    <p><a href="/pccli/assets/json-demo.mp4">Download Export songs for a script</a>, or read the steps below.</p>
+  </video>
+  <figcaption id="json-demo-description">Inspect the JSON envelope and completeness, then extract song IDs and titles with jq. Silent mock recording. Play, pause, or scrub at your own pace; playback stops at the end.</figcaption>
+</figure>
+
+<details>
+  <summary>Read the JSON export steps</summary>
+
+  <p>These examples use Bash and require <a href="https://jqlang.org/">jq</a>. Enable pipeline error propagation first:</p>
+
+  <div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">set</span> <span class="nt">-o</span> pipefail
+pccli <span class="nt">--json</span> services songs list <span class="nt">--all</span> | jq <span class="s1">'{schema, meta}'</span>
+pccli <span class="nt">--json</span> services songs list <span class="nt">--all</span> | jq <span class="s1">'.data[] | {id, title}'</span>
+</code></pre></div>  </div>
+
+  <p>The mock export reports schema <strong>pccli/v1</strong>, <strong>returned: 2</strong>, <strong>has_more: false</strong>, and <strong>complete: true</strong>. The second command extracts <strong>1001 / Amazing Grace</strong> and <strong>1002 / Great Is Thy Faithfulness</strong>. Hidden songs remain excluded by default even with <code class="language-plaintext highlighter-rouge">--all</code>. In automation, stop on a nonzero pipeline status before using the result; <code class="language-plaintext highlighter-rouge">jq</code> succeeding alone does not establish that pccli succeeded.</p>
+
+</details>
+
+<p>Successful data commands write one envelope to stdout:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"schema"</span><span class="p">:</span><span class="w"> </span><span class="s2">"pccli/v1"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span><span class="w">
+  </span><span class="nl">"meta"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nl">"returned"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="nl">"has_more"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w"> </span><span class="nl">"complete"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>List <code class="language-plaintext highlighter-rouge">meta</code> describes the returned selection. <code class="language-plaintext highlighter-rouge">has_more: true</code> and <code class="language-plaintext highlighter-rouge">complete: false</code> mean the display limit omitted results; use <code class="language-plaintext highlighter-rouge">--all</code> to export all selected results. Detail results carry completeness metadata for requested child collections. An unrequested song expansion is <code class="language-plaintext highlighter-rouge">null</code>, distinct from a requested empty array. IDs remain strings; machine output retains false, zero, and empty values.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli <span class="nt">--json</span> services songs list <span class="nt">--all</span> | jq <span class="s1">'.data[] | {id, title}'</span>
+pccli <span class="nt">--json</span> services songs show 1001 <span class="nt">--arrangement</span> 2001
+</code></pre></div></div>
+
+<p>Errors go to stderr; JSON errors use the same schema version with an <code class="language-plaintext highlighter-rouge">error</code> object containing a stable <code class="language-plaintext highlighter-rouge">code</code>, <code class="language-plaintext highlighter-rouge">message</code>, and relevant candidates or recovery information. A failure before publication emits no success result to stdout. A broken output pipe can still leave partial bytes; check the exit code before using an export.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Exit</th>
+      <th>Meaning</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">0</code></td>
+      <td>Success</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">1</code></td>
+      <td>Operational, incomplete, verification, or unknown-outcome failure</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">2</code></td>
+      <td>Invalid command, arguments, or values</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">130</code></td>
+      <td>Interrupt or cancellation</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">143</code></td>
+      <td>Termination signal</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Never treat a write error as permission to replay it automatically. The request may have reached Planning Center even when its response was lost.</p>
+
+<h2 id="environment-variables">Environment variables</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Variable</th>
+      <th>Purpose / default</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">PCCLI_CLIENT_ID</code></td>
+      <td>Personal Access Token client ID</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">PCCLI_CLIENT_SECRET</code></td>
+      <td>Personal Access Token secret</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">PCCLI_MOCK</code></td>
+      <td><code class="language-plaintext highlighter-rouge">true</code> uses local fixtures; default <code class="language-plaintext highlighter-rouge">false</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">PCCLI_MOCK_FIXTURE</code></td>
+      <td>Default <code class="language-plaintext highlighter-rouge">testdata/mocks/services-library.json</code>, relative to the working directory</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">PCCLI_BASE_URL</code></td>
+      <td>API origin; default <code class="language-plaintext highlighter-rouge">https://api.planningcenteronline.com</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">PCCLI_UPLOAD_URL</code></td>
+      <td>Upload origin; default <code class="language-plaintext highlighter-rouge">https://upload.planningcenteronline.com</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">PCCLI_TIMEOUT</code></td>
+      <td>Positive Go duration per HTTP request; default <code class="language-plaintext highlighter-rouge">30s</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">PCCLI_COLOR</code></td>
+      <td><code class="language-plaintext highlighter-rouge">auto</code>, <code class="language-plaintext highlighter-rouge">always</code>, or <code class="language-plaintext highlighter-rouge">never</code>; default <code class="language-plaintext highlighter-rouge">auto</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">PCCLI_USER_AGENT</code></td>
+      <td>HTTP user agent; default <code class="language-plaintext highlighter-rouge">pccli/dev</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">NO_COLOR</code></td>
+      <td>Nonempty disables automatic color; explicit <code class="language-plaintext highlighter-rouge">always</code> wins</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Endpoint overrides must be HTTP(S) origins without credentials, path, query, or fragment. Precedence is shell environment, local <code class="language-plaintext highlighter-rouge">.env</code>, <code class="language-plaintext highlighter-rouge">~/.pccli/.env</code>, then defaults. No legacy environment aliases are supported.</p>
+
+      </main>
+    </div>
+  </body>
+</html>

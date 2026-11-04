@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Managing Your Song Library - pccli</title>
+    <meta name="description" content="An unofficial Planning Center command line tool.">
+    <link href="https://fonts.googleapis.com/css?family=Inconsolata|Lato:300,400,700" rel="stylesheet">
+    <link rel="stylesheet" href="/pccli/versions/v1/assets/css/site.css">
+  <!-- pccli-canonical -->
+<!-- /pccli-canonical -->
+<meta name="robots" content="noindex, follow">
+</head>
+  <body>
+<div class="release-banner" role="note">
+  <p>Archived v1 documentation (pccli-v1.0.0).</p>
+  <nav aria-label="Release documentation">
+    <a href="/pccli/">Latest documentation</a>
+    <a href="/pccli/releases.html">Releases</a>
+    <a href="/pccli/downloads.html">Downloads</a>
+  </nav>
+</div>
+
+    <header class="site-header">
+      <a class="brand" href="/pccli/versions/v1/">
+        <span class="brand-mark">pc</span>
+        <span class="brand-name">pccli</span>
+        <span class="brand-pill">Unofficial</span>
+      </a>
+      <nav class="top-nav" aria-label="Top navigation">
+        <a href="/pccli/versions/v1/quick-start.html">Quick Start</a>
+        <a href="/pccli/versions/v1/services.html">Services</a>
+        <a href="https://github.com/joe--cool/pccli">Repository</a>
+      </nav>
+    </header>
+
+    <div class="docs-shell">
+      <aside class="sidebar" aria-label="Documentation navigation">
+        <nav>
+          <p class="nav-title">Start</p>
+          <a href="/pccli/versions/v1/">Getting Started</a>
+          <a href="/pccli/versions/v1/installation.html">Installation</a>
+          <a href="/pccli/versions/v1/authentication.html">Authentication</a>
+          <a href="/pccli/versions/v1/quick-start.html">Quick Start</a>
+          <p class="nav-title">Services</p>
+          <a href="/pccli/versions/v1/services.html">Overview</a>
+          <a href="/pccli/versions/v1/managing-your-song-library.html">Managing Your Song Library</a>
+          <a href="/pccli/versions/v1/commands.html">Music Library Commands</a>
+          <p class="nav-title">Links</p>
+          <a href="https://github.com/joe--cool/pccli">GitHub Repository</a>
+          <a href="https://api.planningcenteronline.com/docs/">Planning Center API Docs</a>
+        </nav>
+      </aside>
+
+      <main class="content">
+        <h1 id="managing-your-song-library">Managing Your Song Library</h1>
+
+<p>This guide is for worship planners and operators who maintain songs in Planning Center Services. It starts where people usually start in the web app: find the song, confirm it is the right one, then work with arrangements, keys, and files.</p>
+
+<p>Use IDs when scripting. Use titles when working manually.</p>
+
+<h2 id="1-find-the-song">1. Find the Song</h2>
+
+<p>Start with search when you know part of a title.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services songs search <span class="s2">"Amazing"</span>
+</code></pre></div></div>
+
+<p>The result includes IDs because Planning Center APIs identify songs by ID. Keep that ID when you are building a script or when several songs have similar titles.</p>
+
+<p>pccli searches visible songs by default. If you need to inspect songs hidden in Planning Center, use <code class="language-plaintext highlighter-rouge">--hidden</code>.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services songs search <span class="s2">"Amazing"</span> <span class="nt">--hidden</span>
+</code></pre></div></div>
+
+<p>If two songs have the same title, compare the author and CCLI number in the search results and use the ID for the follow-up command. pccli will not choose between duplicate exact titles for you.</p>
+
+<p>pccli treats exact title checks as case-insensitive. Read-only commands can also use a unique portion of a title. For example, both commands can resolve the same song when only one match exists:</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services songs show <span class="s2">"Jesus, Lamb of God"</span>
+pccli services songs show <span class="s2">"Lamb of God"</span>
+</code></pre></div></div>
+
+<p>For automation, use structured filters and JSON.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli <span class="nt">--json</span> services songs list <span class="nt">--title</span> <span class="s2">"Amazing%"</span> <span class="nt">--author</span> <span class="s2">"Newton"</span>
+pccli <span class="nt">--json</span> services songs list <span class="nt">--ccli</span> 22025
+</code></pre></div></div>
+
+<h2 id="2-confirm-the-song">2. Confirm the Song</h2>
+
+<p>Open the song by title, unique partial title, or ID. This is the best first stop after search because it shows the song details, available arrangements, and the keys for the selected arrangement.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services songs show <span class="s2">"Amazing Grace"</span>
+pccli services songs show 1001
+pccli services songs show <span class="s2">"Amazing Grace"</span> <span class="s2">"Acoustic"</span>
+</code></pre></div></div>
+
+<p>If you do not name an arrangement, pccli uses the default arrangement. It prefers an arrangement named <code class="language-plaintext highlighter-rouge">Default</code>; if Planning Center returns no arrangement with that name, pccli uses the first arrangement returned by Planning Center.</p>
+
+<p>Hidden status is only shown when you use <code class="language-plaintext highlighter-rouge">--hidden</code>.</p>
+
+<p>If more than one song matches, pccli stops and shows the matching IDs so you can choose intentionally.</p>
+
+<h2 id="3-review-arrangements">3. Review Arrangements</h2>
+
+<p>Arrangements are the practical versions of a song that teams use: full band, acoustic, youth band, special event versions, and similar variants.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services songs arrangements <span class="s2">"Amazing Grace"</span>
+</code></pre></div></div>
+
+<p>Use the arrangement ID or exact arrangement name for key and attachment work. Read-only arrangement commands can also use a unique partial arrangement name.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services songs arrangements <span class="s2">"Amazing Grace"</span> <span class="s2">"Full Band"</span>
+pccli services songs keys <span class="s2">"Amazing Grace"</span> <span class="s2">"Full Band"</span>
+pccli services songs attachments <span class="s2">"Amazing Grace"</span> <span class="nt">--arrangement</span> <span class="s2">"Full Band"</span>
+</code></pre></div></div>
+
+<p>The arrangement command is still useful even though <code class="language-plaintext highlighter-rouge">songs show</code> includes arrangement context: use <code class="language-plaintext highlighter-rouge">show</code> to orient yourself, and use <code class="language-plaintext highlighter-rouge">arrangements</code> when you want a focused list or one arrangement’s details for a script or operator task.</p>
+
+<h2 id="4-review-key-specific-materials">4. Review Key-Specific Materials</h2>
+
+<p>Some files belong to a specific key rather than the general song or arrangement. Use the key ID or exact key name from <code class="language-plaintext highlighter-rouge">songs keys</code>.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services songs keys <span class="s2">"Amazing Grace"</span>
+pccli services songs attachments <span class="s2">"Amazing Grace"</span> <span class="nt">--arrangement</span> <span class="s2">"Full Band"</span> <span class="nt">--key</span> <span class="s2">"Default"</span>
+</code></pre></div></div>
+
+<p>This is useful for key-specific chord charts, number charts, lead sheets, or PDFs.</p>
+
+<h2 id="5-add-update-or-delete-metadata">5. Add, Update, or Delete Metadata</h2>
+
+<p>Create songs with the metadata operators usually know first.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services songs create <span class="nt">--title</span> <span class="s2">"Amazing Grace"</span> <span class="nt">--author</span> <span class="s2">"John Newton"</span> <span class="nt">--ccli</span> 22025
+</code></pre></div></div>
+
+<p>If you only know the CCLI number, you can create with <code class="language-plaintext highlighter-rouge">--ccli</code>; Planning Center supports using that field to fetch song metadata.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services songs create <span class="nt">--ccli</span> 22025
+</code></pre></div></div>
+
+<p>For updates, use an ID or exact title. pccli intentionally does not allow broad search terms for write commands.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services songs update <span class="s2">"Amazing Grace"</span> <span class="nt">--themes</span> <span class="s2">"Grace, Hymn"</span>
+pccli services songs update 1001 <span class="nt">--hidden</span>
+</code></pre></div></div>
+
+<p>Create and maintain arrangements from the same song-centered workflow.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services songs arrangements create 1001 <span class="nt">--name</span> <span class="s2">"Full Band"</span> <span class="nt">--key</span> G <span class="nt">--bpm</span> 72 <span class="nt">--meter</span> 4/4 <span class="nt">--length</span> 4:15
+pccli services songs arrangements update 1001 <span class="s2">"Full Band"</span> <span class="nt">--bpm</span> 74
+pccli services songs arrangements delete 1001 <span class="s2">"Full Band"</span> <span class="nt">--yes</span>
+</code></pre></div></div>
+
+<p>Create and maintain keys under the arrangement. If you omit the arrangement on <code class="language-plaintext highlighter-rouge">keys create</code>, pccli uses the default arrangement.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services songs keys create 1001 <span class="nt">--name</span> <span class="s2">"Female Lead"</span> <span class="nt">--start</span> Bb
+pccli services songs keys update 1001 <span class="s2">"Full Band"</span> <span class="s2">"Female Lead"</span> <span class="nt">--start</span> A <span class="nt">--end</span> A
+pccli services songs keys delete 1001 <span class="s2">"Full Band"</span> <span class="s2">"Female Lead"</span> <span class="nt">--yes</span>
+</code></pre></div></div>
+
+<p>Deletes require <code class="language-plaintext highlighter-rouge">--yes</code> so scripts are explicit and accidental terminal history edits are less risky.</p>
+
+<h2 id="6-attach-files-and-links">6. Attach Files and Links</h2>
+
+<p>Attach local files, such as PDFs, directly from disk.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services songs attach <span class="s2">"Amazing Grace"</span> <span class="nt">--file</span> ./lead-sheet.pdf
+</code></pre></div></div>
+
+<p>Attach a file to an arrangement or key when the material is not meant for the whole song.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services songs attach <span class="s2">"Amazing Grace"</span> <span class="nt">--arrangement</span> <span class="s2">"Full Band"</span> <span class="nt">--file</span> ./full-band.pdf
+pccli services songs attach <span class="s2">"Amazing Grace"</span> <span class="nt">--arrangement</span> <span class="s2">"Full Band"</span> <span class="nt">--key</span> <span class="s2">"Default"</span> <span class="nt">--file</span> ./full-band-g.pdf
+</code></pre></div></div>
+
+<p>Attach links when the material lives outside Planning Center.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services songs attach <span class="s2">"Amazing Grace"</span> <span class="nt">--url</span> <span class="s2">"https://example.com/rehearsal-track"</span>
+</code></pre></div></div>
+
+<p>For advanced upload workflows, use an existing Planning Center upload UUID.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services songs attach <span class="s2">"Amazing Grace"</span> <span class="nt">--upload-id</span> us1-16207df7-b6cc-4abe-ca1a-306c6f7e423d
+</code></pre></div></div>
+
+<h2 id="7-script-the-same-workflow">7. Script the Same Workflow</h2>
+
+<p>In scripts, prefer IDs and JSON output.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">song_id</span><span class="o">=</span><span class="s2">"</span><span class="si">$(</span>pccli <span class="nt">--json</span> services songs list <span class="nt">--ccli</span> 22025 | jq <span class="nt">-r</span> <span class="s1">'.[0].id'</span><span class="si">)</span><span class="s2">"</span>
+pccli <span class="nt">--json</span> services songs arrangements <span class="s2">"</span><span class="nv">$song_id</span><span class="s2">"</span>
+pccli services songs attach <span class="s2">"</span><span class="nv">$song_id</span><span class="s2">"</span> <span class="nt">--file</span> ./lead-sheet.pdf
+</code></pre></div></div>
+
+<p>This keeps automation deterministic while preserving the title-based workflow for interactive use.</p>
+
+<h2 id="command-reference">Command Reference</h2>
+
+<p>For every flag and command form, see the <a href="commands.html">Services music-library command reference</a>.</p>
+
+      </main>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Installation - pccli</title>
+    <meta name="description" content="An unofficial Planning Center command line tool.">
+    <link href="https://fonts.googleapis.com/css?family=Inconsolata|Lato:300,400,700" rel="stylesheet">
+    <link rel="stylesheet" href="/pccli/versions/v1/assets/css/site.css">
+  <!-- pccli-canonical -->
+<!-- /pccli-canonical -->
+<meta name="robots" content="noindex, follow">
+</head>
+  <body>
+<div class="release-banner" role="note">
+  <p>Archived v1 documentation (pccli-v1.0.0).</p>
+  <nav aria-label="Release documentation">
+    <a href="/pccli/">Latest documentation</a>
+    <a href="/pccli/releases.html">Releases</a>
+    <a href="/pccli/downloads.html">Downloads</a>
+  </nav>
+</div>
+
+    <header class="site-header">
+      <a class="brand" href="/pccli/versions/v1/">
+        <span class="brand-mark">pc</span>
+        <span class="brand-name">pccli</span>
+        <span class="brand-pill">Unofficial</span>
+      </a>
+      <nav class="top-nav" aria-label="Top navigation">
+        <a href="/pccli/versions/v1/quick-start.html">Quick Start</a>
+        <a href="/pccli/versions/v1/services.html">Services</a>
+        <a href="https://github.com/joe--cool/pccli">Repository</a>
+      </nav>
+    </header>
+
+    <div class="docs-shell">
+      <aside class="sidebar" aria-label="Documentation navigation">
+        <nav>
+          <p class="nav-title">Start</p>
+          <a href="/pccli/versions/v1/">Getting Started</a>
+          <a href="/pccli/versions/v1/installation.html">Installation</a>
+          <a href="/pccli/versions/v1/authentication.html">Authentication</a>
+          <a href="/pccli/versions/v1/quick-start.html">Quick Start</a>
+          <p class="nav-title">Services</p>
+          <a href="/pccli/versions/v1/services.html">Overview</a>
+          <a href="/pccli/versions/v1/managing-your-song-library.html">Managing Your Song Library</a>
+          <a href="/pccli/versions/v1/commands.html">Music Library Commands</a>
+          <p class="nav-title">Links</p>
+          <a href="https://github.com/joe--cool/pccli">GitHub Repository</a>
+          <a href="https://api.planningcenteronline.com/docs/">Planning Center API Docs</a>
+        </nav>
+      </aside>
+
+      <main class="content">
+        <h1 id="installation">Installation</h1>
+
+<h2 id="build-from-source">Build From Source</h2>
+
+<p>Install from source with Go:</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>go <span class="nb">install </span>github.com/joe--cool/pccli/cmd/pccli@pccli-v1.0.0
+</code></pre></div></div>
+
+<p>Confirm the binary is available:</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli <span class="nt">--version</span>
+</code></pre></div></div>
+
+<h2 id="requirements">Requirements</h2>
+
+<ul>
+  <li>Go is required only when building from source.</li>
+  <li>A Planning Center user account is required for API access.</li>
+  <li>A Personal Access Token is recommended for single-church/local use.</li>
+</ul>
+
+<h2 id="updates">Updates</h2>
+
+<p>When using <code class="language-plaintext highlighter-rouge">go install</code>, run the same install command again to update to the latest published version.</p>
+
+      </main>
+    </div>
+  </body>
+</html>

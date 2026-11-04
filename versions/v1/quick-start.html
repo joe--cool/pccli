@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Quick Start - pccli</title>
+    <meta name="description" content="An unofficial Planning Center command line tool.">
+    <link href="https://fonts.googleapis.com/css?family=Inconsolata|Lato:300,400,700" rel="stylesheet">
+    <link rel="stylesheet" href="/pccli/versions/v1/assets/css/site.css">
+  <!-- pccli-canonical -->
+<!-- /pccli-canonical -->
+<meta name="robots" content="noindex, follow">
+</head>
+  <body>
+<div class="release-banner" role="note">
+  <p>Archived v1 documentation (pccli-v1.0.0).</p>
+  <nav aria-label="Release documentation">
+    <a href="/pccli/">Latest documentation</a>
+    <a href="/pccli/releases.html">Releases</a>
+    <a href="/pccli/downloads.html">Downloads</a>
+  </nav>
+</div>
+
+    <header class="site-header">
+      <a class="brand" href="/pccli/versions/v1/">
+        <span class="brand-mark">pc</span>
+        <span class="brand-name">pccli</span>
+        <span class="brand-pill">Unofficial</span>
+      </a>
+      <nav class="top-nav" aria-label="Top navigation">
+        <a href="/pccli/versions/v1/quick-start.html">Quick Start</a>
+        <a href="/pccli/versions/v1/services.html">Services</a>
+        <a href="https://github.com/joe--cool/pccli">Repository</a>
+      </nav>
+    </header>
+
+    <div class="docs-shell">
+      <aside class="sidebar" aria-label="Documentation navigation">
+        <nav>
+          <p class="nav-title">Start</p>
+          <a href="/pccli/versions/v1/">Getting Started</a>
+          <a href="/pccli/versions/v1/installation.html">Installation</a>
+          <a href="/pccli/versions/v1/authentication.html">Authentication</a>
+          <a href="/pccli/versions/v1/quick-start.html">Quick Start</a>
+          <p class="nav-title">Services</p>
+          <a href="/pccli/versions/v1/services.html">Overview</a>
+          <a href="/pccli/versions/v1/managing-your-song-library.html">Managing Your Song Library</a>
+          <a href="/pccli/versions/v1/commands.html">Music Library Commands</a>
+          <p class="nav-title">Links</p>
+          <a href="https://github.com/joe--cool/pccli">GitHub Repository</a>
+          <a href="https://api.planningcenteronline.com/docs/">Planning Center API Docs</a>
+        </nav>
+      </aside>
+
+      <main class="content">
+        <h1 id="quick-start">Quick Start</h1>
+
+<p>This guide gets pccli installed, authenticated, and verified with a basic Planning Center command.</p>
+
+<h2 id="1-install">1. Install</h2>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>go <span class="nb">install </span>github.com/joe--cool/pccli/cmd/pccli@pccli-v1.0.0
+</code></pre></div></div>
+
+<h2 id="2-set-up-access">2. Set Up Access</h2>
+
+<p>Create a <code class="language-plaintext highlighter-rouge">.env</code> file with your Planning Center Personal Access Token:</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">PCCLI_CLIENT_ID</span><span class="o">=</span>your_client_id
+<span class="nv">PCCLI_CLIENT_SECRET</span><span class="o">=</span>your_secret
+</code></pre></div></div>
+
+<p>The token’s Planning Center user must have access to the product data you want to use. For Services song-library commands, confirm that user can view the Services music library in Planning Center.</p>
+
+<h2 id="3-confirm-pccli-runs">3. Confirm pccli Runs</h2>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli
+</code></pre></div></div>
+
+<p>You should see the pccli banner and command help.</p>
+
+<h2 id="4-choose-a-product">4. Choose a Product</h2>
+
+<p>Planning Center product commands start at the product name:</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services <span class="nt">--help</span>
+</code></pre></div></div>
+
+<h2 id="5-verify-planning-center-access">5. Verify Planning Center Access</h2>
+
+<p>Run a basic read command against Planning Center Services:</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services songs list
+</code></pre></div></div>
+
+<p>If you know part of a song title, search for it:</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services songs search <span class="s2">"Amazing"</span>
+</code></pre></div></div>
+
+<p>Open one result by exact title or ID:</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services songs show <span class="s2">"Amazing Grace"</span>
+</code></pre></div></div>
+
+<h2 id="6-use-json-for-automation">6. Use JSON for Automation</h2>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli <span class="nt">--json</span> services songs list <span class="nt">--author</span> <span class="s2">"Newton"</span>
+</code></pre></div></div>
+
+<p>JSON output is intended for scripts and repeatable checks. Human output stays compact by default.</p>
+
+<h2 id="try-without-api-access">Try Without API Access</h2>
+
+<p>Use mock mode for demos and local documentation checks:</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">PCCLI_MOCK</span><span class="o">=</span><span class="nb">true </span>pccli services songs list
+</code></pre></div></div>
+
+<h2 id="next-steps">Next Steps</h2>
+
+<ul>
+  <li>Manage songs, arrangements, keys, PDFs, and links in <a href="managing-your-song-library.html">Managing Your Song Library</a>.</li>
+  <li>Look up every flag in the <a href="commands.html">Services music-library command reference</a>.</li>
+</ul>
+
+      </main>
+    </div>
+  </body>
+</html>

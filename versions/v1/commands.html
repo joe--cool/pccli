@@ -1,0 +1,642 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Services Music Library Commands - pccli</title>
+    <meta name="description" content="An unofficial Planning Center command line tool.">
+    <link href="https://fonts.googleapis.com/css?family=Inconsolata|Lato:300,400,700" rel="stylesheet">
+    <link rel="stylesheet" href="/pccli/versions/v1/assets/css/site.css">
+  <!-- pccli-canonical -->
+<!-- /pccli-canonical -->
+<meta name="robots" content="noindex, follow">
+</head>
+  <body>
+<div class="release-banner" role="note">
+  <p>Archived v1 documentation (pccli-v1.0.0).</p>
+  <nav aria-label="Release documentation">
+    <a href="/pccli/">Latest documentation</a>
+    <a href="/pccli/releases.html">Releases</a>
+    <a href="/pccli/downloads.html">Downloads</a>
+  </nav>
+</div>
+
+    <header class="site-header">
+      <a class="brand" href="/pccli/versions/v1/">
+        <span class="brand-mark">pc</span>
+        <span class="brand-name">pccli</span>
+        <span class="brand-pill">Unofficial</span>
+      </a>
+      <nav class="top-nav" aria-label="Top navigation">
+        <a href="/pccli/versions/v1/quick-start.html">Quick Start</a>
+        <a href="/pccli/versions/v1/services.html">Services</a>
+        <a href="https://github.com/joe--cool/pccli">Repository</a>
+      </nav>
+    </header>
+
+    <div class="docs-shell">
+      <aside class="sidebar" aria-label="Documentation navigation">
+        <nav>
+          <p class="nav-title">Start</p>
+          <a href="/pccli/versions/v1/">Getting Started</a>
+          <a href="/pccli/versions/v1/installation.html">Installation</a>
+          <a href="/pccli/versions/v1/authentication.html">Authentication</a>
+          <a href="/pccli/versions/v1/quick-start.html">Quick Start</a>
+          <p class="nav-title">Services</p>
+          <a href="/pccli/versions/v1/services.html">Overview</a>
+          <a href="/pccli/versions/v1/managing-your-song-library.html">Managing Your Song Library</a>
+          <a href="/pccli/versions/v1/commands.html">Music Library Commands</a>
+          <p class="nav-title">Links</p>
+          <a href="https://github.com/joe--cool/pccli">GitHub Repository</a>
+          <a href="https://api.planningcenteronline.com/docs/">Planning Center API Docs</a>
+        </nav>
+      </aside>
+
+      <main class="content">
+        <h1 id="services-music-library-commands">Services Music Library Commands</h1>
+
+<p>Services commands use this shape:</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services RESOURCE ACTION
+</code></pre></div></div>
+
+<h2 id="global-flags">Global Flags</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Flag</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--json</code></td>
+      <td>Write machine-readable JSON.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">-h</code>, <code class="language-plaintext highlighter-rouge">--help</code></td>
+      <td>Show help.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">-v</code>, <code class="language-plaintext highlighter-rouge">--version</code></td>
+      <td>Show the pccli version.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="song-arguments">Song Arguments</h2>
+
+<p>Commands that accept <code class="language-plaintext highlighter-rouge">SONG</code> can use a Planning Center song ID or a title/search term.</p>
+
+<p>For read-only commands, a search term is accepted when it resolves to one clear song. For write commands, use a song ID or the exact song title shown by search results. Exact title matching in pccli is case-insensitive.</p>
+
+<p>Hidden songs are excluded from song lookup and song ID checks by default. Use <code class="language-plaintext highlighter-rouge">--hidden</code> on supported commands when you intentionally want to work with hidden songs.</p>
+
+<p>If multiple songs share the same title, pccli will not guess. Use <code class="language-plaintext highlighter-rouge">songs search</code> to compare the ID, author, and CCLI number, then run the follow-up command with the song ID.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services songs search <span class="s2">"Amazing"</span>
+pccli services songs show <span class="s2">"Amazing Grace"</span>
+pccli services songs show 1001
+pccli services songs show <span class="s2">"Lamb of God"</span>
+</code></pre></div></div>
+
+<h2 id="arrangement-and-key-arguments">Arrangement and Key Arguments</h2>
+
+<p>Commands that accept <code class="language-plaintext highlighter-rouge">ARRANGEMENT</code> or <code class="language-plaintext highlighter-rouge">KEY</code> can use the Planning Center ID or the exact name. Read-only arrangement and key commands also accept a unique partial name.</p>
+
+<p>When an arrangement is optional, pccli uses the default arrangement: an arrangement named <code class="language-plaintext highlighter-rouge">Default</code> when one exists, otherwise the first arrangement returned by Planning Center.</p>
+
+<h2 id="pccli-services-songs-list"><code class="language-plaintext highlighter-rouge">pccli services songs list</code></h2>
+
+<p>Search songs in the Services music library.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services songs list <span class="o">[</span>flags]
+</code></pre></div></div>
+
+<table>
+  <thead>
+    <tr>
+      <th>Flag</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">-q</code>, <code class="language-plaintext highlighter-rouge">--search &lt;value&gt;</code></td>
+      <td>Search song titles using a contains match.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--title &lt;value&gt;</code></td>
+      <td>Filter by title. Supports Planning Center wildcard values such as <code class="language-plaintext highlighter-rouge">Amazing%</code>.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--author &lt;value&gt;</code></td>
+      <td>Filter by author. Supports wildcard values.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--ccli &lt;number&gt;</code></td>
+      <td>Filter by CCLI number.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--hidden</code></td>
+      <td>Show only hidden songs.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--key &lt;value&gt;</code></td>
+      <td>Filter by key, such as <code class="language-plaintext highlighter-rouge">G</code> or <code class="language-plaintext highlighter-rouge">Cm</code>.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--meter &lt;value&gt;</code></td>
+      <td>Filter by meter, such as <code class="language-plaintext highlighter-rouge">4/4</code>.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--themes &lt;value&gt;</code></td>
+      <td>Filter by themes.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--order &lt;value&gt;</code></td>
+      <td>Planning Center order value, such as <code class="language-plaintext highlighter-rouge">title</code> or <code class="language-plaintext highlighter-rouge">-updated_at</code>.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--limit &lt;number&gt;</code></td>
+      <td>Number of songs to fetch. Default: <code class="language-plaintext highlighter-rouge">25</code>.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="pccli-services-songs-search"><code class="language-plaintext highlighter-rouge">pccli services songs search</code></h2>
+
+<p>Search song titles and show matching IDs for follow-up commands.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services songs search QUERY <span class="o">[</span>flags]
+</code></pre></div></div>
+
+<table>
+  <thead>
+    <tr>
+      <th>Flag</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--hidden</code></td>
+      <td>Search hidden songs instead of visible songs.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--limit &lt;number&gt;</code></td>
+      <td>Number of songs to fetch. Default: <code class="language-plaintext highlighter-rouge">10</code>.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="pccli-services-songs-show"><code class="language-plaintext highlighter-rouge">pccli services songs show</code></h2>
+
+<p>Show details for one song, including its arrangements and the selected arrangement’s keys.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services songs show SONG
+pccli services songs show SONG ARRANGEMENT
+</code></pre></div></div>
+
+<table>
+  <thead>
+    <tr>
+      <th>Flag</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--hidden</code></td>
+      <td>Show a hidden song and include hidden status in the output.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="pccli-services-songs-create"><code class="language-plaintext highlighter-rouge">pccli services songs create</code></h2>
+
+<p>Create a song in the Services music library.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services songs create <span class="nt">--title</span> <span class="s2">"Amazing Grace"</span> <span class="nt">--author</span> <span class="s2">"John Newton"</span> <span class="nt">--ccli</span> 22025
+</code></pre></div></div>
+
+<p>If you only know the CCLI number, <code class="language-plaintext highlighter-rouge">--ccli</code> can be used without <code class="language-plaintext highlighter-rouge">--title</code>; pccli sends the CCLI number in the Planning Center-supported metadata lookup field.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Flag</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--title &lt;value&gt;</code></td>
+      <td>Song title.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--author &lt;value&gt;</code></td>
+      <td>Song author.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--admin &lt;value&gt;</code></td>
+      <td>Song administrator.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--ccli &lt;number&gt;</code></td>
+      <td>CCLI number.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--copyright &lt;value&gt;</code></td>
+      <td>Copyright text.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--hidden</code></td>
+      <td>Create the song as hidden.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--themes &lt;value&gt;</code></td>
+      <td>Themes or tags text.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="pccli-services-songs-update"><code class="language-plaintext highlighter-rouge">pccli services songs update</code></h2>
+
+<p>Update song metadata.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services songs update SONG <span class="nt">--themes</span> <span class="s2">"Grace, Hymn"</span>
+</code></pre></div></div>
+
+<p>The update command accepts the same metadata flags as <code class="language-plaintext highlighter-rouge">create</code>.</p>
+
+<h2 id="pccli-services-songs-delete"><code class="language-plaintext highlighter-rouge">pccli services songs delete</code></h2>
+
+<p>Delete a song. Use an ID or exact title and pass <code class="language-plaintext highlighter-rouge">--yes</code> to make deletion explicit.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services songs delete SONG <span class="nt">--yes</span>
+</code></pre></div></div>
+
+<table>
+  <thead>
+    <tr>
+      <th>Flag</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--hidden</code></td>
+      <td>Delete a hidden song.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--yes</code></td>
+      <td>Confirm deletion.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="pccli-services-songs-arrangements"><code class="language-plaintext highlighter-rouge">pccli services songs arrangements</code></h2>
+
+<p>List arrangements for one song, or show one arrangement with its keys.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services songs arrangements SONG <span class="o">[</span>flags]
+pccli services songs arrangements SONG ARRANGEMENT
+</code></pre></div></div>
+
+<table>
+  <thead>
+    <tr>
+      <th>Flag</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--hidden</code></td>
+      <td>Look up arrangements for a hidden song.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--limit &lt;number&gt;</code></td>
+      <td>Number of arrangements to fetch. Default: <code class="language-plaintext highlighter-rouge">25</code>.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="pccli-services-songs-arrangements-create"><code class="language-plaintext highlighter-rouge">pccli services songs arrangements create</code></h3>
+
+<p>Create an arrangement for a song.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services songs arrangements create SONG <span class="nt">--name</span> <span class="s2">"Full Band"</span> <span class="nt">--key</span> G <span class="nt">--bpm</span> 72 <span class="nt">--meter</span> 4/4 <span class="nt">--length</span> 4:15
+</code></pre></div></div>
+
+<h3 id="pccli-services-songs-arrangements-update"><code class="language-plaintext highlighter-rouge">pccli services songs arrangements update</code></h3>
+
+<p>Update arrangement metadata. Use an arrangement ID or exact arrangement name.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services songs arrangements update SONG ARRANGEMENT <span class="nt">--bpm</span> 74
+</code></pre></div></div>
+
+<h3 id="pccli-services-songs-arrangements-delete"><code class="language-plaintext highlighter-rouge">pccli services songs arrangements delete</code></h3>
+
+<p>Delete an arrangement. Use an arrangement ID or exact arrangement name and pass <code class="language-plaintext highlighter-rouge">--yes</code>.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services songs arrangements delete SONG ARRANGEMENT <span class="nt">--yes</span>
+</code></pre></div></div>
+
+<p>Arrangement create and update flags:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Flag</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--name &lt;value&gt;</code></td>
+      <td>Arrangement name. Required for create.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--key &lt;value&gt;</code></td>
+      <td>Chord chart key, such as <code class="language-plaintext highlighter-rouge">G</code> or <code class="language-plaintext highlighter-rouge">Cm</code>.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--bpm &lt;number&gt;</code></td>
+      <td>Beats per minute.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--meter &lt;value&gt;</code></td>
+      <td>Meter, such as <code class="language-plaintext highlighter-rouge">4/4</code>.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--length &lt;value&gt;</code></td>
+      <td>Length as seconds or <code class="language-plaintext highlighter-rouge">m:ss</code>.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--lyrics-enabled</code></td>
+      <td>Enable lyrics for the arrangement.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--notes &lt;value&gt;</code></td>
+      <td>Arrangement notes.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--sequence &lt;values&gt;</code></td>
+      <td>Comma-separated sequence, such as <code class="language-plaintext highlighter-rouge">V1,V2,C</code>.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--hidden</code></td>
+      <td>Create, update, or delete the arrangement on a hidden song.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="pccli-services-songs-keys"><code class="language-plaintext highlighter-rouge">pccli services songs keys</code></h2>
+
+<p>List available keys for an arrangement. If <code class="language-plaintext highlighter-rouge">ARRANGEMENT</code> is omitted, pccli uses the default arrangement.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services songs keys SONG <span class="o">[</span>ARRANGEMENT] <span class="o">[</span>flags]
+</code></pre></div></div>
+
+<table>
+  <thead>
+    <tr>
+      <th>Flag</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--hidden</code></td>
+      <td>Look up keys for a hidden song.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--limit &lt;number&gt;</code></td>
+      <td>Number of keys to fetch. Default: <code class="language-plaintext highlighter-rouge">25</code>.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="pccli-services-songs-keys-create"><code class="language-plaintext highlighter-rouge">pccli services songs keys create</code></h3>
+
+<p>Create a key for an arrangement. If <code class="language-plaintext highlighter-rouge">ARRANGEMENT</code> is omitted, pccli uses the default arrangement.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services songs keys create SONG <span class="nt">--name</span> <span class="s2">"Female Lead"</span> <span class="nt">--start</span> Bb
+pccli services songs keys create SONG ARRANGEMENT <span class="nt">--name</span> <span class="s2">"Female Lead"</span> <span class="nt">--start</span> Bb <span class="nt">--end</span> Bb
+</code></pre></div></div>
+
+<h3 id="pccli-services-songs-keys-update"><code class="language-plaintext highlighter-rouge">pccli services songs keys update</code></h3>
+
+<p>Update key metadata. Use arrangement and key IDs or exact names.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services songs keys update SONG ARRANGEMENT KEY <span class="nt">--start</span> A <span class="nt">--end</span> A
+</code></pre></div></div>
+
+<h3 id="pccli-services-songs-keys-delete"><code class="language-plaintext highlighter-rouge">pccli services songs keys delete</code></h3>
+
+<p>Delete a key. Use arrangement and key IDs or exact names and pass <code class="language-plaintext highlighter-rouge">--yes</code>.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services songs keys delete SONG ARRANGEMENT KEY <span class="nt">--yes</span>
+</code></pre></div></div>
+
+<p>Key create and update flags:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Flag</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--name &lt;value&gt;</code></td>
+      <td>Key name. Required for create.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--start &lt;value&gt;</code></td>
+      <td>Starting key, such as <code class="language-plaintext highlighter-rouge">G</code> or <code class="language-plaintext highlighter-rouge">Cm</code>. Required for create.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--end &lt;value&gt;</code></td>
+      <td>Ending key. Defaults to the starting key on create.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--hidden</code></td>
+      <td>Create, update, or delete the key on a hidden song.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="pccli-services-songs-attachments"><code class="language-plaintext highlighter-rouge">pccli services songs attachments</code></h2>
+
+<p>List song, arrangement, or key attachments.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services songs attachments SONG <span class="o">[</span>flags]
+pccli services songs attachments SONG <span class="nt">--arrangement</span> ARRANGEMENT
+pccli services songs attachments SONG <span class="nt">--arrangement</span> ARRANGEMENT <span class="nt">--key</span> KEY
+</code></pre></div></div>
+
+<table>
+  <thead>
+    <tr>
+      <th>Flag</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--arrangement &lt;value&gt;</code></td>
+      <td>Scope attachments to an arrangement ID or exact name.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--key &lt;value&gt;</code></td>
+      <td>Scope attachments to a key ID or exact name. Requires <code class="language-plaintext highlighter-rouge">--arrangement</code>.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--hidden</code></td>
+      <td>Look up attachments for a hidden song.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--filename &lt;value&gt;</code></td>
+      <td>Filter by filename.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--type &lt;value&gt;</code></td>
+      <td>Filter by Planning Center attachment type.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--limit &lt;number&gt;</code></td>
+      <td>Number of attachments to fetch. Default: <code class="language-plaintext highlighter-rouge">25</code>.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="pccli-services-songs-attach"><code class="language-plaintext highlighter-rouge">pccli services songs attach</code></h2>
+
+<p>Attach a file, Planning Center upload UUID, link, or inline content to a song. Add <code class="language-plaintext highlighter-rouge">--arrangement</code> and <code class="language-plaintext highlighter-rouge">--key</code> when the attachment belongs to a specific arrangement or key.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services songs attach SONG <span class="nt">--file</span> ./lead-sheet.pdf
+pccli services songs attach SONG <span class="nt">--url</span> <span class="s2">"https://example.com/rehearsal-track"</span>
+pccli services songs attach SONG <span class="nt">--upload-id</span> us1-16207df7-b6cc-4abe-ca1a-306c6f7e423d
+</code></pre></div></div>
+
+<table>
+  <thead>
+    <tr>
+      <th>Flag</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--file &lt;path&gt;</code></td>
+      <td>Upload and attach a local file such as a PDF.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--upload-id &lt;uuid&gt;</code></td>
+      <td>Attach an existing Planning Center upload UUID.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--url &lt;url&gt;</code></td>
+      <td>Attach a remote link.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--content &lt;value&gt;</code></td>
+      <td>Attach inline attachment content.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--filename &lt;value&gt;</code></td>
+      <td>Filename to show in Planning Center.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--attachment-type-ids &lt;ids&gt;</code></td>
+      <td>Comma-separated Planning Center attachment type IDs.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--item-details</code></td>
+      <td>Import this attachment to item details.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--page-order &lt;value&gt;</code></td>
+      <td>Planning Center page order value.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--song-part &lt;value&gt;</code></td>
+      <td>Song part label for generated charts.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--arrangement &lt;value&gt;</code></td>
+      <td>Scope attachment to an arrangement ID or exact name.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--key &lt;value&gt;</code></td>
+      <td>Scope attachment to a key ID or exact name. Requires <code class="language-plaintext highlighter-rouge">--arrangement</code>.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--hidden</code></td>
+      <td>Attach to a hidden song.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="environment-variables">Environment Variables</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Variable</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">PCCLI_CLIENT_ID</code></td>
+      <td>Planning Center Personal Access Token client ID.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">PCCLI_CLIENT_SECRET</code></td>
+      <td>Planning Center Personal Access Token secret.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">PCCLI_MOCK</code></td>
+      <td>Use local mock responses when set to <code class="language-plaintext highlighter-rouge">true</code>.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">PCCLI_MOCK_FIXTURE</code></td>
+      <td>Path to the mock fixture file.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">PCCLI_BASE_URL</code></td>
+      <td>Planning Center API base URL.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">PCCLI_UPLOAD_URL</code></td>
+      <td>Planning Center file upload base URL.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">PCCLI_TIMEOUT</code></td>
+      <td>HTTP request timeout. Default: <code class="language-plaintext highlighter-rouge">30s</code>.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">PCCLI_COLOR</code></td>
+      <td>Color mode: <code class="language-plaintext highlighter-rouge">auto</code>, <code class="language-plaintext highlighter-rouge">always</code>, or <code class="language-plaintext highlighter-rouge">never</code>.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">NO_COLOR</code></td>
+      <td>Disable color when <code class="language-plaintext highlighter-rouge">PCCLI_COLOR</code> is not <code class="language-plaintext highlighter-rouge">always</code>.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="config-file-loading">Config File Loading</h2>
+
+<p>pccli reads configuration from shell environment variables first, then <code class="language-plaintext highlighter-rouge">.env</code> in the current directory, then <code class="language-plaintext highlighter-rouge">~/.pccli/.env</code>, then built-in defaults.</p>
+
+      </main>
+    </div>
+  </body>
+</html>

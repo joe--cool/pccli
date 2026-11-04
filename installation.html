@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Installation - pccli</title>
+    <meta name="description" content="An unofficial Planning Center command line tool.">
+    <link href="https://fonts.googleapis.com/css?family=Inconsolata|Lato:300,400,700" rel="stylesheet">
+    <link rel="stylesheet" href="/pccli/assets/css/site.css">
+  <!-- pccli-canonical -->
+<link rel="canonical" href="https://joe--cool.github.io/pccli/installation.html">
+<!-- /pccli-canonical -->
+</head>
+  <body>
+    <div class="docs-version" role="note" aria-label="Documentation version">
+      
+        <strong>pccli v2.0.1</strong> documentation (v2).
+      
+      <a href="/pccli/latest/">Latest release documentation</a>
+      <span aria-hidden="true"> · </span>
+      <a href="/pccli/releases.html">All releases</a>
+      <span aria-hidden="true"> · </span>
+      <a href="/pccli/downloads.html">Downloads</a>
+    </div>
+
+    <header class="site-header">
+      <a class="brand" href="/pccli/">
+        <span class="brand-mark">pc</span>
+        <span class="brand-name">pccli</span>
+        <span class="brand-pill">Unofficial</span>
+      </a>
+      <nav class="top-nav" aria-label="Top navigation">
+        <a href="/pccli/quick-start.html">Quick Start</a>
+        <a href="/pccli/services.html">Services</a>
+        <a href="/pccli/latest/">Latest docs</a>
+        <a href="/pccli/releases.html">Releases</a>
+        <a href="/pccli/downloads.html">Downloads</a>
+        <a href="https://github.com/joe--cool/pccli">Repository</a>
+      </nav>
+    </header>
+
+    <div class="docs-shell">
+      <aside class="sidebar" aria-label="Documentation navigation">
+        <nav>
+          <p class="nav-title">Start</p>
+          <a href="/pccli/">Getting Started</a>
+          <a href="/pccli/installation.html">Installation</a>
+          <a href="/pccli/authentication.html">Authentication</a>
+          <a href="/pccli/quick-start.html">Quick Start</a>
+          <p class="nav-title">Services</p>
+          <a href="/pccli/services.html">Overview</a>
+          <a href="/pccli/managing-your-song-library.html">Managing Your Song Library</a>
+          <a href="/pccli/commands.html">Music Library Commands</a>
+          <a href="/pccli/song-fields.html">Editable Song Fields</a>
+          <p class="nav-title">Releases</p>
+          <a href="/pccli/">Latest Release Documentation</a>
+          <a href="/pccli/releases.html">Release History</a>
+          <a href="/pccli/downloads.html">Download pccli</a>
+          <p class="nav-title">Links</p>
+          <a href="https://github.com/joe--cool/pccli">GitHub Repository</a>
+          <a href="https://api.planningcenteronline.com/docs/">Planning Center API Docs</a>
+        </nav>
+      </aside>
+
+      <main class="content">
+        <h1 id="installation">Installation</h1>
+
+<p>pccli is an unofficial project, not built, endorsed, or supported by Planning Center.</p>
+
+<h2 id="install-a-release">Install a release</h2>
+
+<p>Download the archive for your operating system and CPU from the <a href="/pccli/downloads.html">Downloads page</a>. Extract it and put <code class="language-plaintext highlighter-rouge">pccli</code> (or <code class="language-plaintext highlighter-rouge">pccli.exe</code>) in a directory on your <code class="language-plaintext highlighter-rouge">PATH</code>. Release assets include checksums.</p>
+
+<h2 id="install-with-go">Install with Go</h2>
+
+<p>With Go installed, run:</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>go <span class="nb">install </span>github.com/joe--cool/pccli/v2/cmd/pccli@latest
+</code></pre></div></div>
+
+<p>Add Go’s binary installation directory (normally <code class="language-plaintext highlighter-rouge">~/go/bin</code>) to your <code class="language-plaintext highlighter-rouge">PATH</code> if needed. Source builds use the Go version declared in the module; the current repository pins Go 1.27.3.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli <span class="nt">--version</span>
+pccli <span class="nt">--help</span>
+</code></pre></div></div>
+
+<p>Help and version work without credentials. To update a Go installation, run the same <code class="language-plaintext highlighter-rouge">go install</code> command again. For release archives, replace the binary with the new release.</p>
+
+<p>Next, <a href="authentication.html">configure your Personal Access Token</a>.</p>
+
+      </main>
+    </div>
+  </body>
+</html>

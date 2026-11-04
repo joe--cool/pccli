@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Getting Started - pccli</title>
+    <meta name="description" content="An unofficial Planning Center command line tool.">
+    <link href="https://fonts.googleapis.com/css?family=Inconsolata|Lato:300,400,700" rel="stylesheet">
+    <link rel="stylesheet" href="/pccli/assets/css/site.css">
+  <!-- pccli-canonical -->
+<link rel="canonical" href="https://joe--cool.github.io/pccli/">
+<!-- /pccli-canonical -->
+</head>
+  <body>
+    <div class="docs-version" role="note" aria-label="Documentation version">
+      
+        <strong>pccli v2.0.1</strong> documentation (v2).
+      
+      <a href="/pccli/latest/">Latest release documentation</a>
+      <span aria-hidden="true"> · </span>
+      <a href="/pccli/releases.html">All releases</a>
+      <span aria-hidden="true"> · </span>
+      <a href="/pccli/downloads.html">Downloads</a>
+    </div>
+
+    <header class="site-header">
+      <a class="brand" href="/pccli/">
+        <span class="brand-mark">pc</span>
+        <span class="brand-name">pccli</span>
+        <span class="brand-pill">Unofficial</span>
+      </a>
+      <nav class="top-nav" aria-label="Top navigation">
+        <a href="/pccli/quick-start.html">Quick Start</a>
+        <a href="/pccli/services.html">Services</a>
+        <a href="/pccli/latest/">Latest docs</a>
+        <a href="/pccli/releases.html">Releases</a>
+        <a href="/pccli/downloads.html">Downloads</a>
+        <a href="https://github.com/joe--cool/pccli">Repository</a>
+      </nav>
+    </header>
+
+    <div class="docs-shell">
+      <aside class="sidebar" aria-label="Documentation navigation">
+        <nav>
+          <p class="nav-title">Start</p>
+          <a href="/pccli/">Getting Started</a>
+          <a href="/pccli/installation.html">Installation</a>
+          <a href="/pccli/authentication.html">Authentication</a>
+          <a href="/pccli/quick-start.html">Quick Start</a>
+          <p class="nav-title">Services</p>
+          <a href="/pccli/services.html">Overview</a>
+          <a href="/pccli/managing-your-song-library.html">Managing Your Song Library</a>
+          <a href="/pccli/commands.html">Music Library Commands</a>
+          <a href="/pccli/song-fields.html">Editable Song Fields</a>
+          <p class="nav-title">Releases</p>
+          <a href="/pccli/">Latest Release Documentation</a>
+          <a href="/pccli/releases.html">Release History</a>
+          <a href="/pccli/downloads.html">Download pccli</a>
+          <p class="nav-title">Links</p>
+          <a href="https://github.com/joe--cool/pccli">GitHub Repository</a>
+          <a href="https://api.planningcenteronline.com/docs/">Planning Center API Docs</a>
+        </nav>
+      </aside>
+
+      <main class="content">
+        <h1 id="pccli">pccli</h1>
+
+<p><code class="language-plaintext highlighter-rouge">pccli</code> is an unofficial Planning Center command line tool. It is not built, endorsed, or supported by Planning Center.</p>
+
+<p>Use a terminal or script to find and maintain your Services song library, with clear IDs and explicit song, arrangement, and key context.</p>
+
+<h2 id="get-connected">Get connected</h2>
+
+<ol>
+  <li><a href="installation.html">Install pccli</a>.</li>
+  <li><a href="authentication.html">Configure authentication</a>.</li>
+  <li><a href="quick-start.html">Verify access with the quick start</a>.</li>
+</ol>
+
+<h2 id="see-what-pccli-does">See what pccli does</h2>
+
+<p>Find a song, compare its arrangements, and select a key using the IDs in your results. After connecting your account, you can also maintain metadata, charts, files, and tags with the same resource-first commands.</p>
+
+<figure class="demo-figure">
+  <video class="terminal-demo" controls="" playsinline="" preload="none" width="1100" height="680" poster="/pccli/assets/overview-demo-poster.png" aria-label="Explore your song library" aria-describedby="overview-demo-description">
+    <source src="/pccli/assets/overview-demo.mp4" type="video/mp4" />
+    <p><a href="/pccli/assets/overview-demo.mp4">Download Explore your song library</a>, or read the steps below.</p>
+  </video>
+  <figcaption id="overview-demo-description">Find Amazing Grace, inspect its arrangements, then list the keys for Full Band. Silent mock recording. Play, pause, or scrub at your own pace; playback stops at the end.</figcaption>
+</figure>
+
+<details>
+  <summary>Read the overview steps</summary>
+
+  <ol>
+    <li>
+      <p>Find the song:</p>
+
+      <div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services songs list <span class="nt">--search</span> <span class="s2">"Amazing"</span>
+</code></pre></div>      </div>
+
+      <p>The mock result is <strong>Amazing Grace</strong>, song ID <strong>1001</strong>.</p>
+    </li>
+    <li>
+      <p>Inspect its metadata and versions:</p>
+
+      <div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services songs show 1001
+</code></pre></div>      </div>
+
+      <p>The song view shows author, CCLI number, notes, and two arrangements: <strong>Full Band (2001)</strong> in G and <strong>Acoustic (2002)</strong> in D.</p>
+    </li>
+    <li>
+      <p>Select Full Band explicitly:</p>
+
+      <div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services keys list <span class="nt">--song</span> 1001 <span class="nt">--arrangement</span> 2001
+</code></pre></div>      </div>
+
+      <p>Its key records are <strong>Default (3001)</strong> in G and <strong>Female Lead (3002)</strong> in Bb. Use the returned IDs in follow-up commands. Your own account will have different IDs.</p>
+    </li>
+  </ol>
+
+</details>
+
+<p>Continue with <a href="managing-your-song-library.html#place-files-and-links-in-the-right-scope">file placement</a> or <a href="commands.html#json-and-errors">JSON for scripts</a> for focused recordings.</p>
+
+<h2 id="choose-a-workflow">Choose a workflow</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Task</th>
+      <th>Guide</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Find songs and inspect their arrangements</td>
+      <td><a href="services.html">Services overview</a></td>
+    </tr>
+    <tr>
+      <td>Maintain metadata, charts, keys, files, and tags</td>
+      <td><a href="managing-your-song-library.html">Managing your song library</a></td>
+    </tr>
+    <tr>
+      <td>Look up command arguments and flags</td>
+      <td><a href="commands.html">Command reference</a></td>
+    </tr>
+    <tr>
+      <td>Check editable fields and import options</td>
+      <td><a href="song-fields.html">Song-library metadata fields</a></td>
+    </tr>
+    <tr>
+      <td>Read results in a script</td>
+      <td><a href="commands.html#json-and-errors">JSON and errors</a></td>
+    </tr>
+  </tbody>
+</table>
+
+      </main>
+    </div>
+  </body>
+</html>

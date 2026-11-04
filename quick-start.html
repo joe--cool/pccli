@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Quick Start - pccli</title>
+    <meta name="description" content="An unofficial Planning Center command line tool.">
+    <link href="https://fonts.googleapis.com/css?family=Inconsolata|Lato:300,400,700" rel="stylesheet">
+    <link rel="stylesheet" href="/pccli/assets/css/site.css">
+  <!-- pccli-canonical -->
+<link rel="canonical" href="https://joe--cool.github.io/pccli/quick-start.html">
+<!-- /pccli-canonical -->
+</head>
+  <body>
+    <div class="docs-version" role="note" aria-label="Documentation version">
+      
+        <strong>pccli v2.0.1</strong> documentation (v2).
+      
+      <a href="/pccli/latest/">Latest release documentation</a>
+      <span aria-hidden="true"> · </span>
+      <a href="/pccli/releases.html">All releases</a>
+      <span aria-hidden="true"> · </span>
+      <a href="/pccli/downloads.html">Downloads</a>
+    </div>
+
+    <header class="site-header">
+      <a class="brand" href="/pccli/">
+        <span class="brand-mark">pc</span>
+        <span class="brand-name">pccli</span>
+        <span class="brand-pill">Unofficial</span>
+      </a>
+      <nav class="top-nav" aria-label="Top navigation">
+        <a href="/pccli/quick-start.html">Quick Start</a>
+        <a href="/pccli/services.html">Services</a>
+        <a href="/pccli/latest/">Latest docs</a>
+        <a href="/pccli/releases.html">Releases</a>
+        <a href="/pccli/downloads.html">Downloads</a>
+        <a href="https://github.com/joe--cool/pccli">Repository</a>
+      </nav>
+    </header>
+
+    <div class="docs-shell">
+      <aside class="sidebar" aria-label="Documentation navigation">
+        <nav>
+          <p class="nav-title">Start</p>
+          <a href="/pccli/">Getting Started</a>
+          <a href="/pccli/installation.html">Installation</a>
+          <a href="/pccli/authentication.html">Authentication</a>
+          <a href="/pccli/quick-start.html">Quick Start</a>
+          <p class="nav-title">Services</p>
+          <a href="/pccli/services.html">Overview</a>
+          <a href="/pccli/managing-your-song-library.html">Managing Your Song Library</a>
+          <a href="/pccli/commands.html">Music Library Commands</a>
+          <a href="/pccli/song-fields.html">Editable Song Fields</a>
+          <p class="nav-title">Releases</p>
+          <a href="/pccli/">Latest Release Documentation</a>
+          <a href="/pccli/releases.html">Release History</a>
+          <a href="/pccli/downloads.html">Download pccli</a>
+          <p class="nav-title">Links</p>
+          <a href="https://github.com/joe--cool/pccli">GitHub Repository</a>
+          <a href="https://api.planningcenteronline.com/docs/">Planning Center API Docs</a>
+        </nav>
+      </aside>
+
+      <main class="content">
+        <h1 id="quick-start">Quick Start</h1>
+
+<p>pccli is an unofficial Planning Center tool, not built, endorsed, or supported by Planning Center. This guide installs it, configures access, and verifies a basic read.</p>
+
+<h2 id="1-install">1. Install</h2>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>go <span class="nb">install </span>github.com/joe--cool/pccli/v2/cmd/pccli@latest
+pccli <span class="nt">--version</span>
+</code></pre></div></div>
+
+<p>You can also use a <a href="installation.html">release binary</a>.</p>
+
+<h2 id="2-authenticate">2. Authenticate</h2>
+
+<p>Create a <a href="https://api.planningcenteronline.com/oauth/applications">Personal Access Token</a>, then save its values in <code class="language-plaintext highlighter-rouge">~/.pccli/.env</code>:</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">mkdir</span> <span class="nt">-p</span> ~/.pccli
+<span class="nv">$EDITOR</span> ~/.pccli/.env
+</code></pre></div></div>
+
+<pre><code class="language-dotenv">PCCLI_CLIENT_ID=your_client_id
+PCCLI_CLIENT_SECRET=your_secret
+</code></pre>
+
+<p>See <a href="authentication.html">authentication</a> for permissions and project-local configuration.</p>
+
+<h2 id="3-verify-basic-access">3. Verify basic access</h2>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli <span class="nt">--help</span>
+pccli services <span class="nt">--help</span>
+pccli services songs list <span class="nt">--limit</span> 1
+</code></pre></div></div>
+
+<p>The last command reads Services using your account permissions. An empty result is valid. To try the interface without API access:</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">PCCLI_MOCK</span><span class="o">=</span><span class="nb">true </span>pccli services songs list
+</code></pre></div></div>
+
+<h2 id="choose-your-next-task">Choose your next task</h2>
+
+<ul>
+  <li><a href="managing-your-song-library.html">Find and maintain songs, arrangements, keys, files, and tags</a>.</li>
+  <li><a href="commands.html">Look up a command</a>.</li>
+  <li><a href="commands.html#json-and-errors">Use JSON in a script</a>.</li>
+</ul>
+
+<p>The available product workflow is currently Services song-library management.</p>
+
+      </main>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Authentication - pccli</title>
+    <meta name="description" content="An unofficial Planning Center command line tool.">
+    <link href="https://fonts.googleapis.com/css?family=Inconsolata|Lato:300,400,700" rel="stylesheet">
+    <link rel="stylesheet" href="/pccli/versions/v1/assets/css/site.css">
+  <!-- pccli-canonical -->
+<!-- /pccli-canonical -->
+<meta name="robots" content="noindex, follow">
+</head>
+  <body>
+<div class="release-banner" role="note">
+  <p>Archived v1 documentation (pccli-v1.0.0).</p>
+  <nav aria-label="Release documentation">
+    <a href="/pccli/">Latest documentation</a>
+    <a href="/pccli/releases.html">Releases</a>
+    <a href="/pccli/downloads.html">Downloads</a>
+  </nav>
+</div>
+
+    <header class="site-header">
+      <a class="brand" href="/pccli/versions/v1/">
+        <span class="brand-mark">pc</span>
+        <span class="brand-name">pccli</span>
+        <span class="brand-pill">Unofficial</span>
+      </a>
+      <nav class="top-nav" aria-label="Top navigation">
+        <a href="/pccli/versions/v1/quick-start.html">Quick Start</a>
+        <a href="/pccli/versions/v1/services.html">Services</a>
+        <a href="https://github.com/joe--cool/pccli">Repository</a>
+      </nav>
+    </header>
+
+    <div class="docs-shell">
+      <aside class="sidebar" aria-label="Documentation navigation">
+        <nav>
+          <p class="nav-title">Start</p>
+          <a href="/pccli/versions/v1/">Getting Started</a>
+          <a href="/pccli/versions/v1/installation.html">Installation</a>
+          <a href="/pccli/versions/v1/authentication.html">Authentication</a>
+          <a href="/pccli/versions/v1/quick-start.html">Quick Start</a>
+          <p class="nav-title">Services</p>
+          <a href="/pccli/versions/v1/services.html">Overview</a>
+          <a href="/pccli/versions/v1/managing-your-song-library.html">Managing Your Song Library</a>
+          <a href="/pccli/versions/v1/commands.html">Music Library Commands</a>
+          <p class="nav-title">Links</p>
+          <a href="https://github.com/joe--cool/pccli">GitHub Repository</a>
+          <a href="https://api.planningcenteronline.com/docs/">Planning Center API Docs</a>
+        </nav>
+      </aside>
+
+      <main class="content">
+        <h1 id="authentication">Authentication</h1>
+
+<p>pccli uses Planning Center Personal Access Tokens for authenticated API requests.</p>
+
+<div class="warning-banner">
+  <p><strong>Keep tokens private.</strong> A Personal Access Token acts with your Planning Center user permissions. Do not commit it, paste it into issues, or share it with other users.</p>
+</div>
+
+<h2 id="create-a-personal-access-token">Create a Personal Access Token</h2>
+
+<p>Planning Center documents token creation in its API authentication guide:</p>
+
+<ul>
+  <li><a href="https://api.planningcenteronline.com/docs/overview/authentication">Planning Center API authentication</a></li>
+  <li><a href="https://api.planningcenteronline.com/oauth/applications">Planning Center developer account</a></li>
+</ul>
+
+<p>Create a Personal Access Token, then use the generated <code class="language-plaintext highlighter-rouge">client_id</code> and <code class="language-plaintext highlighter-rouge">secret</code>.</p>
+
+<h2 id="configure-pccli">Configure pccli</h2>
+
+<p>For project-local config, copy the example env file:</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">cp</span> .env.example .env
+</code></pre></div></div>
+
+<p>Fill in:</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">PCCLI_CLIENT_ID</span><span class="o">=</span>your_client_id
+<span class="nv">PCCLI_CLIENT_SECRET</span><span class="o">=</span>your_secret
+</code></pre></div></div>
+
+<p><code class="language-plaintext highlighter-rouge">.env</code> is ignored by git. For a user-level config that works outside this repo, create:</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">mkdir</span> <span class="nt">-p</span> ~/.pccli
+<span class="nv">$EDITOR</span> ~/.pccli/.env
+</code></pre></div></div>
+
+<p>pccli loads configuration in this order:</p>
+
+<ol>
+  <li>Shell environment variables.</li>
+  <li><code class="language-plaintext highlighter-rouge">.env</code> in the current directory.</li>
+  <li><code class="language-plaintext highlighter-rouge">~/.pccli/.env</code>.</li>
+  <li>Built-in defaults.</li>
+</ol>
+
+<p>This lets a project directory override your user-level config when needed.</p>
+
+<h2 id="permissions">Permissions</h2>
+
+<p>Planning Center API requests act as the user who owns the token. If a command cannot see a song or arrangement, confirm that the token’s user has the right Planning Center Services permissions.</p>
+
+      </main>
+    </div>
+  </body>
+</html>

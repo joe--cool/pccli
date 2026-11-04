@@ -1,0 +1,393 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Song-Library Metadata Fields - pccli</title>
+    <meta name="description" content="An unofficial Planning Center command line tool.">
+    <link href="https://fonts.googleapis.com/css?family=Inconsolata|Lato:300,400,700" rel="stylesheet">
+    <link rel="stylesheet" href="/pccli/versions/v2/assets/css/site.css">
+  <!-- pccli-canonical -->
+<!-- /pccli-canonical -->
+<meta name="robots" content="noindex, follow">
+</head>
+  <body>
+    <div class="docs-version" role="note" aria-label="Documentation version">
+      
+        <strong>pccli v2.0.1</strong> documentation (v2).
+      
+      <a href="/pccli/latest/">Latest release documentation</a>
+      <span aria-hidden="true"> · </span>
+      <a href="/pccli/releases.html">All releases</a>
+      <span aria-hidden="true"> · </span>
+      <a href="/pccli/downloads.html">Downloads</a>
+    </div>
+
+    <header class="site-header">
+      <a class="brand" href="/pccli/versions/v2/">
+        <span class="brand-mark">pc</span>
+        <span class="brand-name">pccli</span>
+        <span class="brand-pill">Unofficial</span>
+      </a>
+      <nav class="top-nav" aria-label="Top navigation">
+        <a href="/pccli/versions/v2/quick-start.html">Quick Start</a>
+        <a href="/pccli/versions/v2/services.html">Services</a>
+        <a href="/pccli/latest/">Latest docs</a>
+        <a href="/pccli/releases.html">Releases</a>
+        <a href="/pccli/downloads.html">Downloads</a>
+        <a href="https://github.com/joe--cool/pccli">Repository</a>
+      </nav>
+    </header>
+
+    <div class="docs-shell">
+      <aside class="sidebar" aria-label="Documentation navigation">
+        <nav>
+          <p class="nav-title">Start</p>
+          <a href="/pccli/versions/v2/">Getting Started</a>
+          <a href="/pccli/versions/v2/installation.html">Installation</a>
+          <a href="/pccli/versions/v2/authentication.html">Authentication</a>
+          <a href="/pccli/versions/v2/quick-start.html">Quick Start</a>
+          <p class="nav-title">Services</p>
+          <a href="/pccli/versions/v2/services.html">Overview</a>
+          <a href="/pccli/versions/v2/managing-your-song-library.html">Managing Your Song Library</a>
+          <a href="/pccli/versions/v2/commands.html">Music Library Commands</a>
+          <a href="/pccli/versions/v2/song-fields.html">Editable Song Fields</a>
+          <p class="nav-title">Releases</p>
+          <a href="/pccli/">Latest Release Documentation</a>
+          <a href="/pccli/releases.html">Release History</a>
+          <a href="/pccli/downloads.html">Download pccli</a>
+          <p class="nav-title">Links</p>
+          <a href="https://github.com/joe--cool/pccli">GitHub Repository</a>
+          <a href="https://api.planningcenteronline.com/docs/">Planning Center API Docs</a>
+        </nav>
+      </aside>
+
+      <main class="content">
+        <h1 id="song-library-metadata-fields">Song-Library Metadata Fields</h1>
+
+<p>pccli is unofficial and is not built, endorsed, or supported by Planning Center. These flags map to the documented Services API contract used by pccli (<code class="language-plaintext highlighter-rouge">2018-11-01</code>). See the official <a href="https://api.planningcenteronline.com/docs/apps/services/versions/2018-11-01/vertices/song">Song</a>, <a href="https://api.planningcenteronline.com/docs/apps/services/versions/2018-11-01/vertices/arrangement">Arrangement</a>, and <a href="https://api.planningcenteronline.com/docs/apps/services/versions/2018-11-01/vertices/key">Key</a> references.</p>
+
+<h2 id="update-only-what-you-intend">Update only what you intend</h2>
+
+<p>An omitted flag leaves the value unchanged. An explicit empty string, zero, false, or empty sequence is transmitted when valid; otherwise pccli rejects it clearly. For booleans, use <code class="language-plaintext highlighter-rouge">--flag=false</code> to turn a setting off. Names and titles cannot be empty; BPM and CCLI numbers must be positive.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services songs update 1001 <span class="nt">--author</span> <span class="s2">""</span>
+pccli services arrangements update 2001 <span class="nt">--song</span> 1001 <span class="nt">--notes</span> <span class="s2">""</span> <span class="nt">--length</span> 0 <span class="nt">--lyrics-enabled</span><span class="o">=</span><span class="nb">false</span> <span class="nt">--sequence</span> <span class="s2">""</span>
+</code></pre></div></div>
+
+<p>The API determines which clears and imports an account supports. A rejected write or failed verification exits nonzero; accepted provider actions may still be unverified. Inspect the reported outcome before retrying. Provider import fields are actions: API acceptance does not confirm that provider processing or generated files have completed.</p>
+
+<h2 id="songs">Songs</h2>
+
+<p>Use these on <code class="language-plaintext highlighter-rouge">songs create</code> and <code class="language-plaintext highlighter-rouge">songs update SONG</code>, except the create-only imports below.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Flag</th>
+      <th>Type</th>
+      <th>Meaning</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--title</code></td>
+      <td>string</td>
+      <td>Song title; create requires this or <code class="language-plaintext highlighter-rouge">--ccli</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--admin</code></td>
+      <td>string</td>
+      <td>Song administrator</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--author</code></td>
+      <td>string</td>
+      <td>Author text</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--copyright</code></td>
+      <td>string</td>
+      <td>Copyright text</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--themes</code></td>
+      <td>string</td>
+      <td>Themes text; separate from tag assignments</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--ccli</code></td>
+      <td>integer</td>
+      <td>Positive CCLI song number</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--hidden</code></td>
+      <td>boolean</td>
+      <td>Set state; existing-record selection uses <code class="language-plaintext highlighter-rouge">--visibility</code></td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Create-only string fields:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Flag</th>
+      <th>Meaning</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--import-ccli-chord-chart</code></td>
+      <td>CCLI chord-chart import request</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--import-ccli-chord-pro</code></td>
+      <td>CCLI ChordPro import request</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--import-ccli-lyrics</code></td>
+      <td>CCLI lyrics import request</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><code class="language-plaintext highlighter-rouge">--ccli NUMBER</code> without a title sends that number through Planning Center’s title-based metadata lookup. Provider import strings are separate from this metadata lookup. On create, a digits-only title requires the matching <code class="language-plaintext highlighter-rouge">--ccli</code> number because the API interprets that title as a metadata lookup.</p>
+
+<h2 id="arrangements">Arrangements</h2>
+
+<p>Use these on <code class="language-plaintext highlighter-rouge">arrangements create --song SONG --name NAME</code> and <code class="language-plaintext highlighter-rouge">arrangements update ARRANGEMENT --song SONG</code>.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Flag</th>
+      <th>Type</th>
+      <th>Meaning / valid values</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--name</code></td>
+      <td>string</td>
+      <td>Arrangement name; required on create</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--bpm</code></td>
+      <td>number</td>
+      <td>Finite positive tempo</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--meter</code></td>
+      <td>string</td>
+      <td><code class="language-plaintext highlighter-rouge">2/2</code>, <code class="language-plaintext highlighter-rouge">2/4</code>, <code class="language-plaintext highlighter-rouge">3/2</code>, <code class="language-plaintext highlighter-rouge">3/4</code>, <code class="language-plaintext highlighter-rouge">4/2</code>, <code class="language-plaintext highlighter-rouge">4/4</code>, <code class="language-plaintext highlighter-rouge">5/4</code>, <code class="language-plaintext highlighter-rouge">6/4</code>, <code class="language-plaintext highlighter-rouge">3/8</code>, <code class="language-plaintext highlighter-rouge">6/8</code>, <code class="language-plaintext highlighter-rouge">7/4</code>, <code class="language-plaintext highlighter-rouge">7/8</code>, <code class="language-plaintext highlighter-rouge">9/8</code>, <code class="language-plaintext highlighter-rouge">12/4</code>, <code class="language-plaintext highlighter-rouge">12/8</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--chart-key</code></td>
+      <td>string</td>
+      <td>Musical pitch, such as <code class="language-plaintext highlighter-rouge">G</code>, <code class="language-plaintext highlighter-rouge">Bb</code>, or <code class="language-plaintext highlighter-rouge">Cm</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--notes</code></td>
+      <td>string</td>
+      <td>Arrangement notes</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--length</code></td>
+      <td>duration</td>
+      <td>Nonnegative seconds or <code class="language-plaintext highlighter-rouge">m:ss</code>; <code class="language-plaintext highlighter-rouge">0</code> clears; maximum 2147483647 seconds</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--lyrics-enabled</code></td>
+      <td>boolean</td>
+      <td>Enable or disable lyrics</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--sequence</code></td>
+      <td>comma-separated strings</td>
+      <td>Full section labels, e.g. <code class="language-plaintext highlighter-rouge">'Verse 1,Chorus 1'</code>; empty clears</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--chord-chart</code></td>
+      <td>string</td>
+      <td>Lyrics and chords in standard or ChordPro format</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--chord-chart-chord-color</code></td>
+      <td>integer</td>
+      <td>Nonnegative API chord-color value</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--chord-chart-columns</code></td>
+      <td>integer</td>
+      <td>Positive column count</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--chord-chart-font</code></td>
+      <td>string</td>
+      <td>Font setting</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--chord-chart-font-size</code></td>
+      <td>integer</td>
+      <td><code class="language-plaintext highlighter-rouge">10</code>, <code class="language-plaintext highlighter-rouge">11</code>, <code class="language-plaintext highlighter-rouge">12</code>, <code class="language-plaintext highlighter-rouge">13</code>, <code class="language-plaintext highlighter-rouge">14</code>, <code class="language-plaintext highlighter-rouge">15</code>, <code class="language-plaintext highlighter-rouge">16</code>, <code class="language-plaintext highlighter-rouge">18</code>, <code class="language-plaintext highlighter-rouge">20</code>, <code class="language-plaintext highlighter-rouge">22</code>, <code class="language-plaintext highlighter-rouge">24</code>, <code class="language-plaintext highlighter-rouge">26</code>, <code class="language-plaintext highlighter-rouge">28</code>, <code class="language-plaintext highlighter-rouge">32</code>, <code class="language-plaintext highlighter-rouge">36</code>, <code class="language-plaintext highlighter-rouge">42</code>, <code class="language-plaintext highlighter-rouge">48</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--number-chart-enabled</code></td>
+      <td>boolean</td>
+      <td>Enable or disable number charts</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--numeral-chart-enabled</code></td>
+      <td>boolean</td>
+      <td>Enable or disable numeral charts</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--print-margin</code></td>
+      <td>string</td>
+      <td><code class="language-plaintext highlighter-rouge">0.0in</code>, <code class="language-plaintext highlighter-rouge">0.25in</code>, <code class="language-plaintext highlighter-rouge">0.5in</code>, <code class="language-plaintext highlighter-rouge">0.75in</code>, <code class="language-plaintext highlighter-rouge">1.0in</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--print-orientation</code></td>
+      <td>string</td>
+      <td><code class="language-plaintext highlighter-rouge">Portrait</code> or <code class="language-plaintext highlighter-rouge">Landscape</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--print-page-size</code></td>
+      <td>string</td>
+      <td><code class="language-plaintext highlighter-rouge">Widescreen (16x9)</code>, <code class="language-plaintext highlighter-rouge">Fullscreen (4x3)</code>, <code class="language-plaintext highlighter-rouge">A4</code>, <code class="language-plaintext highlighter-rouge">Letter</code>, <code class="language-plaintext highlighter-rouge">Legal</code>, <code class="language-plaintext highlighter-rouge">11x17</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--isrc</code></td>
+      <td>integer</td>
+      <td>Nonnegative ISRC field, represented as an integer by this API</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--mtid</code></td>
+      <td>string</td>
+      <td>Alias for rehearsal mix ID</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--rehearsal-mix-id</code></td>
+      <td>string</td>
+      <td>Rehearsal mix ID; avoid supplying a conflicting <code class="language-plaintext highlighter-rouge">--mtid</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--rehearsal-mix-thumbnail</code></td>
+      <td>string</td>
+      <td>Rehearsal mix thumbnail value</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Import fields accepted on both create and update are all <strong>strings</strong>:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Request flag</th>
+      <th>Corresponding options flag</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--import-chart-pro</code></td>
+      <td><code class="language-plaintext highlighter-rouge">--import-chart-pro-options</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--import-rehearsal-mix</code></td>
+      <td><code class="language-plaintext highlighter-rouge">--import-rehearsal-mix-options</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--import-rehearsal-pack</code></td>
+      <td><code class="language-plaintext highlighter-rouge">--import-rehearsal-pack-options</code></td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Arrangement create additionally accepts <code class="language-plaintext highlighter-rouge">--import-ccli-chord-chart</code>, <code class="language-plaintext highlighter-rouge">--import-ccli-chord-pro</code>, and <code class="language-plaintext highlighter-rouge">--import-ccli-lyrics</code>, all strings. These three flags are not supported on arrangement update.</p>
+
+<h2 id="keys">Keys</h2>
+
+<p>Use these on <code class="language-plaintext highlighter-rouge">keys create</code> and <code class="language-plaintext highlighter-rouge">keys update KEY</code>, always with <code class="language-plaintext highlighter-rouge">--song</code> and <code class="language-plaintext highlighter-rouge">--arrangement</code>.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Flag</th>
+      <th>Type</th>
+      <th>Meaning</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--name</code></td>
+      <td>string</td>
+      <td>Key record name; required on create</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--start</code></td>
+      <td>string</td>
+      <td>Starting pitch; required on create</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--end</code></td>
+      <td>string</td>
+      <td>Ending pitch; defaults to start on create</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--alternate-keys</code></td>
+      <td>string containing JSON</td>
+      <td>Array of objects with nonempty <code class="language-plaintext highlighter-rouge">name</code> and valid <code class="language-plaintext highlighter-rouge">key</code></td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Pitches use <code class="language-plaintext highlighter-rouge">Ab</code>, <code class="language-plaintext highlighter-rouge">A</code>, <code class="language-plaintext highlighter-rouge">A#</code>, <code class="language-plaintext highlighter-rouge">Bb</code>, <code class="language-plaintext highlighter-rouge">B</code>, <code class="language-plaintext highlighter-rouge">C</code>, <code class="language-plaintext highlighter-rouge">C#</code>, <code class="language-plaintext highlighter-rouge">Db</code>, <code class="language-plaintext highlighter-rouge">D</code>, <code class="language-plaintext highlighter-rouge">D#</code>, <code class="language-plaintext highlighter-rouge">Eb</code>, <code class="language-plaintext highlighter-rouge">E</code>, <code class="language-plaintext highlighter-rouge">F</code>, <code class="language-plaintext highlighter-rouge">F#</code>, <code class="language-plaintext highlighter-rouge">Gb</code>, <code class="language-plaintext highlighter-rouge">G</code>, or <code class="language-plaintext highlighter-rouge">G#</code>; append <code class="language-plaintext highlighter-rouge">m</code> for minor.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services keys update 3001 <span class="nt">--song</span> 1001 <span class="nt">--arrangement</span> 2001 <span class="nt">--alternate-keys</span> <span class="s1">'[{"name":"Female lead","key":"Eb"}]'</span>
+</code></pre></div></div>
+
+<p>Use <code class="language-plaintext highlighter-rouge">--alternate-keys '[]'</code> to request an empty alternate-key set. The API defines this attribute as a string containing JSON; pccli validates the array before sending it.</p>
+
+<p>Both create and update also accept these provider import strings:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Flag</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--import-ccli-chord-chart</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--import-ccli-chord-chart-options</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--import-ccli-lyrics</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--import-chart-pro</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--import-rehearsal-mix</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--import-rehearsal-pack</code></td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="provider-import-values">Provider import values</h2>
+
+<p>The Services schema declares the import and options fields above as strings but does not define a universal payload format. pccli passes the supplied string to that field; it does not invent an import format or convert these flags into booleans. Use values supported by the provider and your Planning Center integration. Import availability can depend on permissions, subscriptions, and provider setup.</p>
+
+<p>Readable metadata includes timestamps, chart text and settings, lyrics, complete sequence, source IDs, archive state, and key minor flags. Use <code class="language-plaintext highlighter-rouge">show --json</code> when you need all returned metadata, including false or zero values suppressed in concise human output.</p>
+
+      </main>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Authentication - pccli</title>
+    <meta name="description" content="An unofficial Planning Center command line tool.">
+    <link href="https://fonts.googleapis.com/css?family=Inconsolata|Lato:300,400,700" rel="stylesheet">
+    <link rel="stylesheet" href="/pccli/versions/v2/assets/css/site.css">
+  <!-- pccli-canonical -->
+<!-- /pccli-canonical -->
+<meta name="robots" content="noindex, follow">
+</head>
+  <body>
+    <div class="docs-version" role="note" aria-label="Documentation version">
+      
+        <strong>pccli v2.0.1</strong> documentation (v2).
+      
+      <a href="/pccli/latest/">Latest release documentation</a>
+      <span aria-hidden="true"> · </span>
+      <a href="/pccli/releases.html">All releases</a>
+      <span aria-hidden="true"> · </span>
+      <a href="/pccli/downloads.html">Downloads</a>
+    </div>
+
+    <header class="site-header">
+      <a class="brand" href="/pccli/versions/v2/">
+        <span class="brand-mark">pc</span>
+        <span class="brand-name">pccli</span>
+        <span class="brand-pill">Unofficial</span>
+      </a>
+      <nav class="top-nav" aria-label="Top navigation">
+        <a href="/pccli/versions/v2/quick-start.html">Quick Start</a>
+        <a href="/pccli/versions/v2/services.html">Services</a>
+        <a href="/pccli/latest/">Latest docs</a>
+        <a href="/pccli/releases.html">Releases</a>
+        <a href="/pccli/downloads.html">Downloads</a>
+        <a href="https://github.com/joe--cool/pccli">Repository</a>
+      </nav>
+    </header>
+
+    <div class="docs-shell">
+      <aside class="sidebar" aria-label="Documentation navigation">
+        <nav>
+          <p class="nav-title">Start</p>
+          <a href="/pccli/versions/v2/">Getting Started</a>
+          <a href="/pccli/versions/v2/installation.html">Installation</a>
+          <a href="/pccli/versions/v2/authentication.html">Authentication</a>
+          <a href="/pccli/versions/v2/quick-start.html">Quick Start</a>
+          <p class="nav-title">Services</p>
+          <a href="/pccli/versions/v2/services.html">Overview</a>
+          <a href="/pccli/versions/v2/managing-your-song-library.html">Managing Your Song Library</a>
+          <a href="/pccli/versions/v2/commands.html">Music Library Commands</a>
+          <a href="/pccli/versions/v2/song-fields.html">Editable Song Fields</a>
+          <p class="nav-title">Releases</p>
+          <a href="/pccli/">Latest Release Documentation</a>
+          <a href="/pccli/releases.html">Release History</a>
+          <a href="/pccli/downloads.html">Download pccli</a>
+          <p class="nav-title">Links</p>
+          <a href="https://github.com/joe--cool/pccli">GitHub Repository</a>
+          <a href="https://api.planningcenteronline.com/docs/">Planning Center API Docs</a>
+        </nav>
+      </aside>
+
+      <main class="content">
+        <h1 id="authentication">Authentication</h1>
+
+<p>pccli is unofficial and is not built, endorsed, or supported by Planning Center.</p>
+
+<h2 id="create-a-token">Create a token</h2>
+
+<p>Create a Personal Access Token in your <a href="https://api.planningcenteronline.com/oauth/applications">Planning Center developer account</a>. Follow the <a href="https://api.planningcenteronline.com/docs/overview/authentication">official authentication guide</a>. pccli uses the generated client ID and secret with HTTP Basic Auth.</p>
+
+<p>A token acts with its owner’s Planning Center permissions. Keep it private; never commit it or paste it into issues, logs, or shared examples.</p>
+
+<h2 id="save-your-credentials">Save your credentials</h2>
+
+<p>For configuration shared across directories:</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">mkdir</span> <span class="nt">-p</span> ~/.pccli
+<span class="nv">$EDITOR</span> ~/.pccli/.env
+</code></pre></div></div>
+
+<p>Put these values in the file:</p>
+
+<pre><code class="language-dotenv">PCCLI_CLIENT_ID=your_client_id
+PCCLI_CLIENT_SECRET=your_secret
+</code></pre>
+
+<p>In a repository checkout, you can instead copy <code class="language-plaintext highlighter-rouge">.env.example</code> to a local <code class="language-plaintext highlighter-rouge">.env</code> and edit it. The repository ignores <code class="language-plaintext highlighter-rouge">.env</code>.</p>
+
+<p>Configuration precedence is:</p>
+
+<ol>
+  <li>Shell environment variables.</li>
+  <li><code class="language-plaintext highlighter-rouge">.env</code> in the current working directory.</li>
+  <li><code class="language-plaintext highlighter-rouge">~/.pccli/.env</code>.</li>
+  <li>Built-in defaults.</li>
+</ol>
+
+<p>Only the documented <code class="language-plaintext highlighter-rouge">PCCLI_*</code> configuration names are supported. A malformed dotenv file produces an error without echoing its contents.</p>
+
+<h2 id="verify-access">Verify access</h2>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services songs list <span class="nt">--limit</span> 1
+</code></pre></div></div>
+
+<p>An empty list can still confirm access. Authentication or permission errors require checking the token and its owner’s Services access. Help and version do not load credentials.</p>
+
+<p>For mock demonstrations, use <code class="language-plaintext highlighter-rouge">PCCLI_MOCK=true</code>; this uses local fixtures and does not verify live account access. See <a href="commands.html#environment-variables">configuration options</a>.</p>
+
+      </main>
+    </div>
+  </body>
+</html>
