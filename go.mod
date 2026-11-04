@@ -1,4 +1,4 @@
-module github.com/joe--cool/pccli
+module github.com/joe--cool/pccli/v2
 
 go 1.27.3
 

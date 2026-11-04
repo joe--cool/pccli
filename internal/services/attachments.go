@@ -10,7 +10,7 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/joe--cool/pccli/internal/planningcenter"
+	"github.com/joe--cool/pccli/v2/internal/planningcenter"
 )
 
 func attachmentPath(p resolvedParents, key string) string {

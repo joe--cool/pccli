@@ -12,9 +12,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/joe--cool/pccli/internal/config"
-	"github.com/joe--cool/pccli/internal/planningcenter"
-	"github.com/joe--cool/pccli/internal/services"
+	"github.com/joe--cool/pccli/v2/internal/config"
+	"github.com/joe--cool/pccli/v2/internal/planningcenter"
+	"github.com/joe--cool/pccli/v2/internal/services"
 )
 
 type journeyResource struct {

@@ -14,7 +14,7 @@ builds:
     env:
       - CGO_ENABLED=0
     ldflags:
-      - -s -w -X github.com/joe--cool/pccli/internal/cli.Version={{ .Version }}
+      - -s -w -X github.com/joe--cool/pccli/v2/internal/cli.Version={{ .Version }}
     goos:
       - linux
       - darwin
@@ -25,6 +25,7 @@ builds:
 
 archives:
   - id: default
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
     formats: [tar.gz]
     format_overrides:
       - goos: windows

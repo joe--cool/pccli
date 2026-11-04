@@ -9,14 +9,14 @@ pccli is an unofficial project, not built, endorsed, or supported by Planning Ce
 
 ## Install a release
 
-Download the archive for your operating system and CPU from [GitHub Releases](https://github.com/joe--cool/pccli/releases). Extract it and put `pccli` (or `pccli.exe`) in a directory on your `PATH`. Release assets include checksums.
+Download the archive for your operating system and CPU from the [Downloads page]({{ site.docs_root | append: '/downloads.html' }}). Extract it and put `pccli` (or `pccli.exe`) in a directory on your `PATH`. Release assets include checksums.
 
 ## Install with Go
 
 With Go installed, run:
 
 ```sh
-go install github.com/joe--cool/pccli/cmd/pccli@latest
+go install github.com/joe--cool/pccli/v2/cmd/pccli@latest
 ```
 
 Add Go's binary installation directory (normally `~/go/bin`) to your `PATH` if needed. Source builds use the Go version declared in the module; the current repository pins Go 1.27.3.

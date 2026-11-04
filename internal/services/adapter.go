@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/joe--cool/pccli/internal/planningcenter"
+	"github.com/joe--cool/pccli/v2/internal/planningcenter"
 )
 
 type adapter struct{ http HTTPAPI }

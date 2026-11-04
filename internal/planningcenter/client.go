@@ -17,7 +17,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/joe--cool/pccli/internal/config"
+	"github.com/joe--cool/pccli/v2/internal/config"
 )
 
 const ServicesAPIVersion = "2018-11-01"

@@ -1,7 +1,7 @@
 package cli
 
 import (
-	"github.com/joe--cool/pccli/internal/services"
+	"github.com/joe--cool/pccli/v2/internal/services"
 	"github.com/spf13/cobra"
 )
 

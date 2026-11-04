@@ -10,4 +10,7 @@
 /docs/assets/*-demo.mp4
 /docs/assets/*-demo-poster.png
 
+__pycache__/
+*.py[cod]
+
 .DS_Store

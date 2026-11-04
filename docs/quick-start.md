@@ -10,7 +10,7 @@ pccli is an unofficial Planning Center tool, not built, endorsed, or supported b
 ## 1. Install
 
 ```sh
-go install github.com/joe--cool/pccli/cmd/pccli@latest
+go install github.com/joe--cool/pccli/v2/cmd/pccli@latest
 pccli --version
 ```
 
