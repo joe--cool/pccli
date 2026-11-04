@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.1](https://github.com/joe--cool/pccli/compare/v2.0.0...v2.0.1) (2026-11-04)
+
+
+### Fixes
+
+* **release:** publish platform downloads and versioned documentation ([#8](https://github.com/joe--cool/pccli/issues/8)) ([847870b](https://github.com/joe--cool/pccli/commit/847870b605d6795edbb34b0fddf87bca102d7392))
+
 ## [2.0.0](https://github.com/joe--cool/pccli/compare/pccli-v1.0.0...pccli-v2.0.0) (2026-11-04)
 
 
