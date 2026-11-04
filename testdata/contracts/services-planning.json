@@ -70,6 +70,12 @@
       "song_id": "string",
       "arrangement_id": "string",
       "key_id": "string"
+    },
+    "PlanTime": {
+      "name": "string",
+      "starts_at": "string",
+      "ends_at": "string",
+      "time_type": "string"
     }
   },
   "paths": {
@@ -93,7 +99,8 @@
       "GET"
     ],
     "/service_types/{service_type_id}/plans/{plan_id}/plan_times": [
-      "GET"
+      "GET",
+      "POST"
     ],
     "/service_types/{service_type_id}/plans/{plan_id}/team_members": [
       "GET"
@@ -102,6 +109,11 @@
       "GET"
     ],
     "/service_types/{service_type_id}/plans/{plan_id}/items/{item_id}": [
+      "GET",
+      "PATCH",
+      "DELETE"
+    ],
+    "/service_types/{service_type_id}/plans/{plan_id}/plan_times/{plan_time_id}": [
       "GET",
       "PATCH",
       "DELETE"
@@ -126,6 +138,12 @@
       "key_id": "string",
       "item_type": "string",
       "sequence": "integer"
+    },
+    "PlanTime": {
+      "name": "string",
+      "starts_at": "string",
+      "ends_at": "string",
+      "time_type": "string"
     }
   },
   "actions": {

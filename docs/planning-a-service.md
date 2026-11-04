@@ -74,6 +74,23 @@ Reordering requires **every item ID in the selected plan exactly once**. Inspect
 
 Updates can replace song linkage using the same explicit parent flags. Empty song selectors and song linkage on a header are rejected; removing an existing song relationship, changing an existing item's type directly, media/layout editing, and copying item attachments are not supported. HTML details are retained in JSON and terminal-sanitized for human display. Every item write performs independent readback; late failures retain the known item ID and plan in recovery information. Deletes require `--yes` and verify HTTP 404 afterward. Static mock mode supports reading, not this editing workflow.
 
+## Set service and rehearsal times
+
+An undated plan gains its date from its times. Create one explicit time at a time:
+
+```sh
+pccli services plan-times create --service-type 3001 --plan 4001 --name "Morning Service" --starts-at "2026-11-08T09:00:00-08:00" --ends-at "2026-11-08T10:15:00-08:00" --time-type service
+pccli services plan-times show 7001 --service-type 3001 --plan 4001
+pccli services plan-times update 7001 --service-type 3001 --plan 4001 --starts-at "2026-11-08T09:30:00-08:00"
+pccli services plan-times delete 7001 --service-type 3001 --plan 4001 --yes
+```
+
+Creation requires `--starts-at` and `--time-type service|rehearsal|other`. `--ends-at` and `--name` are optional; no end or duration is invented when omitted. Timestamps require RFC3339 with an explicit offset or `Z`, years 0001–9999, and at most nine fractional second digits. Empty timestamps are rejected; `--name ""` clears the label. An end must not precede its start.
+
+Updates preserve omitted fields. Changing only a start or end validates the resulting pair against the current known counterpart before writing. If an existing start is unavailable, provide it when setting an end. Supplying no name on a time is valid; use its ID to select an unnamed time. Names used for updates or parent flags must match exactly and unambiguously.
+
+Readback compares timestamp instants at nanosecond precision, so equivalent `Z` and numeric-offset representations can verify successfully. JSON and human output retain the provider's returned timestamp text. Changes affect only the selected time; bulk changes to later plans, scheduling people, assigning teams or positions to times, and reminder rules are outside these commands. Every write uses independent readback and the same recovery information as item writes. Deletes require `--yes` and verify HTTP 404 afterward. The videos continue to demonstrate reads with static mock data.
+
 ## Check plan readiness
 
 {% include terminal-demo.html name="planning-demo" title="Check Sunday's plan readiness" caption="Review Gathered in Grace, confirm its service time, inspect available teams, then read assignment responses. Under 90 seconds; mock data." %}
@@ -122,4 +139,4 @@ pccli services plans delete 4001 --service-type 3001 --yes
 
 Deletion requires `--yes`, validates the exact identity, and verifies that the plan returns HTTP 404 afterward. A verification failure means the request was accepted but the final state could not be confirmed; inspect the resource before retrying.
 
-Plan copying, time editing, scheduling changes, and notifications remain outside this interface. Mock mode supports the read journeys above; its static fixture does not emulate updates or prove live account permissions.
+Plan copying, scheduling changes, and notifications remain outside this interface. Mock mode supports the read journeys above; its static fixture does not emulate updates or prove live account permissions.

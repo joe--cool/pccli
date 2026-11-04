@@ -14,7 +14,7 @@ Use `pccli services RESOURCE ACTION` to inspect service plans and maintain the S
 | `service-types` | Discover service types and their IDs |
 | `plans` | Create undated plans, inspect and update labels/settings/series, and delete with confirmation |
 | `items` | Build and inspect a plan's order, link songs, reorder items, and delete with confirmation |
-| `plan-times` | Inspect service, rehearsal, and other times |
+| `plan-times` | Create, inspect, update, and delete individual service, rehearsal, and other times |
 | `teams` | Inspect teams associated with a service type |
 | `scheduled-people` | Inspect plan assignments and response status |
 | `songs` | Find, inspect, create, update, delete, and inspect scheduling history |

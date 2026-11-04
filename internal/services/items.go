@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"reflect"
 	"strings"
+	"time"
 )
 
 type ItemPatch struct {
@@ -345,6 +346,23 @@ func samePlanningAttributes(a, b record) bool {
 	var attrsA, attrsB any
 	if json.Unmarshal(rawA, &attrsA) != nil || json.Unmarshal(rawB, &attrsB) != nil {
 		return false
+	}
+	if a.kind == "PlanTime" {
+		for _, attrs := range []any{attrsA, attrsB} {
+			m, ok := attrs.(map[string]any)
+			if !ok {
+				return false
+			}
+			for _, name := range []string{"starts_at", "ends_at"} {
+				if value, ok := m[name].(string); ok {
+					parsed, e := parsePlanningTime(value)
+					if e != nil {
+						return false
+					}
+					m[name] = parsed.UTC().Format(time.RFC3339Nano)
+				}
+			}
+		}
 	}
 	return reflect.DeepEqual(attrsA, attrsB)
 }

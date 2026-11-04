@@ -165,6 +165,19 @@ func validatePlanningAttributes(kind string, attrs map[string]json.RawMessage) e
 	if json.Unmarshal(raw, model) != nil {
 		return fail("invalid_response", "invalid typed "+kind+" attributes")
 	}
+	if kind == "PlanTime" {
+		for _, name := range []string{"starts_at", "ends_at"} {
+			if raw, ok := attrs[name]; ok && string(raw) != "null" {
+				var value string
+				if json.Unmarshal(raw, &value) != nil {
+					return fail("invalid_response", "invalid plan-time timestamp")
+				}
+				if _, e := parsePlanningTime(value); e != nil {
+					return fail("invalid_response", "invalid plan-time "+name)
+				}
+			}
+		}
+	}
 	if kind == "ServiceType" || kind == "Team" {
 		var name string
 		if json.Unmarshal(attrs["name"], &name) != nil || strings.TrimSpace(name) == "" {
@@ -211,7 +224,7 @@ func (l *Library) selectPlanning(ctx context.Context, path, kind, target string,
 		if !planningVisible(r, includeArchived) {
 			return nil
 		}
-		if kind == "Plan" || kind == "Item" {
+		if kind == "Plan" || kind == "Item" || kind == "PlanTime" {
 			if raw, ok := r.attrs[field]; !ok || string(raw) == "null" {
 				return nil
 			}

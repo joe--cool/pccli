@@ -243,6 +243,7 @@ func newPlanTimesCommand(j *bool) *cobra.Command {
 		func(ctx context.Context, l *services.Library, s services.PlanningScope, emit func(services.PlanTime) error) (services.ListMeta, error) {
 			return l.WalkPlanTimes(ctx, s, emit)
 		}))
+	addPlanTimeCommands(g, j)
 	return g
 }
 func newScheduledPeopleCommand(j *bool) *cobra.Command {

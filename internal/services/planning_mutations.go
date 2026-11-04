@@ -47,7 +47,7 @@ func writePlanningChild[T any](ctx context.Context, l *Library, method, path, ki
 			verifyAttrs[name] = v
 		}
 	}
-	if e = verify(read, verifyAttrs); e != nil {
+	if e = verifyPlanningChildFields(kind, read, verifyAttrs); e != nil {
 		return failed(e.Error(), e)
 	}
 	for name, want := range relationships {
