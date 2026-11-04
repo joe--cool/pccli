@@ -279,6 +279,9 @@ func renderResource(r output.Renderer, value any) error {
 	return nil
 }
 func renderTable[T any](r output.Renderer, items []T) error {
+	if handled, err := planningTable(r, items); handled {
+		return err
+	}
 	first := object(items[0])
 	columns := []string{"id"}
 	for _, k := range []string{"title", "name", "display_name", "author", "ccli_number", "starting_key", "ending_key", "chord_chart_key", "bpm", "meter", "filename", "tag_group_id", "tag_group_name", "tags_for", "content_type"} {

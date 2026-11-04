@@ -18,6 +18,7 @@ type record struct {
 	attrs    map[string]json.RawMessage
 	rel      json.RawMessage
 	parents  Scope
+	planning PlanningScope
 }
 
 func decodeRecord(r planningcenter.Resource[json.RawMessage], kind string) (record, error) {
@@ -41,6 +42,9 @@ func decodeRecord(r planningcenter.Resource[json.RawMessage], kind string) (reco
 		if !ok || string(raw) == "null" || json.Unmarshal(raw, &name) != nil || strings.TrimSpace(name) == "" {
 			return record{}, fail("invalid_response", "resource name missing or invalid")
 		}
+	}
+	if err := validatePlanningAttributes(kind, a); err != nil {
+		return record{}, err
 	}
 	var model any
 	switch kind {
@@ -72,6 +76,36 @@ func (r record) model(dst any) error {
 	case *Key:
 		model.SongID = r.parents.Song
 		model.ArrangementID = r.parents.Arrangement
+	case *Plan:
+		model.ServiceTypeID = r.planning.ServiceType
+	case *Item:
+		model.ServiceTypeID = r.planning.ServiceType
+		model.PlanID = r.planning.Plan
+		var err error
+		if model.SongID, err = r.relatedID("song", "Song"); err != nil {
+			return err
+		}
+		if model.ArrangementID, err = r.relatedID("arrangement", "Arrangement"); err != nil {
+			return err
+		}
+		if model.KeyID, err = r.relatedID("key", "Key"); err != nil {
+			return err
+		}
+	case *Team:
+		model.ServiceTypeID = r.planning.ServiceType
+	case *PlanTime:
+		model.ServiceTypeID = r.planning.ServiceType
+		model.PlanID = r.planning.Plan
+	case *ScheduledPerson:
+		var err error
+		if model.PersonID, err = r.relatedID("person", "Person"); err != nil {
+			return err
+		}
+		if model.TeamID, err = r.relatedID("team", "Team"); err != nil {
+			return err
+		}
+		model.ServiceTypeID = r.planning.ServiceType
+		model.PlanID = r.planning.Plan
 	case *Attachment:
 		model.SongID = r.parents.Song
 		model.ArrangementID = r.parents.Arrangement
@@ -108,6 +142,35 @@ func (r record) scope(name, kind, id string) error {
 }
 func (r record) validateScope() error {
 	switch r.kind {
+	case "Plan":
+		if r.planning.ServiceType != "" {
+			return r.scope("service_type", "ServiceType", r.planning.ServiceType)
+		}
+	case "Item", "PlanTime", "PlanPerson":
+		if r.kind == "Item" {
+			for name, kind := range map[string]string{"song": "Song", "arrangement": "Arrangement", "key": "Key"} {
+				if _, err := r.relatedID(name, kind); err != nil {
+					return err
+				}
+			}
+		}
+		if r.kind == "PlanPerson" {
+			for name, kind := range map[string]string{"person": "Person", "team": "Team"} {
+				if _, err := r.relatedID(name, kind); err != nil {
+					return err
+				}
+			}
+		}
+		if r.planning.ServiceType != "" {
+			if err := r.scope("service_type", "ServiceType", r.planning.ServiceType); err != nil {
+				return err
+			}
+		}
+		if r.planning.Plan != "" {
+			return r.scope("plan", "Plan", r.planning.Plan)
+		}
+	case "Team":
+		return r.teamScope()
 	case "Arrangement":
 		if r.parents.Song != "" {
 			return r.scope("song", "Song", r.parents.Song)
@@ -310,7 +373,8 @@ func recordHash(r record) ([32]byte, error) {
 		Attrs         map[string]json.RawMessage
 		Relationships any
 		Parents       Scope
-	}{r.id, r.kind, r.attrs, relationships, r.parents})
+		Planning      PlanningScope
+	}{r.id, r.kind, r.attrs, relationships, r.parents, r.planning})
 	if err != nil {
 		return [32]byte{}, fail("invalid_response", "invalid resource snapshot")
 	}
@@ -483,6 +547,10 @@ func (r record) inPath(path string) record {
 			continue
 		}
 		switch p {
+		case "service_types":
+			r.planning.ServiceType = id
+		case "plans":
+			r.planning.Plan = id
 		case "songs":
 			r.parents.Song = id
 		case "arrangements", "unscoped_arrangements":

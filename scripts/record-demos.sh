@@ -19,7 +19,7 @@ case "${1:-}" in
 esac
 cp "$repo"/scripts/*.tape "$record_dir/scripts/"
 cp "$repo/testdata/mocks/services-library.json" "$record_dir/testdata/mocks/"
-for tape in demo attachment-demo json-demo; do
+for tape in demo planning-demo attachment-demo json-demo; do
   (
     cd "$record_dir"
     env -i HOME="$record_dir/home" PATH="$record_dir/bin:$PATH" \

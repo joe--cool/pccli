@@ -1,0 +1,82 @@
+{
+  "source": "https://api.planningcenteronline.com/services/v2/open_api/2018-11-01",
+  "api_version": "2018-11-01",
+  "retrieved_on": "2026-11-03",
+  "read": {
+    "ServiceType": {
+      "name": "string",
+      "frequency": "string",
+      "archived_at": "string"
+    },
+    "Plan": {
+      "title": "string",
+      "series_title": "string",
+      "dates": "string",
+      "short_dates": "string",
+      "sort_date": "string",
+      "last_time_at": "string",
+      "items_count": "integer",
+      "plan_people_count": "integer",
+      "needed_positions_count": "integer",
+      "total_length": "integer",
+      "public": "boolean",
+      "planning_center_url": "string"
+    },
+    "Item": {
+      "title": "string",
+      "description": "string",
+      "item_type": "string",
+      "service_position": "string",
+      "sequence": "integer",
+      "length": "integer",
+      "key_name": "string"
+    },
+    "Team": {
+      "name": "string",
+      "archived_at": "string",
+      "schedule_to": "string",
+      "rehearsal_team": "boolean"
+    },
+    "PlanTime": {
+      "name": "string",
+      "starts_at": "string",
+      "ends_at": "string",
+      "time_type": "string"
+    },
+    "PlanPerson": {
+      "name": "string",
+      "status": "string",
+      "team_position_name": "string"
+    }
+  },
+  "update": {
+    "Plan": {
+      "title": "string",
+      "series_title": "string"
+    }
+  },
+  "paths": {
+    "/service_types": [
+      "GET"
+    ],
+    "/service_types/{service_type_id}/plans": [
+      "GET"
+    ],
+    "/service_types/{service_type_id}/plans/{plan_id}": [
+      "GET",
+      "PATCH"
+    ],
+    "/service_types/{service_type_id}/plans/{plan_id}/items": [
+      "GET"
+    ],
+    "/service_types/{service_type_id}/teams": [
+      "GET"
+    ],
+    "/service_types/{service_type_id}/plans/{plan_id}/plan_times": [
+      "GET"
+    ],
+    "/service_types/{service_type_id}/plans/{plan_id}/team_members": [
+      "GET"
+    ]
+  }
+}

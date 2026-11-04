@@ -1,9 +1,9 @@
 ---
-title: Services Music Library Commands
+title: Services Commands
 nav_order: 6
 ---
 
-# Services Music Library Commands
+# Services Commands
 
 pccli is unofficial and is not built, endorsed, or supported by Planning Center. Commands follow `pccli services RESOURCE ACTION`. Use `--help` on any command for its installed flags.
 
@@ -15,7 +15,7 @@ pccli is unofficial and is not built, endorsed, or supported by Planning Center.
 | `--help`, `-h` | Help without credentials |
 | `--version`, `-v` | Root version without credentials |
 | `--visibility visible\|hidden\|all` | Select existing songs; default `visible`, including parent lookups and direct IDs |
-| `--include-archived` | Explicitly include archived arrangements where arrangement context is available |
+| `--include-archived` | Explicitly include archived arrangements, or returned archived service types/teams in planning commands |
 | `--limit N` | Total results to display, default 25; positive integer |
 | `--all` | Return the complete selected collection; conflicts with an explicit `--limit` |
 | `--yes` | Required for every delete; never bypasses target validation |
@@ -29,6 +29,26 @@ Search uses literal text, not API wildcard syntax. `%` and `_` are ordinary char
 Arrangements require `--song SONG`. Keys require `--song SONG --arrangement ARRANGEMENT`. There is no automatic first/default arrangement. Attachment scope is a song, optionally an arrangement, optionally a key; `--key` requires `--arrangement`. Parent flags use the same visibility and ambiguity rules across follow-up commands.
 
 Lookups traverse all candidate pages before choosing a target. Display limits never limit identity resolution. Page failures, malformed records, or ambiguous matches stop the operation.
+
+## Service planning
+
+```text
+pccli services service-types list [--limit N | --all] [--include-archived]
+pccli services service-types show SERVICE_TYPE [--include-archived]
+pccli services plans list --service-type SERVICE_TYPE [--filter future|past|no_dates] [--limit N | --all]
+pccli services plans show PLAN --service-type SERVICE_TYPE
+pccli services plans update PLAN --service-type SERVICE_TYPE [--title TEXT] [--series-title TEXT]
+pccli services items list --service-type SERVICE_TYPE --plan PLAN [--limit N | --all]
+pccli services items show ITEM --service-type SERVICE_TYPE --plan PLAN
+pccli services plan-times list --service-type SERVICE_TYPE --plan PLAN [--limit N | --all]
+pccli services teams list --service-type SERVICE_TYPE [--limit N | --all] [--include-archived]
+pccli services teams show TEAM --service-type SERVICE_TYPE [--include-archived]
+pccli services scheduled-people list --service-type SERVICE_TYPE --plan PLAN [--limit N | --all]
+```
+
+Every descendant accepts `--include-archived` when selecting an archived service-type parent. Planning Center must return the record for local archive inclusion to work. Planning commands do not use song `--visibility`. Plans may be untitled; use IDs to select them. Read targets support unique literal partial names/titles, while parents and updates require exact names/titles or IDs. Dates are not selectors.
+
+Plan updates require at least one label flag; explicit empty values clear fields. Updates are checked with GET readback. Items retain provider order and expose sequence and service position. Scheduled-person records identify assignments, with related person/team IDs where provided. Missing optional values remain `null` in machine output. Plan creation, copying, deletion, item/time editing, scheduling changes, and notifications are not supported. [Follow the planning workflow](planning-a-service.html).
 
 ## Songs
 

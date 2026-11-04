@@ -22,7 +22,7 @@ Read [AGENTS.md](AGENTS.md) for the behavioral rules and the [command reference]
 
 ## Follow a request through the code
 
-pccli supports Services song-library maintenance: songs, arrangements, keys, attachments, tags, and scheduling context. Plans, teams, people, and scheduling administration are outside this interface. Keep commands product-first and resource-first, with explicit parents and consistent actions.
+pccli supports Services song-library maintenance and service-planning inspection: service types, plans, ordered items, times, teams, and scheduled people. Plan title and series title updates are verified through a separate GET. Plan creation/copy/deletion, item/time editing, scheduling changes, and notifications remain outside this interface. Keep commands product-first and resource-first, with explicit parents and consistent actions.
 
 | Location | Responsibility |
 | --- | --- |
@@ -40,6 +40,8 @@ The machine contract is `pccli/v1`. List metadata distinguishes returned limits 
 
 For `--json --all`, Services walkers retain one page plus O(N) ID/hash metadata for consistency checks. Explicit song sorting uses bounded private disk runs. The CLI stages the encoded result in a private temporary file and publishes it only after traversal succeeds. Walk callbacks can run before a later failure; a new caller must preserve that staging boundary. Propagate cancellation and clean up temporary files. A failure during the final stdout copy can still leave partial bytes and must exit nonzero.
 
+Planning reads use a separate `PlanningScope`, explicit service-type and plan parents, and typed nullable models in `planning.go`. Optional absent values stay unavailable rather than becoming invented zero/false values. Shared teams may have a different original service-type owner; validate plural service-type membership when supplied. Known archived service types/teams require explicit selection; local inclusion cannot recover server-omitted records. Name-based planning selection exhausts pages before choosing an identity. Plan updates re-read the selected ID before PATCH to detect changed attributes and validate the scoped parent and always perform GET readback afterward. Concurrent changes remain possible between requests.
+
 ## Preserve operator intent
 
 Typed pointer fields preserve omitted versus explicitly supplied mutation values. CLI binders use flag presence, not zero-value checks. Validate the entire input before lookup or upload. API field types can be surprising: alternate keys are a string containing JSON, import fields are strings, and some accepted action fields have no readable equivalent.
@@ -51,6 +53,8 @@ Services version `2018-11-01` is explicit. Verify each changed capability agains
 ## Maintain API capability evidence
 
 [testdata/contracts/services-song-library.json](testdata/contracts/services-song-library.json) is a versioned test fixture, derived from the official Services OpenAPI document linked in its `source` field. It records assignable Song, Arrangement, Key, and Attachment create/update fields, wire types, CLI flags, API version, and retrieval date. Keep that provenance: it explains the contract being tested.
+
+[testdata/contracts/services-planning.json](testdata/contracts/services-planning.json) records the planning endpoint methods, exposed read-field types, and supported Plan patch fields from the same official versioned source. Planning request tests cover scoped identity, optional fields, archive inclusion, assignment relationships, zero-side-effect selection failures, and independent readback. Update the inventory from upstream evidence when expanding the planning field set.
 
 When adding or changing an assignable field, independently check the upstream schema and endpoint, then update the typed input, flag binding, fixture, user field reference, and wire/readback tests together. [coverage_test.go](internal/cli/coverage_test.go) compares the inventory with CLI flag types and typed Song/Arrangement/Key inputs; changing the fixture merely to match the implementation would defeat the check. The field inventory supplements endpoint and lifecycle tests; it does not prove account permissions or provider completion.
 
@@ -113,11 +117,12 @@ This builds the binary and runs `scripts/record-demos.sh`. The recorder copies o
 
 | Tape | Placement | Teaching goal |
 | --- | --- | --- |
-| `scripts/demo.tape` | Front page | Find a song, understand its versions, select a key |
+| `scripts/demo.tape` | Front page | Prepare Sunday: service type, plan, order, song arrangements; under 75 seconds |
+| `scripts/planning-demo.tape` | Planning workflow | Check one plan's times, teams, and responses; under 90 seconds |
 | `scripts/attachment-demo.tape` | File-placement workflow | Compare song, arrangement, and key destinations |
 | `scripts/json-demo.tape` | JSON reference | Inspect completeness, then extract fields for scripts |
 
-Keep recordings focused on one journey. Use the shared `demo-settings.tape` for readable type and dimensions. Introduce each step with a short shell comment, hold the command for one second before Enter, and leave small results for 7–10 seconds and denser detail views for 12 seconds. Clear the screen only between completed steps. End with a useful result and a 10-second hold. Include a representative result poster, an accurate caption, and equivalent readable steps on the page.
+Keep recordings focused on one imagined task and include typing time in the total budget. The main-page recording mixes subcommands in a short workflow; focused recordings go deeper within their time budget. Use prose for details beyond that budget. Use the shared `demo-settings.tape` for readable type and dimensions. Introduce each step with a short shell comment, hold the command for one second before Enter, and leave small results for 7–10 seconds and denser detail views for 12 seconds. Clear the screen only between completed steps. End with a useful result and a 10-second hold. Include a representative result poster, an accurate caption, and equivalent readable steps on the page.
 
 Embed videos through `docs/_includes/terminal-demo.html`: native controls, no autoplay or looping, and no media preload. This gives readers time to pause, inspect, and replay. The recordings are silent; the page text supplies the same instructions and expected outcomes. MP4s/posters are ignored generated assets, regenerated by Pages. To review locally, record, inspect the posters and result frames, and watch the timing/ending in a browser before committing tape changes.
 
