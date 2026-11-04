@@ -9,6 +9,19 @@
     <link rel="stylesheet" href="{{ '/assets/css/site.css' | relative_url }}">
   </head>
   <body>
+    <div class="docs-version" role="note" aria-label="Documentation version">
+      {% if site.release_version %}
+        <strong>pccli {{ site.release_version | escape }}</strong> documentation{% if site.release_major %} ({{ site.release_major | escape }}){% endif %}.
+      {% else %}
+        <strong>Development documentation.</strong>
+      {% endif %}
+      <a href="{{ site.docs_root | append: '/latest/' | escape }}">Latest release documentation</a>
+      <span aria-hidden="true"> · </span>
+      <a href="{{ site.docs_root | append: '/releases.html' | escape }}">All releases</a>
+      <span aria-hidden="true"> · </span>
+      <a href="{{ site.docs_root | append: '/downloads.html' | escape }}">Downloads</a>
+    </div>
+
     <header class="site-header">
       <a class="brand" href="{{ '/' | relative_url }}">
         <span class="brand-mark">pc</span>
@@ -18,25 +31,12 @@
       <nav class="top-nav" aria-label="Top navigation">
         <a href="{{ '/quick-start.html' | relative_url }}">Quick Start</a>
         <a href="{{ '/services.html' | relative_url }}">Services</a>
-        <a href="{{ site.docs_root | append: '/' | escape }}">Latest docs</a>
+        <a href="{{ site.docs_root | append: '/latest/' | escape }}">Latest docs</a>
         <a href="{{ site.docs_root | append: '/releases.html' | escape }}">Releases</a>
         <a href="{{ site.docs_root | append: '/downloads.html' | escape }}">Downloads</a>
         <a href="https://github.com/joe--cool/pccli">Repository</a>
       </nav>
     </header>
-
-    <div class="docs-version" role="note" aria-label="Documentation version">
-      {% if site.release_version %}
-        {% if site.release_major %}<strong>{{ site.release_major | escape }} documentation</strong>, updated for {{ site.release_version | escape }}.{% else %}Documentation for <strong>{{ site.release_version | escape }}</strong>.{% endif %}
-      {% else %}
-        <strong>Development documentation.</strong>
-      {% endif %}
-      <a href="{{ site.docs_root | append: '/' | escape }}">Latest release documentation</a>
-      <span aria-hidden="true"> · </span>
-      <a href="{{ site.docs_root | append: '/releases.html' | escape }}">All releases</a>
-      <span aria-hidden="true"> · </span>
-      <a href="{{ site.docs_root | append: '/downloads.html' | escape }}">Downloads</a>
-    </div>
 
     <div class="docs-shell">
       <aside class="sidebar" aria-label="Documentation navigation">

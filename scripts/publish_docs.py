@@ -305,6 +305,43 @@ def prepare_legacy_docs(source, head):
     return True
 
 
+def ensure_search_metadata(source):
+    """Use the root as the canonical URL, including on the /latest/ alias."""
+    layout = source / "docs" / "_layouts" / "default.html"
+    if not layout.is_file():
+        return
+    text = layout.read_text()
+    marker = "<!-- pccli-canonical -->"
+    if marker in text:
+        return
+    block = """<!-- pccli-canonical -->
+<link rel="canonical" href="{{ site.url | append: site.docs_root | append: page.url | replace: '/index.html', '/' | escape }}">
+<!-- /pccli-canonical -->
+"""
+    text, count = re.subn(r"</head\s*>", lambda match: block + match[0], text, count=1, flags=re.IGNORECASE)
+    if count != 1:
+        raise PublishError("documentation layout has no head for search metadata")
+    layout.write_text(text)
+
+
+def exclude_archive_from_search(directory):
+    """Stamp built HTML without rebuilding frozen versions or changing media."""
+    for path in directory.rglob("*.html"):
+        text = path.read_text()
+        head = re.search(r"<head\b[^>]*>(.*?)</head\s*>", text, re.IGNORECASE | re.DOTALL)
+        if not head:
+            raise PublishError(f"archived HTML has no head for indexing policy: {path.name}")
+        content = head[1]
+        # An archive is intentionally excluded, rather than declared equivalent
+        # to potentially different current content. Keep canonical hints separate.
+        content = re.sub(r"<link\b(?=[^>]*\brel\s*=\s*[\"']canonical[\"'])[^>]*>\s*", "", content, flags=re.IGNORECASE)
+        content = re.sub(r"<meta\b(?=[^>]*\bname\s*=\s*[\"']robots[\"'])[^>]*>\s*", "", content, flags=re.IGNORECASE)
+        content = content.rstrip() + '\n<meta name="robots" content="noindex, follow">\n'
+        updated = text[:head.start(1)] + content + text[head.end(1):]
+        if updated != text:
+            path.write_text(updated)
+
+
 class Builder:
     """External build seam: tests substitute this without rendering or networking."""
 
@@ -363,6 +400,7 @@ class Builder:
         self.build_jekyll(source, destination, head, dataset, self.settings.base_path)
 
     def build_jekyll(self, source, destination, head, dataset, base):
+        ensure_search_metadata(source)
         data = source / "docs" / "_data"
         data.mkdir(exist_ok=True)
         write_json(data / "releases.json", dataset)
@@ -466,6 +504,7 @@ def publish(settings, builder=None):
                 builder.build_major(source, output, head, dataset)
             if not (output / "index.html").is_file():
                 raise PublishError(f"major build {head['tag']} did not produce index.html")
+            exclude_archive_from_search(output)
         latest = next(head for head in heads if head["tag"] == settings.latest_tag)
         source = workspace / "source-global"
         archive_tag(repo, latest["tag"], source, workspace, latest["commit"])

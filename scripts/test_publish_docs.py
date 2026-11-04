@@ -66,11 +66,11 @@ class OfflineBuilder(publisher.Builder):
     def build_jekyll(self, source, destination, head, dataset, base):
         destination.mkdir()
         marker = (source / "docs" / "index.md").read_text()
-        (destination / "index.html").write_text(f"{marker}\n{head['tag']}\n{base}\n")
+        (destination / "index.html").write_text(f"<html><head><title>Docs</title></head><body>{marker}\n{head['tag']}\n{base}\n</body></html>")
         publisher.write_json(destination / "releases.json", dataset)
         for page in (source / "docs").glob("*.md"):
             if page.name != "index.md":
-                (destination / page.with_suffix(".html").name).write_text(page.read_text())
+                (destination / page.with_suffix(".html").name).write_text("<html><head></head><body>" + page.read_text() + "</body></html>")
         assets = source / "docs" / "assets"
         if assets.exists():
             import shutil
@@ -124,6 +124,44 @@ class PublicationTest(unittest.TestCase):
         publisher.publish(settings, builder)
         return builder
 
+    def test_archive_search_policy_migrates_saved_html_without_rebuilding(self):
+        self.publish()
+        saved = self.state / "versions/v1/index.html"
+        text = saved.read_text().replace('<meta name="robots" content="noindex, follow">', '')
+        text = text.replace('</head>', '<link href="https://example.test/old" rel="canonical"><meta content="index" name="robots"></head>')
+        saved.write_text(text)
+        video = (self.state / "versions/v2/assets/demo.mp4").read_bytes()
+        builder = self.publish()
+        self.assertEqual(builder.major_calls, [])
+        for major in ("v1", "v2"):
+            text = (self.state / "versions" / major / "index.html").read_text()
+            self.assertEqual(text.count('name="robots"'), 1)
+            self.assertIn('content="noindex, follow"', text)
+            self.assertNotIn('rel="canonical"', text)
+        self.assertNotIn('noindex', (self.state / "index.html").read_text())
+        self.assertNotIn('noindex', (self.state / "latest/index.html").read_text())
+        self.assertEqual(video, (self.state / "versions/v2/assets/demo.mp4").read_bytes())
+        before = tree_bytes(self.state / "versions")
+        self.publish()
+        self.assertEqual(before, tree_bytes(self.state / "versions"))
+
+    def test_canonical_metadata_and_malformed_archive_fail_safely(self):
+        layout = self.repo / "docs/_layouts/default.html"
+        layout.parent.mkdir()
+        layout.write_text('<html><head><title>Docs</title></head><body></body></html>')
+        publisher.ensure_search_metadata(self.repo)
+        text = layout.read_text()
+        self.assertIn('site.url | append: site.docs_root | append: page.url', text)
+        self.assertIn("replace: '/index.html', '/'", text)
+        publisher.ensure_search_metadata(self.repo)
+        self.assertEqual(text, layout.read_text())
+        self.publish()
+        (self.state / "versions/v1/index.html").write_text('<html><body>No head</body></html>')
+        before = tree_bytes(self.state)
+        with self.assertRaisesRegex(publisher.PublishError, 'no head for indexing policy'):
+            self.publish()
+        self.assertEqual(before, tree_bytes(self.state))
+
     def test_two_majors_exact_tag_sources_and_latest_aliases(self):
         builder = self.publish()
         self.assertCountEqual(builder.major_calls, ["pccli-v1.0.0", "v2.0.0"])
@@ -144,8 +182,8 @@ class PublicationTest(unittest.TestCase):
         self.assertNotIn("docs/downloads.md", builder.sources["v2.0.0"])
         self.assertFalse((self.state / "versions/v2/releases.html").exists())
         self.assertFalse((self.state / "versions/v2/downloads.html").exists())
-        self.assertEqual((self.state / "releases.html").read_text(), "Current global release history template")
-        self.assertEqual((self.state / "downloads.html").read_text(), "Current global download metadata template")
+        self.assertIn("Current global release history template", (self.state / "releases.html").read_text())
+        self.assertIn("Current global download metadata template", (self.state / "downloads.html").read_text())
         self.assertEqual((self.state / "latest/releases.html").read_bytes(), (self.state / "releases.html").read_bytes())
         before = tree_bytes(self.state)
         (self.repo / "docs/releases.md").unlink()
