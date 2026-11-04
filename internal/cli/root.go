@@ -8,9 +8,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/joe--cool/pccli/internal/config"
-	"github.com/joe--cool/pccli/internal/planningcenter"
-	"github.com/joe--cool/pccli/internal/services"
+	"github.com/joe--cool/pccli/v2/internal/config"
+	"github.com/joe--cool/pccli/v2/internal/planningcenter"
+	"github.com/joe--cool/pccli/v2/internal/services"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 )

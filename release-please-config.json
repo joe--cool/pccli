@@ -4,7 +4,61 @@
     ".": {
       "release-type": "go",
       "package-name": "pccli",
-      "changelog-path": "CHANGELOG.md"
+      "changelog-path": "CHANGELOG.md",
+      "include-component-in-tag": false,
+      "changelog-sections": [
+        {
+          "type": "feat",
+          "section": "Features",
+          "hidden": false
+        },
+        {
+          "type": "fix",
+          "section": "Fixes",
+          "hidden": false
+        },
+        {
+          "type": "perf",
+          "section": "Performance",
+          "hidden": false
+        },
+        {
+          "type": "docs",
+          "section": "Documentation",
+          "hidden": false
+        },
+        {
+          "type": "build",
+          "section": "Build and installation",
+          "hidden": false
+        },
+        {
+          "type": "refactor",
+          "section": "Internal changes",
+          "hidden": true
+        },
+        {
+          "type": "ci",
+          "section": "Automation",
+          "hidden": true
+        },
+        {
+          "type": "test",
+          "section": "Tests",
+          "hidden": true
+        },
+        {
+          "type": "chore",
+          "section": "Maintenance",
+          "hidden": true
+        },
+        {
+          "type": "style",
+          "section": "Style",
+          "hidden": true
+        }
+      ]
     }
-  }
+  },
+  "bootstrap-sha": "db9a6250bde32e8206d26c5323d4c11680acbfa6"
 }

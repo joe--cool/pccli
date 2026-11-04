@@ -288,3 +288,54 @@ th {
     font-size: 32px;
   }
 }
+
+.docs-version {
+  padding: 12px 32px;
+  border-bottom: 1px solid var(--pc-border);
+  background: var(--pc-info);
+  font-size: 0.95rem;
+}
+
+.docs-version a {
+  display: inline-block;
+  margin-left: 8px;
+}
+
+.release-entry {
+  margin-top: 32px;
+  padding-top: 20px;
+  border-top: 1px solid var(--pc-border);
+}
+
+.release-header h2 {
+  margin-bottom: 8px;
+}
+
+.release-meta {
+  color: var(--pc-muted);
+}
+
+.release-badge {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 2px 8px;
+  border: 1px solid var(--pc-border);
+  border-radius: 4px;
+  font-size: 0.85rem;
+}
+
+.release-notes h1,
+.release-notes h2,
+.release-notes h3 {
+  font-size: 1.15rem;
+}
+
+@media (max-width: 780px) {
+  .docs-version {
+    padding: 12px 20px;
+  }
+}
+
+.download-table td {
+  overflow-wrap: anywhere;
+}

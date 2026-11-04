@@ -11,7 +11,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/joe--cool/pccli/internal/config"
+	"github.com/joe--cool/pccli/v2/internal/config"
 )
 
 func testClient(transport http.RoundTripper) *Client {

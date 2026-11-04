@@ -57,3 +57,11 @@ This repository builds `pccli`, an unofficial Go CLI for Planning Center. Design
 - Check examples against actual help and mock execution. Keep current contributor architecture and constraints in DEVELOPER.md. Put change-specific audits, AI review prompts/reports, transition plans, and validation logs in issues or PRs, rather than committed status packets. Keep research trails out of public product docs.
 - Update the affected `scripts/*demo.tape` recordings whenever demonstrated commands change; use the isolated recorder, readable step pauses, and a final hold. Keep page captions and text alternatives synchronized. Record read-only mock journeys unless a stateful mock explicitly supports the demonstrated writes. Generated demos are built from tapes, not edited by hand.
 - For banner changes edit `scripts/banner.ansi`, run `mise run banner`, and build; keep the embedded copy synchronized.
+
+## Pull requests and release notes
+
+- Use the repository PR template and a Conventional Commit title. Lead with the concrete user problem and resulting behavior, using a before/after example when useful. Scale detail to the change; do not repeat the implementation chronology.
+- State the affected command, API contract, configuration, output schema, or release/deployment surface. Explain any breaking impact and the exact replacement users need. Use `!` or a meaningful `BREAKING CHANGE:` footer when the contract breaks; a major bump must describe the actual incompatibility.
+- Report the checks actually run and their results. Distinguish automated/request-contract/mock tests from live validation. Name remaining limits or deferred work without implying deployment, publication, or successful remote effects.
+- Include concise user-facing release notes: what users can do now, what was corrected, and any action they must take. Omit internal refactors and tooling details unless they materially affect users. Do not turn PR descriptions into research logs or copy a test checklist without results.
+- Review and edit the template before submission. Remove irrelevant sections rather than filling them with boilerplate. Never put credentials, private request contents, or unreviewed generated claims in a PR or release note.

@@ -7,7 +7,7 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/joe--cool/pccli/internal/cli"
+	"github.com/joe--cool/pccli/v2/internal/cli"
 )
 
 func main() {

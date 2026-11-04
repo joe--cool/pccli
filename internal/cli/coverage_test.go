@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/joe--cool/pccli/internal/services"
+	"github.com/joe--cool/pccli/v2/internal/services"
 )
 
 // Independent versioned API evidence guards against silently dropping a field

@@ -7,9 +7,9 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/joe--cool/pccli/internal/output"
-	"github.com/joe--cool/pccli/internal/planningcenter"
-	"github.com/joe--cool/pccli/internal/services"
+	"github.com/joe--cool/pccli/v2/internal/output"
+	"github.com/joe--cool/pccli/v2/internal/planningcenter"
+	"github.com/joe--cool/pccli/v2/internal/services"
 )
 
 type usageError struct{ err error }

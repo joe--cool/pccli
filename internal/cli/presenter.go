@@ -9,8 +9,8 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/joe--cool/pccli/internal/output"
-	"github.com/joe--cool/pccli/internal/services"
+	"github.com/joe--cool/pccli/v2/internal/output"
+	"github.com/joe--cool/pccli/v2/internal/services"
 	"github.com/spf13/cobra"
 )
 

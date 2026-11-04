@@ -1,12 +1,11 @@
 name: Pages
 
 on:
-  push:
-    branches: [main]
+  workflow_call:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
@@ -16,35 +15,96 @@ concurrency:
 
 jobs:
   deploy:
+    if: github.ref == 'refs/heads/main'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
+    env:
+      JEKYLL_IMAGE: ghcr.io/actions/jekyll-build-pages:v1.0.13@sha256:6791ebfd912185ed59bfb5fb102664fa872496b79f87ff8b9cfba292a7345041
     steps:
+      - name: Set documentation paths
+        run: |
+          echo "DOCS_STATE=$RUNNER_TEMP/pccli-pages-state" >> "$GITHUB_ENV"
+          echo "DOCS_WORK=$RUNNER_TEMP/pccli-pages-build" >> "$GITHUB_ENV"
+          echo "DOCS_OUTPUT=$RUNNER_TEMP/pccli-pages-site" >> "$GITHUB_ENV"
+          echo "DOCS_RELEASES=$RUNNER_TEMP/pccli-releases.json" >> "$GITHUB_ENV"
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          path: publisher
       - uses: actions/setup-go@v6
         with:
-          go-version-file: go.mod
+          go-version-file: publisher/go.mod
+          cache-dependency-path: publisher/go.sum
           cache: true
-      - run: cp scripts/banner.ansi internal/cli/banner.ansi
-      - run: CGO_ENABLED=0 go build -o bin/pccli ./cmd/pccli
-      - run: docker build -t pccli-demos - < scripts/Dockerfile.demos
-      - run: |
-          docker run --rm --network none --entrypoint sh \
-            -v "$PWD:/vhs" \
-            -w /vhs \
-            -e PATH="/vhs/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
-            pccli-demos scripts/record-demos.sh --binary /vhs/bin/pccli
       - uses: actions/configure-pages@v6
+        id: pages
         with:
           token: ${{ secrets.RELEASE_PLEASE_TOKEN || github.token }}
           enablement: true
-      - uses: actions/jekyll-build-pages@v1
-        with:
-          source: ./docs
-          destination: ./_site
+      - name: Read published release history
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          gh api --paginate --slurp "repos/$REPOSITORY/releases?per_page=100" > "$RUNNER_TEMP/release-pages.json"
+          python3 - <<'PY'
+          import json, os
+          from pathlib import Path
+          pages = json.loads((Path(os.environ['RUNNER_TEMP']) / 'release-pages.json').read_text())
+          Path(os.environ['DOCS_RELEASES']).write_text(json.dumps([release for page in pages for release in page]))
+          PY
+          latest=$(gh api "repos/$REPOSITORY/releases/latest" --jq .tag_name)
+          echo "DOCS_LATEST=$latest" >> "$GITHUB_ENV"
+      - name: Open documentation history
+        working-directory: publisher
+        run: |
+          status=0
+          git ls-remote --exit-code --heads origin gh-pages > "$RUNNER_TEMP/docs-branch-ref" || status=$?
+          case "$status" in
+            0)
+              git fetch origin refs/heads/gh-pages:refs/remotes/origin/gh-pages
+              git worktree add --detach "$DOCS_STATE" refs/remotes/origin/gh-pages
+              ;;
+            2)
+              git worktree add --detach "$DOCS_STATE" HEAD
+              git -C "$DOCS_STATE" checkout --orphan gh-pages
+              git -C "$DOCS_STATE" rm -rf .
+              ;;
+            *) exit "$status" ;;
+          esac
+      - name: Build documentation renderer
+        working-directory: publisher
+        run: docker build -t pccli-docs-recorder - < scripts/Dockerfile.demos
+      - name: Build major-version documentation and release pages
+        env:
+          DOCS_BASE_PATH: ${{ steps.pages.outputs.base_path }}
+        run: |
+          python3 publisher/scripts/publish_docs.py \
+            --repository-root "$GITHUB_WORKSPACE/publisher" \
+            --state-dir "$DOCS_STATE" \
+            --work-dir "$DOCS_WORK" \
+            --base-path "$DOCS_BASE_PATH" \
+            --releases-json "$DOCS_RELEASES" \
+            --latest-tag "$DOCS_LATEST" \
+            --vhs-image pccli-docs-recorder \
+            --jekyll-image "$JEKYLL_IMAGE"
+      - name: Preserve documentation history
+        run: |
+          git -C "$DOCS_STATE" config user.name 'github-actions[bot]'
+          git -C "$DOCS_STATE" config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git -C "$DOCS_STATE" add --all
+          if ! git -C "$DOCS_STATE" diff --cached --quiet; then
+            git -C "$DOCS_STATE" commit -m 'docs: publish release documentation'
+            git -C "$DOCS_STATE" push origin HEAD:refs/heads/gh-pages
+          fi
+          python3 - <<'PY'
+          import os, shutil
+          shutil.copytree(os.environ['DOCS_STATE'], os.environ['DOCS_OUTPUT'], ignore=shutil.ignore_patterns('.git'))
+          PY
       - uses: actions/upload-pages-artifact@v5
         with:
-          path: ./_site
+          path: ${{ env.DOCS_OUTPUT }}
       - id: deployment
         uses: actions/deploy-pages@v5

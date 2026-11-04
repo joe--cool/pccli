@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/joe--cool/pccli/internal/planningcenter"
+	"github.com/joe--cool/pccli/v2/internal/planningcenter"
 	"net/url"
 	"os"
 	"path/filepath"

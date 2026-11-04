@@ -10,8 +10,10 @@ Find and maintain the Services song library: songs, arrangements, musical keys, 
 
 ## Install and authenticate
 
+[Download a platform archive](https://joe--cool.github.io/pccli/downloads.html), or install with Go:
+
 ```sh
-go install github.com/joe--cool/pccli/cmd/pccli@latest
+go install github.com/joe--cool/pccli/v2/cmd/pccli@latest
 pccli --version
 mkdir -p ~/.pccli
 $EDITOR ~/.pccli/.env

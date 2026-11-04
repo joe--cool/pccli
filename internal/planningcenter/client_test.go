@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/joe--cool/pccli/internal/config"
+	"github.com/joe--cool/pccli/v2/internal/config"
 )
 
 func TestClientGetSendsBasicAuthAndDecodesJSONAPI(t *testing.T) {
