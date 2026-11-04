@@ -22,6 +22,7 @@ type ServiceType struct {
 	ArchivedAt *string `json:"archived_at"`
 }
 type Plan struct {
+	PublicBySchedule     *bool   `json:"public_by_schedule"`
 	SeriesID             *string `json:"series_id"`
 	RemindersDisabled    *bool   `json:"reminders_disabled"`
 	ID                   string  `json:"id"`

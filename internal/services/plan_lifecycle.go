@@ -19,13 +19,18 @@ type PlanningReceipt struct {
 	PlanID        string `json:"plan_id"`
 }
 type PlanningRecovery struct {
-	Operation     string            `json:"operation"`
-	Resource      string            `json:"resource"`
-	ServiceTypeID string            `json:"service_type_id"`
-	PlanID        string            `json:"plan_id"`
-	TargetID      string            `json:"target_id"`
-	Stage         string            `json:"stage"`
-	Created       []PlanningReceipt `json:"created"`
+	LastErrorCode    string                `json:"last_error_code,omitempty"`
+	UnverifiedFields []CopyUnverifiedField `json:"unverified_fields,omitempty"`
+	SourcePlanID     string                `json:"source_plan_id,omitempty"`
+	LastOutcome      string                `json:"last_outcome,omitempty"`
+	Observed         []PlanningReceipt     `json:"observed,omitempty"`
+	Operation        string                `json:"operation"`
+	Resource         string                `json:"resource"`
+	ServiceTypeID    string                `json:"service_type_id"`
+	PlanID           string                `json:"plan_id"`
+	TargetID         string                `json:"target_id"`
+	Stage            string                `json:"stage"`
+	Created          []PlanningReceipt     `json:"created"`
 }
 
 func canonicalPlanSeries(id *string) *string {

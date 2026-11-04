@@ -17,9 +17,10 @@ type NeededPosition struct {
 	ScheduledTo            *string `json:"scheduled_to"`
 }
 type NeededPositionCreate struct {
-	Team     string `json:"-"`
-	Position string `json:"-"`
-	Quantity *int   `json:"quantity,omitempty"`
+	ExpectedPositionName *string `json:"-"`
+	Team                 string  `json:"-"`
+	Position             string  `json:"-"`
+	Quantity             *int    `json:"quantity,omitempty"`
 }
 type NeededPositionPatch struct {
 	Quantity *int `json:"quantity,omitempty"`
@@ -104,6 +105,9 @@ func (l *Library) CreateNeededPosition(ctx context.Context, s PlanningScope, p N
 	}
 	var name string
 	_ = json.Unmarshal(position.attrs["name"], &name)
+	if p.ExpectedPositionName != nil && *p.ExpectedPositionName != name {
+		return out, changed("team position name")
+	}
 	attrs := fields(p)
 	attrs["team_id"] = team.id
 	attrs["team_position_id"] = position.id

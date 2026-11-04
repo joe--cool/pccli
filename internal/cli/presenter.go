@@ -224,6 +224,38 @@ func text(v any) string {
 	}
 }
 func renderResource(r output.Renderer, value any) error {
+	if result, ok := value.(services.PlanCopyResult); ok {
+		if e := renderResource(r, result.Plan); e != nil {
+			return e
+		}
+		if e := r.KeyValues([][2]string{{"Source plan ID", result.SourcePlanID}, {"Copied", strings.Join(result.Components, ", ")}, {"Outcome", result.Outcome}}); e != nil {
+			return e
+		}
+		rows := [][]string{}
+		for _, receipt := range result.Created {
+			rows = append(rows, []string{receipt.Resource, receipt.ID})
+		}
+		if len(rows) > 0 {
+			if _, e := fmt.Fprintln(r.Out, "\nCREATED RECORDS"); e != nil {
+				return e
+			}
+			if e := r.Table([]string{"Resource", "ID"}, rows); e != nil {
+				return e
+			}
+		}
+		if len(result.UnverifiedFields) > 0 {
+			rows = nil
+			for _, field := range result.UnverifiedFields {
+				rows = append(rows, []string{field.Resource, field.ID, field.Field, field.RequestedID})
+			}
+			if _, e := fmt.Fprintln(r.Out, "\nUNVERIFIED FIELDS"); e != nil {
+				return e
+			}
+			return r.Table([]string{"Resource", "ID", "Field", "Requested ID"}, rows)
+		}
+		return nil
+	}
+
 	if result, ok := value.(services.NeededPositionResult); ok {
 		if e := renderResource(r, result.NeededPosition); e != nil {
 			return e

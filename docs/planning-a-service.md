@@ -178,4 +178,34 @@ pccli services plans delete 4001 --service-type 3001 --yes
 
 Deletion requires `--yes`, validates the exact identity, and verifies that the plan returns HTTP 404 afterward. A verification failure means the request was accepted but the final state could not be confirmed; inspect the resource before retrying.
 
-Plan copying and notification sending remain outside this interface. Mock mode supports the read journeys above; its static fixture does not emulate updates or prove live account permissions.
+Notification sending, automatic scheduling, and split-time scheduling remain outside this interface. Mock mode supports the read journeys above; its static fixture does not emulate updates or prove live account permissions.
+
+
+## Copy selected parts of a plan
+
+Create a new plan in the **same service type**, choosing exactly which components to carry forward:
+
+```sh
+pccli services plans copy 4001 --service-type 3001 --title "Next Sunday" --copy-items --copy-times --time-offset 168h
+pccli services plans copy 4001 --service-type 3001 --copy-people --copy-needed-positions
+```
+
+Select at least one component:
+
+| Flag | Copied behavior |
+| --- | --- |
+| `--copy-items` | Supported items and headers, selected song/arrangement/key links, and provider item order |
+| `--copy-times` | Service, rehearsal, and other times with their names and classification |
+| `--copy-people` | Whole-plan assignments and notes, reset to Unconfirmed without preparing notifications |
+| `--copy-needed-positions` | Whole-plan unfilled quantities; separate from assigned people |
+| `--copy-settings` | Known public and reminder settings |
+
+Available title and series labels carry forward; `--title ""` explicitly requests an empty title. Without `--copy-settings`, the new plan's `public` field is set to false. Service-type scheduled publication rules still apply independently; this flag does not guarantee private access.
+
+When copying times, choose exactly one of `--time-offset DURATION` or `--preserve-dates`. Durations such as `168h`, `-24h`, or `0` shift every start and end by the same elapsed time. They do not mean a calendar week or preserve local wall-clock time across daylight-saving changes. `--preserve-dates` retains the original dates. Time flags require `--copy-times`.
+
+Item copying requires a known supported item type. Every copied song must have known song, arrangement, **and selected key IDs**; an unavailable or null key stops the copy before creating a destination. Ordinary item creation still permits an optional key. Media items and nonempty layout/background/media relationships are unsupported. Files, attachments, item leaders, notes outside assignment notes, and other unlisted components are not cloned. Copying people requires current active team membership and a uniquely named position in a whole-plan team; availability and scheduling permission remain provider decisions. Decline history is not copied.
+
+The command validates the complete selected source and referenced records before creating the destination, then rechecks them. These requests cannot form a remote transaction; concurrent changes can still occur between requests. Each created record is independently read back, and the final plan is refreshed after its children are created. Needed-position copies report `outcome: accepted`, with an unverified entry for each created record and its requested position ID, because the API does not expose that ID for confirmation.
+
+On a later failure, `error.recovery` retains the source and destination context, created IDs, failing stage, and last-step outcome. Contradictory returned IDs appear as observed records rather than being claimed as newly created. A rejected step after earlier creations reports partial success; lost write responses report unknown commitment. No rollback or automatic replay occurs. Inspect the reported records before retrying; repeating the whole command can create duplicates.

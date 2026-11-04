@@ -25,12 +25,13 @@ type TeamPosition struct {
 	Sequence *int   `json:"sequence"`
 }
 type ScheduledPersonCreate struct {
-	Team          string  `json:"-"`
-	Person        string  `json:"-"`
-	Position      string  `json:"-"`
-	Status        *string `json:"status,omitempty"`
-	Notes         *string `json:"notes,omitempty"`
-	DeclineReason *string `json:"decline_reason,omitempty"`
+	ExpectedPositionName *string `json:"-"`
+	Team                 string  `json:"-"`
+	Person               string  `json:"-"`
+	Position             string  `json:"-"`
+	Status               *string `json:"status,omitempty"`
+	Notes                *string `json:"notes,omitempty"`
+	DeclineReason        *string `json:"decline_reason,omitempty"`
 }
 type ScheduledPersonPatch struct {
 	Team          string  `json:"-"`
@@ -312,6 +313,9 @@ func (l *Library) CreateScheduledPerson(ctx context.Context, s PlanningScope, p 
 	}
 	var name string
 	_ = json.Unmarshal(position.attrs["name"], &name)
+	if p.ExpectedPositionName != nil && *p.ExpectedPositionName != name {
+		return out, changed("team position name")
+	}
 	attrs := fields(p)
 	attrs["person_id"] = person.id
 	attrs["team_id"] = team.id

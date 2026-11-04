@@ -21,7 +21,8 @@
       "total_length": "integer",
       "public": "boolean",
       "planning_center_url": "string",
-      "reminders_disabled": "boolean"
+      "reminders_disabled": "boolean",
+      "public_by_schedule": "boolean"
     },
     "Item": {
       "title": "string",
@@ -227,5 +228,16 @@
       },
       "success_status": 204
     }
+  },
+  "composed_copy": {
+    "implementation": "Verified ordinary plan, item/reorder, time, assignment, and needed-position CRUD; no guessed import action envelope",
+    "components": [
+      "items",
+      "times",
+      "people",
+      "needed_positions",
+      "settings"
+    ],
+    "readback": "Each created resource plus refreshed destination plan; needed team_position_id remains write-only"
   }
 }

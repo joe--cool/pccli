@@ -6,6 +6,7 @@ import (
 )
 
 func addPlanLifecycleCommands(g *cobra.Command, j *bool) {
+	addPlanCopyCommand(g, j)
 	var s services.PlanningScope
 	var p services.PlanCreate
 	b := newBindings()
