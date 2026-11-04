@@ -203,6 +203,7 @@ func newItemsCommand(j *bool) *cobra.Command {
 	})
 	planningSelection(c, &s, true)
 	g.AddCommand(c)
+	addItemMutationCommands(g, j)
 	return g
 }
 func newTeamsCommand(j *bool) *cobra.Command {

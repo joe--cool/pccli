@@ -30,7 +30,9 @@
       "service_position": "string",
       "sequence": "integer",
       "length": "integer",
-      "key_name": "string"
+      "key_name": "string",
+      "html_details": "string",
+      "custom_arrangement_sequence": "array"
     },
     "Team": {
       "name": "string",
@@ -57,6 +59,17 @@
       "series_id": "string",
       "series_title": "string",
       "reminders_disabled": "boolean"
+    },
+    "Item": {
+      "title": "string",
+      "description": "string",
+      "html_details": "string",
+      "length": "integer",
+      "service_position": "string",
+      "custom_arrangement_sequence": "array",
+      "song_id": "string",
+      "arrangement_id": "string",
+      "key_id": "string"
     }
   },
   "paths": {
@@ -73,7 +86,8 @@
       "DELETE"
     ],
     "/service_types/{service_type_id}/plans/{plan_id}/items": [
-      "GET"
+      "GET",
+      "POST"
     ],
     "/service_types/{service_type_id}/teams": [
       "GET"
@@ -86,6 +100,11 @@
     ],
     "/series/{series_id}": [
       "GET"
+    ],
+    "/service_types/{service_type_id}/plans/{plan_id}/items/{item_id}": [
+      "GET",
+      "PATCH",
+      "DELETE"
     ]
   },
   "create": {
@@ -94,6 +113,31 @@
       "public": "boolean",
       "series_id": "string",
       "series_title": "string"
+    },
+    "Item": {
+      "title": "string",
+      "description": "string",
+      "html_details": "string",
+      "length": "integer",
+      "service_position": "string",
+      "custom_arrangement_sequence": "array",
+      "song_id": "string",
+      "arrangement_id": "string",
+      "key_id": "string",
+      "item_type": "string",
+      "sequence": "integer"
+    }
+  },
+  "actions": {
+    "item_reorder": {
+      "source": "https://api.planningcenteronline.com/docs/apps/services/versions/2018-11-01/vertices/plan",
+      "method": "POST",
+      "path": "/service_types/{service_type_id}/plans/{plan_id}/item_reorder",
+      "type": "PlanItemReorder",
+      "attributes": {
+        "sequence": "array[string]"
+      },
+      "success_status": 204
     }
   }
 }

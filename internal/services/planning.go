@@ -40,19 +40,21 @@ type Plan struct {
 	PlanningCenterURL    *string `json:"planning_center_url"`
 }
 type Item struct {
-	SongID          *string `json:"song_id"`
-	ArrangementID   *string `json:"arrangement_id"`
-	KeyID           *string `json:"key_id"`
-	ID              string  `json:"id"`
-	ServiceTypeID   string  `json:"service_type_id"`
-	PlanID          string  `json:"plan_id"`
-	Title           *string `json:"title"`
-	Description     *string `json:"description"`
-	ItemType        *string `json:"item_type"`
-	ServicePosition *string `json:"service_position"`
-	Sequence        *int    `json:"sequence"`
-	Length          *int    `json:"length"`
-	KeyName         *string `json:"key_name"`
+	HTMLDetails     *string   `json:"html_details"`
+	ChartSequence   *[]string `json:"custom_arrangement_sequence"`
+	SongID          *string   `json:"song_id"`
+	ArrangementID   *string   `json:"arrangement_id"`
+	KeyID           *string   `json:"key_id"`
+	ID              string    `json:"id"`
+	ServiceTypeID   string    `json:"service_type_id"`
+	PlanID          string    `json:"plan_id"`
+	Title           *string   `json:"title"`
+	Description     *string   `json:"description"`
+	ItemType        *string   `json:"item_type"`
+	ServicePosition *string   `json:"service_position"`
+	Sequence        *int      `json:"sequence"`
+	Length          *int      `json:"length"`
+	KeyName         *string   `json:"key_name"`
 }
 type Team struct {
 	ID            string  `json:"id"`

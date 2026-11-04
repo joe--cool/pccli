@@ -48,6 +48,32 @@ pccli --json services items list --service-type 3001 --plan 4001 --all \
 
 Check the pipeline status before using the export. A failed page or cancellation produces no success result; a broken output pipe can leave partial bytes and exits nonzero. See the [JSON contract](commands.html#json-and-errors).
 
+## Build the order of service
+
+Create a header, a timed item, or a song with an explicitly chosen arrangement and optional key:
+
+```sh
+pccli services items create --service-type 3001 --plan 4001 --type header --title "Gathering" --position 0
+pccli services items create --service-type 3001 --plan 4001 --title "Welcome and Prayer" --length 3:00 --service-position during
+pccli services items create --service-type 3001 --plan 4001 --song 1001 --arrangement 2001 --key 3001
+```
+
+`--type` accepts `item` or `header`; omit it when linking a song. Song linkage requires both `--song` and `--arrangement`, and `--key` additionally selects a key record within that arrangement. Parent names must match exactly; IDs avoid duplicate-name ambiguity. Song visibility and archived arrangement selection use the existing `--visibility` and `--include-archived` rules. pccli never chooses a first arrangement for you.
+
+Item fields include `--title`, `--description`, `--html-details`, `--length` (seconds or `m:ss`), `--service-position pre|during|post`, and `--chart-sequence` (comma-separated arrangement section labels). Explicit empty text, zero length, and empty chart sequence are transmitted; omitted fields remain unchanged. Length and initial `--position` must be nonnegative. Position is available only during creation and maps to the initial sequence number.
+
+```sh
+pccli services items update 5003 --service-type 3001 --plan 4001 --description "" --length 0
+pccli services items update 5002 --service-type 3001 --plan 4001 --chart-sequence "Verse 1,Chorus 1"
+pccli services items update 5002 --service-type 3001 --plan 4001 --chart-sequence ""
+pccli services items reorder --service-type 3001 --plan 4001 --sequence 5001,5003,5002
+pccli services items delete 5003 --service-type 3001 --plan 4001 --yes
+```
+
+Reordering requires **every item ID in the selected plan exactly once**. Inspect the complete list first; omissions, duplicate IDs, foreign IDs, malformed pages, or a changed preflight collection stop the request. pccli rechecks the complete collection before sending the order, then reads all items again to verify the returned order and any known sequence values. This is not a remote transaction; concurrent edits can still cause a verification error.
+
+Updates can replace song linkage using the same explicit parent flags. Empty song selectors and song linkage on a header are rejected; removing an existing song relationship, changing an existing item's type directly, media/layout editing, and copying item attachments are not supported. HTML details are retained in JSON and terminal-sanitized for human display. Every item write performs independent readback; late failures retain the known item ID and plan in recovery information. Deletes require `--yes` and verify HTTP 404 afterward. Static mock mode supports reading, not this editing workflow.
+
 ## Check plan readiness
 
 {% include terminal-demo.html name="planning-demo" title="Check Sunday's plan readiness" caption="Review Gathered in Grace, confirm its service time, inspect available teams, then read assignment responses. Under 90 seconds; mock data." %}
@@ -96,4 +122,4 @@ pccli services plans delete 4001 --service-type 3001 --yes
 
 Deletion requires `--yes`, validates the exact identity, and verifies that the plan returns HTTP 404 afterward. A verification failure means the request was accepted but the final state could not be confirmed; inspect the resource before retrying.
 
-Plan copying, item editing, time editing, scheduling changes, and notifications remain outside this interface. Mock mode supports the read journeys above; its static fixture does not emulate updates or prove live account permissions.
+Plan copying, time editing, scheduling changes, and notifications remain outside this interface. Mock mode supports the read journeys above; its static fixture does not emulate updates or prove live account permissions.
