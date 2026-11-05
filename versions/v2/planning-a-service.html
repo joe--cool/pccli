@@ -1,0 +1,297 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Planning a Service - pccli</title>
+    <meta name="description" content="An unofficial Planning Center command line tool.">
+    <link href="https://fonts.googleapis.com/css?family=Inconsolata|Lato:300,400,700" rel="stylesheet">
+    <link rel="stylesheet" href="/pccli/versions/v2/assets/css/site.css">
+  <!-- pccli-canonical -->
+<!-- /pccli-canonical -->
+<meta name="robots" content="noindex, follow">
+</head>
+  <body>
+    <div class="docs-version" role="note" aria-label="Documentation version">
+      
+        <strong>pccli v2.1.0</strong> documentation (v2).
+      
+      <a href="/pccli/latest/">Latest release documentation</a>
+      <span aria-hidden="true"> · </span>
+      <a href="/pccli/releases.html">All releases</a>
+      <span aria-hidden="true"> · </span>
+      <a href="/pccli/downloads.html">Downloads</a>
+    </div>
+
+    <header class="site-header">
+      <a class="brand" href="/pccli/versions/v2/">
+        <span class="brand-mark">pc</span>
+        <span class="brand-name">pccli</span>
+        <span class="brand-pill">Unofficial</span>
+      </a>
+      <nav class="top-nav" aria-label="Top navigation">
+        <a href="/pccli/versions/v2/quick-start.html">Quick Start</a>
+        <a href="/pccli/versions/v2/services.html">Services</a>
+        <a href="/pccli/latest/">Latest docs</a>
+        <a href="/pccli/releases.html">Releases</a>
+        <a href="/pccli/downloads.html">Downloads</a>
+        <a href="https://github.com/joe--cool/pccli">Repository</a>
+      </nav>
+    </header>
+
+    <div class="docs-shell">
+      <aside class="sidebar" aria-label="Documentation navigation">
+        <nav>
+          <p class="nav-title">Start</p>
+          <a href="/pccli/versions/v2/">Getting Started</a>
+          <a href="/pccli/versions/v2/installation.html">Installation</a>
+          <a href="/pccli/versions/v2/authentication.html">Authentication</a>
+          <a href="/pccli/versions/v2/quick-start.html">Quick Start</a>
+          <p class="nav-title">Services</p>
+          <a href="/pccli/versions/v2/services.html">Overview</a>
+          <a href="/pccli/versions/v2/planning-a-service.html">Planning a Service</a>
+          <a href="/pccli/versions/v2/managing-your-song-library.html">Managing Your Song Library</a>
+          <a href="/pccli/versions/v2/commands.html">Services Commands</a>
+          <a href="/pccli/versions/v2/song-fields.html">Editable Song Fields</a>
+          <p class="nav-title">Releases</p>
+          <a href="/pccli/">Latest Release Documentation</a>
+          <a href="/pccli/releases.html">Release History</a>
+          <a href="/pccli/downloads.html">Download pccli</a>
+          <p class="nav-title">Links</p>
+          <a href="https://github.com/joe--cool/pccli">GitHub Repository</a>
+          <a href="https://api.planningcenteronline.com/docs/">Planning Center API Docs</a>
+        </nav>
+      </aside>
+
+      <main class="content">
+        <h1 id="planning-a-service">Planning a Service</h1>
+
+<p>pccli is unofficial and is not built, endorsed, or supported by Planning Center.</p>
+
+<p>Find a service type, choose a plan, then inspect its order, times, and people. Every planning command supports <code class="language-plaintext highlighter-rouge">--json</code>; parent flags always identify the intended service type and plan.</p>
+
+<p>Choose a task: <a href="#find-the-plan">inspect a plan</a>, <a href="#create-and-maintain-plans">create one</a>, <a href="#copy-selected-parts-of-a-plan">copy selected parts</a>, <a href="#build-the-order-of-service">build the order</a>, <a href="#set-service-and-rehearsal-times">set times</a>, or <a href="#schedule-a-whole-plan-team">schedule people</a>.</p>
+
+<h2 id="find-the-plan">Find the plan</h2>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services service-types list
+pccli services plans list <span class="nt">--service-type</span> <span class="s2">"Sunday Worship"</span> <span class="nt">--filter</span> future
+pccli services plans show 4001 <span class="nt">--service-type</span> 3001
+</code></pre></div></div>
+
+<p>Use IDs from your account. The mock fixture uses service type <strong>3001 / Sunday Worship</strong> and plan <strong>4001 / Gathered in Grace</strong>. Names in parent flags must match exactly, ignoring case. Duplicate names or plan titles require IDs. Untitled plans remain selectable by ID; dates are displayed for orientation and are not selectors.</p>
+
+<p><code class="language-plaintext highlighter-rouge">plans list --filter future</code>, <code class="language-plaintext highlighter-rouge">past</code>, or <code class="language-plaintext highlighter-rouge">no_dates</code> selects Planning Center’s corresponding collection. Without a filter, pccli uses the collection returned by Planning Center. <code class="language-plaintext highlighter-rouge">--all</code> follows every returned page; <code class="language-plaintext highlighter-rouge">--limit N</code> limits display and reports whether more results remain. Pagination is not a snapshot.</p>
+
+<p>Known archived service types and teams are excluded by default, including direct IDs and parent lookups. Add <code class="language-plaintext highlighter-rouge">--include-archived</code> to select them explicitly. This option filters the returned records locally; it cannot recover archived records that Planning Center omits. Missing archive state is treated as unavailable, and is not proof that a record is active. Plans have no archive selector of their own.</p>
+
+<h2 id="read-the-order-and-schedule">Read the order and schedule</h2>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services items list <span class="nt">--service-type</span> 3001 <span class="nt">--plan</span> 4001 <span class="nt">--all</span>
+pccli services items show 5002 <span class="nt">--service-type</span> 3001 <span class="nt">--plan</span> 4001
+pccli services plan-times list <span class="nt">--service-type</span> 3001 <span class="nt">--plan</span> 4001 <span class="nt">--all</span>
+pccli services teams list <span class="nt">--service-type</span> 3001
+pccli services teams show 6001 <span class="nt">--service-type</span> 3001
+pccli services scheduled-people list <span class="nt">--service-type</span> 3001 <span class="nt">--plan</span> 4001 <span class="nt">--all</span>
+</code></pre></div></div>
+
+<p>Items retain the order returned by Planning Center and expose sequence, pre/during/post service position, type, song ID when available, and length in seconds. Times show their service/rehearsal/other classification and provider timestamps. Teams describe the service type’s available teams; scheduled people describe assignments in the selected plan. Assignment IDs identify the scheduling records; person and team IDs identify their relationships when available. Human output translates <code class="language-plaintext highlighter-rouge">C</code>, <code class="language-plaintext highlighter-rouge">U</code>, and <code class="language-plaintext highlighter-rouge">D</code> to Confirmed, Unconfirmed, and Declined; JSON retains the provider’s raw status. Other values remain visible as returned.</p>
+
+<p>The command shows a selected subset of planning fields. Unavailable text, counts, boolean values, and relationship IDs appear as <code class="language-plaintext highlighter-rouge">null</code> in JSON; explicit zero and false remain zero and false. Null and absent optional text both appear as <code class="language-plaintext highlighter-rouge">null</code>. Human tables leave unavailable cells blank and label blank or unavailable titles <code class="language-plaintext highlighter-rouge">(untitled)</code>. Item song, arrangement, and key relationship IDs are included when provided, without expanding the song library.</p>
+
+<p>To export the complete returned order:</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">set</span> <span class="nt">-o</span> pipefail
+pccli <span class="nt">--json</span> services items list <span class="nt">--service-type</span> 3001 <span class="nt">--plan</span> 4001 <span class="nt">--all</span> <span class="se">\</span>
+  | jq <span class="s1">'.data[] | {id, sequence, service_position, title, length}'</span>
+</code></pre></div></div>
+
+<p>Check the pipeline status before using the export. A failed page or cancellation produces no success result; a broken output pipe can leave partial bytes and exits nonzero. See the <a href="commands.html#json-and-errors">JSON contract</a>.</p>
+
+<h2 id="check-plan-readiness">Check plan readiness</h2>
+
+<figure class="demo-figure">
+  <video class="terminal-demo" controls="" playsinline="" preload="none" width="1100" height="680" poster="/pccli/versions/v2/assets/planning-demo-poster.png" aria-label="Check Sunday&#39;s plan readiness" aria-describedby="planning-demo-description">
+    <source src="/pccli/versions/v2/assets/planning-demo.mp4" type="video/mp4" />
+    <p><a href="/pccli/versions/v2/assets/planning-demo.mp4">Download Check Sunday&#39;s plan readiness</a>, or read the steps below.</p>
+  </video>
+  <figcaption id="planning-demo-description">Review Gathered in Grace, confirm its service time, inspect available teams, then read assignment responses. Under 90 seconds; mock data. Silent mock recording. Play, pause, or scrub at your own pace; playback stops at the end.</figcaption>
+</figure>
+
+<details>
+  <summary>Read the readiness steps</summary>
+
+  <ol>
+    <li><code class="language-plaintext highlighter-rouge">pccli services plans show 4001 --service-type 3001</code> shows <strong>Gathered in Grace</strong>, two scheduled people, and one needed position.</li>
+    <li><code class="language-plaintext highlighter-rouge">pccli services plan-times list --service-type 3001 --plan 4001</code> shows <strong>Morning Service</strong>, from <strong>09:00 to 10:15 UTC</strong> on November 8, 2026. Timestamps are displayed as returned.</li>
+    <li><code class="language-plaintext highlighter-rouge">pccli services teams list --service-type 3001</code> shows the available <strong>Worship Team (6001)</strong>. Availability is distinct from a plan assignment.</li>
+    <li><code class="language-plaintext highlighter-rouge">pccli services scheduled-people list --service-type 3001 --plan 4001</code> shows <strong>Alex Sample / Vocals / Confirmed</strong> and <strong>Jordan Example / Keys / Unconfirmed</strong>, with assignment, person, and team IDs.</li>
+  </ol>
+
+  <p>The recording ends on the response summary. Use the written commands above for exports and additional detail; the recording covers one selected plan.</p>
+
+</details>
+
+<h2 id="create-and-maintain-plans">Create and maintain plans</h2>
+
+<p>Create an empty, undated plan in an explicit service type:</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services plans create <span class="nt">--service-type</span> 3001 <span class="nt">--title</span> <span class="s2">"Advent Sunday"</span>
+pccli services plans create <span class="nt">--service-type</span> 3001
+</code></pre></div></div>
+
+<p>Labels are optional. Supplying no labels creates an untitled plan; <code class="language-plaintext highlighter-rouge">--title ""</code> explicitly requests an empty title. Ordinary creation does not copy items, people, notes, or times. Keep the returned plan ID for follow-up commands. Public access can be set explicitly with <code class="language-plaintext highlighter-rouge">--public=true|false</code>.</p>
+
+<p>Update labels or settings:</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services plans update 4001 <span class="nt">--service-type</span> 3001 <span class="nt">--title</span> <span class="s2">"Gathered in Grace"</span>
+pccli services plans update 4001 <span class="nt">--service-type</span> 3001 <span class="nt">--series-title</span> <span class="s2">"Life Together"</span>
+pccli services plans update 4001 <span class="nt">--service-type</span> 3001 <span class="nt">--series-title</span> <span class="s2">""</span>
+pccli services plans update 4001 <span class="nt">--service-type</span> 3001 <span class="nt">--public</span><span class="o">=</span><span class="nb">false</span> <span class="nt">--reminders-disabled</span><span class="o">=</span><span class="nb">true</span>
+</code></pre></div></div>
+
+<p>Use <code class="language-plaintext highlighter-rouge">--series-id ID</code> to assign an existing Series by positive decimal ID; pccli validates it before writing and checks the returned series relationship afterward. <code class="language-plaintext highlighter-rouge">--series-id</code> conflicts with <code class="language-plaintext highlighter-rouge">--series-title</code>. Public access and reminder settings accept explicit true or false.</p>
+
+<p>Omitted fields remain unchanged. An explicit empty value requests clearing that field. The API must return the same value during readback for pccli to report success. A successful request followed by a failed readback reports a verification error; inspect the plan before retrying. pccli never automatically replays updates. If creation succeeds but later verification fails, the error includes a recovery record with the returned plan ID, service type, stage, and created receipt. Keep that identity and inspect it before creating another plan. JSON errors expose this as <code class="language-plaintext highlighter-rouge">error.recovery</code>; human errors print the same recovery information.</p>
+
+<p>Delete only the intended plan after checking its ID:</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services plans delete 4001 <span class="nt">--service-type</span> 3001 <span class="nt">--yes</span>
+</code></pre></div></div>
+
+<p>Deletion requires <code class="language-plaintext highlighter-rouge">--yes</code>, validates the exact identity, and verifies that the plan returns HTTP 404 afterward. A verification failure means the request was accepted but the final state could not be confirmed; inspect the resource before retrying.</p>
+
+<p>Notification sending, automatic scheduling, and split-time scheduling remain outside this interface. Mock mode supports the read journeys above; its static fixture does not emulate updates or prove live account permissions.</p>
+
+<h2 id="copy-selected-parts-of-a-plan">Copy selected parts of a plan</h2>
+
+<p>Create a new plan in the <strong>same service type</strong>, choosing exactly which components to carry forward:</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services plans copy 4001 <span class="nt">--service-type</span> 3001 <span class="nt">--title</span> <span class="s2">"Next Sunday"</span> <span class="nt">--copy-items</span> <span class="nt">--copy-times</span> <span class="nt">--time-offset</span> 168h
+pccli services plans copy 4001 <span class="nt">--service-type</span> 3001 <span class="nt">--copy-people</span> <span class="nt">--copy-needed-positions</span>
+</code></pre></div></div>
+
+<p>Select at least one component:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Flag</th>
+      <th>Copied behavior</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--copy-items</code></td>
+      <td>Supported items and headers, selected song/arrangement/key links, and provider item order</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--copy-times</code></td>
+      <td>Service, rehearsal, and other times with their names and classification</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--copy-people</code></td>
+      <td>Whole-plan assignments and notes, reset to Unconfirmed without preparing notifications</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--copy-needed-positions</code></td>
+      <td>Whole-plan unfilled quantities; separate from assigned people</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--copy-settings</code></td>
+      <td>Known public and reminder settings</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>The available title and Series selection carry forward. When no Series ID is returned, the available series label is used. <code class="language-plaintext highlighter-rouge">--title ""</code> explicitly requests an empty title. Without <code class="language-plaintext highlighter-rouge">--copy-settings</code>, the new plan’s <code class="language-plaintext highlighter-rouge">public</code> field is set to false. Service-type scheduled publication rules still apply independently; this flag does not guarantee private access.</p>
+
+<p>When copying times, choose exactly one of <code class="language-plaintext highlighter-rouge">--time-offset DURATION</code> or <code class="language-plaintext highlighter-rouge">--preserve-dates</code>. Durations such as <code class="language-plaintext highlighter-rouge">168h</code>, <code class="language-plaintext highlighter-rouge">-24h</code>, or <code class="language-plaintext highlighter-rouge">0</code> shift every start and end by the same elapsed time. They do not mean a calendar week or preserve local wall-clock time across daylight-saving changes. <code class="language-plaintext highlighter-rouge">--preserve-dates</code> retains the original dates. Time flags require <code class="language-plaintext highlighter-rouge">--copy-times</code>.</p>
+
+<p>Item copying requires a known supported item type. Every copied song must have known song, arrangement, <strong>and selected key IDs</strong>; an unavailable or null key stops the copy before creating a destination. Ordinary item creation still permits an optional key. Media items and nonempty layout/background/media relationships are unsupported. Files, attachments, item leaders, notes outside assignment notes, and other unlisted components are not cloned. Copying people requires current active team membership and a uniquely named position in a whole-plan team; availability and scheduling permission remain provider decisions. Decline history is not copied.</p>
+
+<p>The command validates the complete selected source and referenced records before creating the destination, then rechecks them. These requests cannot form a remote transaction; concurrent changes can still occur between requests. Each created record is independently read back, and the final plan is refreshed after its children are created. Needed-position copies report <code class="language-plaintext highlighter-rouge">outcome: accepted</code>, with an unverified entry for each created record and its requested position ID, because the API does not expose that ID for confirmation.</p>
+
+<p>On a later failure, <code class="language-plaintext highlighter-rouge">error.recovery</code> retains the source and destination context, created IDs, failing stage, and last-step outcome. Contradictory returned IDs appear as observed records rather than being claimed as newly created. A rejected step after earlier creations reports partial success; lost write responses report unknown commitment. No rollback or automatic replay occurs. Inspect the reported records before retrying; repeating the whole command can create duplicates.</p>
+
+<h2 id="build-the-order-of-service">Build the order of service</h2>
+
+<p>Create a header, a timed item, or a song with an explicitly chosen arrangement and optional key:</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services items create <span class="nt">--service-type</span> 3001 <span class="nt">--plan</span> 4001 <span class="nt">--type</span> header <span class="nt">--title</span> <span class="s2">"Gathering"</span> <span class="nt">--position</span> 0
+pccli services items create <span class="nt">--service-type</span> 3001 <span class="nt">--plan</span> 4001 <span class="nt">--title</span> <span class="s2">"Welcome and Prayer"</span> <span class="nt">--length</span> 3:00 <span class="nt">--service-position</span> during
+pccli services items create <span class="nt">--service-type</span> 3001 <span class="nt">--plan</span> 4001 <span class="nt">--song</span> 1001 <span class="nt">--arrangement</span> 2001 <span class="nt">--key</span> 3001
+</code></pre></div></div>
+
+<p><code class="language-plaintext highlighter-rouge">--type</code> accepts <code class="language-plaintext highlighter-rouge">item</code> or <code class="language-plaintext highlighter-rouge">header</code>; omit it when linking a song. Song linkage requires both <code class="language-plaintext highlighter-rouge">--song</code> and <code class="language-plaintext highlighter-rouge">--arrangement</code>, and <code class="language-plaintext highlighter-rouge">--key</code> additionally selects a key record within that arrangement. Parent names must match exactly; IDs avoid duplicate-name ambiguity. Song visibility and archived arrangement selection use the existing <code class="language-plaintext highlighter-rouge">--visibility</code> and <code class="language-plaintext highlighter-rouge">--include-archived</code> rules. pccli never chooses a first arrangement for you.</p>
+
+<p>Item fields include <code class="language-plaintext highlighter-rouge">--title</code>, <code class="language-plaintext highlighter-rouge">--description</code>, <code class="language-plaintext highlighter-rouge">--html-details</code>, <code class="language-plaintext highlighter-rouge">--length</code> (seconds or <code class="language-plaintext highlighter-rouge">m:ss</code>), <code class="language-plaintext highlighter-rouge">--service-position pre|during|post</code>, and <code class="language-plaintext highlighter-rouge">--chart-sequence</code> (comma-separated arrangement section labels). Explicit empty text, zero length, and empty chart sequence are transmitted; omitted fields remain unchanged. Length and initial <code class="language-plaintext highlighter-rouge">--position</code> must be nonnegative. Position is available only during creation and maps to the initial sequence number.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services items update 5003 <span class="nt">--service-type</span> 3001 <span class="nt">--plan</span> 4001 <span class="nt">--description</span> <span class="s2">""</span> <span class="nt">--length</span> 0
+pccli services items update 5002 <span class="nt">--service-type</span> 3001 <span class="nt">--plan</span> 4001 <span class="nt">--chart-sequence</span> <span class="s2">"Verse 1,Chorus 1"</span>
+pccli services items update 5002 <span class="nt">--service-type</span> 3001 <span class="nt">--plan</span> 4001 <span class="nt">--chart-sequence</span> <span class="s2">""</span>
+pccli services items reorder <span class="nt">--service-type</span> 3001 <span class="nt">--plan</span> 4001 <span class="nt">--sequence</span> 5001,5003,5002
+pccli services items delete 5003 <span class="nt">--service-type</span> 3001 <span class="nt">--plan</span> 4001 <span class="nt">--yes</span>
+</code></pre></div></div>
+
+<p>Reordering requires <strong>every item ID in the selected plan exactly once</strong>. Inspect the complete list first; omissions, duplicate IDs, foreign IDs, malformed pages, or a changed preflight collection stop the request. pccli rechecks the complete collection before sending the order, then reads all items again to verify the returned order and any known sequence values. This is not a remote transaction; concurrent edits can still cause a verification error.</p>
+
+<p>Updates can replace song linkage using the same explicit parent flags. Empty song selectors and song linkage on a header are rejected; removing an existing song relationship, changing an existing item’s type directly, media/layout editing, and copying item attachments are not supported. HTML details are retained in JSON and terminal-sanitized for human display. Every item write performs independent readback; late failures retain the known item ID and plan in recovery information. Deletes require <code class="language-plaintext highlighter-rouge">--yes</code> and verify HTTP 404 afterward. Static mock mode supports reading, not this editing workflow.</p>
+
+<h2 id="set-service-and-rehearsal-times">Set service and rehearsal times</h2>
+
+<p>An undated plan gains its date from its times. Create one explicit time at a time:</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services plan-times create <span class="nt">--service-type</span> 3001 <span class="nt">--plan</span> 4001 <span class="nt">--name</span> <span class="s2">"Morning Service"</span> <span class="nt">--starts-at</span> <span class="s2">"2026-11-08T09:00:00-08:00"</span> <span class="nt">--ends-at</span> <span class="s2">"2026-11-08T10:15:00-08:00"</span> <span class="nt">--time-type</span> service
+pccli services plan-times show 7001 <span class="nt">--service-type</span> 3001 <span class="nt">--plan</span> 4001
+pccli services plan-times update 7001 <span class="nt">--service-type</span> 3001 <span class="nt">--plan</span> 4001 <span class="nt">--starts-at</span> <span class="s2">"2026-11-08T09:30:00-08:00"</span>
+pccli services plan-times delete 7001 <span class="nt">--service-type</span> 3001 <span class="nt">--plan</span> 4001 <span class="nt">--yes</span>
+</code></pre></div></div>
+
+<p>Creation requires <code class="language-plaintext highlighter-rouge">--starts-at</code> and <code class="language-plaintext highlighter-rouge">--time-type service|rehearsal|other</code>. <code class="language-plaintext highlighter-rouge">--ends-at</code> and <code class="language-plaintext highlighter-rouge">--name</code> are optional; no end or duration is invented when omitted. Timestamps require RFC3339 with an explicit offset or <code class="language-plaintext highlighter-rouge">Z</code>, years 0001–9999, and at most nine fractional second digits. Empty timestamps are rejected; <code class="language-plaintext highlighter-rouge">--name ""</code> clears the label. An end must not precede its start.</p>
+
+<p>Updates preserve omitted fields. Changing only a start or end validates the resulting pair against the current known counterpart before writing. If an existing start is unavailable, provide it when setting an end. Supplying no name on a time is valid; use its ID to select an unnamed time. Names used for updates or parent flags must match exactly and unambiguously.</p>
+
+<p>Readback compares timestamp instants at nanosecond precision, so equivalent <code class="language-plaintext highlighter-rouge">Z</code> and numeric-offset representations can verify successfully. JSON and human output retain the provider’s returned timestamp text. Changes affect only the selected time; bulk changes to later plans, scheduling people, assigning teams or positions to times, and reminder rules are outside these commands. Every write uses independent readback and the same recovery information as item writes. Deletes require <code class="language-plaintext highlighter-rouge">--yes</code> and verify HTTP 404 afterward. The videos continue to demonstrate reads with static mock data.</p>
+
+<h2 id="schedule-a-whole-plan-team">Schedule a whole-plan team</h2>
+
+<p>Discover members and positions before creating an assignment:</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services team-people list <span class="nt">--service-type</span> 3001 <span class="nt">--team</span> 6001 <span class="nt">--all</span>
+pccli services team-positions list <span class="nt">--service-type</span> 3001 <span class="nt">--team</span> 6001 <span class="nt">--all</span>
+pccli services scheduled-people create <span class="nt">--service-type</span> 3001 <span class="nt">--plan</span> 4001 <span class="nt">--team</span> 6001 <span class="nt">--person</span> 9001 <span class="nt">--position</span> 10001
+pccli services scheduled-people show 8001 <span class="nt">--service-type</span> 3001 <span class="nt">--plan</span> 4001
+pccli services scheduled-people update 8001 <span class="nt">--service-type</span> 3001 <span class="nt">--plan</span> 4001 <span class="nt">--status</span> confirmed <span class="nt">--notes</span> <span class="s2">"Bring your folder"</span>
+pccli services scheduled-people delete 8001 <span class="nt">--service-type</span> 3001 <span class="nt">--plan</span> 4001 <span class="nt">--yes</span>
+</code></pre></div></div>
+
+<p>Team people are <strong>membership candidates</strong>, not a promise of availability, position eligibility, background-check clearance, or permission to schedule. Planning Center makes those final decisions. IDs avoid duplicate-name ambiguity; write selectors require exact names or IDs and traverse complete candidate collections.</p>
+
+<p>These mutations support teams whose returned <code class="language-plaintext highlighter-rouge">schedule_to</code> is explicitly <code class="language-plaintext highlighter-rouge">plan</code>. Split-time teams, unavailable scheduling mode, and assignments known to permit partial acceptance are rejected before writing. The position must belong to the team. Assignments store the position’s name, so duplicate or case-colliding names within that team are rejected even when a position ID is supplied.</p>
+
+<p>Creation defaults to <strong>Unconfirmed</strong> and explicitly sends <code class="language-plaintext highlighter-rouge">prepare_notification: false</code>. <code class="language-plaintext highlighter-rouge">--status</code> accepts <code class="language-plaintext highlighter-rouge">unconfirmed</code>, <code class="language-plaintext highlighter-rouge">confirmed</code>, <code class="language-plaintext highlighter-rouge">declined</code>, or <code class="language-plaintext highlighter-rouge">U</code>, <code class="language-plaintext highlighter-rouge">C</code>, <code class="language-plaintext highlighter-rouge">D</code>; readback accepts equivalent provider spellings while JSON retains the returned value. Optional <code class="language-plaintext highlighter-rouge">--notes</code> and <code class="language-plaintext highlighter-rouge">--decline-reason</code> preserve explicit empty strings. No command prepares or sends a notification on your behalf. Updates omit notification-preparation fields and preserve any existing state; previously prepared notifications remain under Planning Center’s existing behavior.</p>
+
+<p>Updates can change status, notes, decline reason, or <code class="language-plaintext highlighter-rouge">--position</code>. Optional <code class="language-plaintext highlighter-rouge">--team</code> guards the existing assignment’s exact team; it does not move the assignment. Changing the person or team requires deleting and creating an assignment explicitly. Creation and updates require current team membership and known nonarchived person state. <code class="language-plaintext highlighter-rouge">team-people</code> reads exclude known archived people by default, while <code class="language-plaintext highlighter-rouge">--include-archived</code> includes returned archived records for inspection. Unknown archive state remains visible as unavailable and is not proof of activity; it blocks scheduling changes. <code class="language-plaintext highlighter-rouge">--include-archived</code> never authorizes scheduling an archived person.</p>
+
+<p>Deleting an exact scoped assignment does not require the person to remain active or in the team, so departed-member assignments can be cleaned up. Team scope, whole-plan mode, and <code class="language-plaintext highlighter-rouge">--yes</code> still apply. Every mutation performs independent readback or verifies HTTP 404 after deletion; failures retain known record IDs and parent context.</p>
+
+<h2 id="track-unfilled-positions">Track unfilled positions</h2>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services needed-positions list <span class="nt">--service-type</span> 3001 <span class="nt">--plan</span> 4001 <span class="nt">--all</span>
+pccli services needed-positions create <span class="nt">--service-type</span> 3001 <span class="nt">--plan</span> 4001 <span class="nt">--team</span> 6001 <span class="nt">--position</span> 10001 <span class="nt">--quantity</span> 1
+pccli services needed-positions show 11001 <span class="nt">--service-type</span> 3001 <span class="nt">--plan</span> 4001
+pccli services needed-positions update 11001 <span class="nt">--service-type</span> 3001 <span class="nt">--plan</span> 4001 <span class="nt">--quantity</span> 0
+pccli services needed-positions delete 11001 <span class="nt">--service-type</span> 3001 <span class="nt">--plan</span> 4001 <span class="nt">--yes</span>
+</code></pre></div></div>
+
+<p>Quantity is required and nonnegative; zero is transmitted explicitly. These commands support whole-plan teams and reject records with explicit time or time-preference relationships. The provider’s <code class="language-plaintext highlighter-rouge">scheduled_to</code> string is retained without assigning it an undocumented meaning. Missing optional relationships remain unavailable; they do not establish that a record has no time context.</p>
+
+<p>Creation sends the selected position ID, but the API does not expose that ID for independent readback. A successful create therefore reports <strong><code class="language-plaintext highlighter-rouge">outcome: accepted</code></strong>, <strong><code class="language-plaintext highlighter-rouge">unverified_fields: ["team_position_id"]</code></strong>, and the separate <strong><code class="language-plaintext highlighter-rouge">requested_position_id</code></strong>. Readback still verifies quantity, team identity, and the readable position name. Inspect the record in Planning Center when exact position identity matters. Quantity updates report <code class="language-plaintext highlighter-rouge">verified</code> after readback; the model never invents a canonical position ID from the requested value.</p>
+
+<p>Split-time scheduling, automatic scheduling, invitation sending, and time-specific needed positions are outside these commands. Static mock fixtures demonstrate the reads; stateful request tests establish the wire and recovery behavior, not live account eligibility or delivery.</p>
+
+      </main>
+    </div>
+  </body>
+</html>

@@ -14,7 +14,7 @@
   <body>
     <div class="docs-version" role="note" aria-label="Documentation version">
       
-        <strong>pccli v2.0.1</strong> documentation (v2).
+        <strong>pccli v2.1.0</strong> documentation (v2).
       
       <a href="/pccli/latest/">Latest release documentation</a>
       <span aria-hidden="true"> · </span>
@@ -49,8 +49,9 @@
           <a href="/pccli/quick-start.html">Quick Start</a>
           <p class="nav-title">Services</p>
           <a href="/pccli/services.html">Overview</a>
+          <a href="/pccli/planning-a-service.html">Planning a Service</a>
           <a href="/pccli/managing-your-song-library.html">Managing Your Song Library</a>
-          <a href="/pccli/commands.html">Music Library Commands</a>
+          <a href="/pccli/commands.html">Services Commands</a>
           <a href="/pccli/song-fields.html">Editable Song Fields</a>
           <p class="nav-title">Releases</p>
           <a href="/pccli/">Latest Release Documentation</a>
@@ -67,7 +68,7 @@
 
 <p><code class="language-plaintext highlighter-rouge">pccli</code> is an unofficial Planning Center command line tool. It is not built, endorsed, or supported by Planning Center.</p>
 
-<p>Use a terminal or script to find and maintain your Services song library, with clear IDs and explicit song, arrangement, and key context.</p>
+<p>Plan services and maintain your Services song library from a terminal or script, with visible IDs and explicit parent selection.</p>
 
 <h2 id="get-connected">Get connected</h2>
 
@@ -79,14 +80,14 @@
 
 <h2 id="see-what-pccli-does">See what pccli does</h2>
 
-<p>Find a song, compare its arrangements, and select a key using the IDs in your results. After connecting your account, you can also maintain metadata, charts, files, and tags with the same resource-first commands.</p>
+<p>Prepare a Sunday service: choose a service type and plan, review the order, then inspect a song’s available arrangements. This short mock journey mixes planning and library commands; the focused guides fill in the details.</p>
 
 <figure class="demo-figure">
-  <video class="terminal-demo" controls="" playsinline="" preload="none" width="1100" height="680" poster="/pccli/assets/overview-demo-poster.png" aria-label="Explore your song library" aria-describedby="overview-demo-description">
+  <video class="terminal-demo" controls="" playsinline="" preload="none" width="1100" height="680" poster="/pccli/assets/overview-demo-poster.png" aria-label="Prepare Sunday&#39;s service" aria-describedby="overview-demo-description">
     <source src="/pccli/assets/overview-demo.mp4" type="video/mp4" />
-    <p><a href="/pccli/assets/overview-demo.mp4">Download Explore your song library</a>, or read the steps below.</p>
+    <p><a href="/pccli/assets/overview-demo.mp4">Download Prepare Sunday&#39;s service</a>, or read the steps below.</p>
   </video>
-  <figcaption id="overview-demo-description">Find Amazing Grace, inspect its arrangements, then list the keys for Full Band. Silent mock recording. Play, pause, or scrub at your own pace; playback stops at the end.</figcaption>
+  <figcaption id="overview-demo-description">Choose Sunday Worship and its plan, review the order, then inspect Amazing Grace before rehearsal. Under 75 seconds; mock data. Silent mock recording. Play, pause, or scrub at your own pace; playback stops at the end.</figcaption>
 </figure>
 
 <details>
@@ -94,34 +95,42 @@
 
   <ol>
     <li>
-      <p>Find the song:</p>
+      <p>Find the service type:</p>
 
-      <div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services songs list <span class="nt">--search</span> <span class="s2">"Amazing"</span>
+      <div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services service-types list
 </code></pre></div>      </div>
 
-      <p>The mock result is <strong>Amazing Grace</strong>, song ID <strong>1001</strong>.</p>
+      <p>The mock result is <strong>Sunday Worship (3001)</strong>.</p>
     </li>
     <li>
-      <p>Inspect its metadata and versions:</p>
+      <p>Choose the plan by its displayed date and title:</p>
+
+      <div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services plans list <span class="nt">--service-type</span> 3001
+</code></pre></div>      </div>
+
+      <p>The example plan is <strong>Gathered in Grace (4001)</strong> on <strong>November 8, 2026</strong>.</p>
+    </li>
+    <li>
+      <p>Review its order:</p>
+
+      <div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services items list <span class="nt">--service-type</span> 3001 <span class="nt">--plan</span> 4001
+</code></pre></div>      </div>
+
+      <p>The order includes a <strong>Gathering</strong> header, <strong>Amazing Grace</strong>, and <strong>Welcome and Prayer</strong>. The Amazing Grace row displays song ID <strong>1001</strong>. Blank song-ID cells identify items without a supplied song relationship.</p>
+    </li>
+    <li>
+      <p>Check that song before rehearsal:</p>
 
       <div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services songs show 1001
 </code></pre></div>      </div>
 
-      <p>The song view shows author, CCLI number, notes, and two arrangements: <strong>Full Band (2001)</strong> in G and <strong>Acoustic (2002)</strong> in D.</p>
-    </li>
-    <li>
-      <p>Select Full Band explicitly:</p>
-
-      <div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services keys list <span class="nt">--song</span> 1001 <span class="nt">--arrangement</span> 2001
-</code></pre></div>      </div>
-
-      <p>Its key records are <strong>Default (3001)</strong> in G and <strong>Female Lead (3002)</strong> in Bb. Use the returned IDs in follow-up commands. Your own account will have different IDs.</p>
+      <p>The song has <strong>Full Band (2001)</strong> and <strong>Acoustic (2002)</strong> arrangements. Use the displayed IDs to continue; your account will have different IDs and dates.</p>
     </li>
   </ol>
 
 </details>
 
-<p>Continue with <a href="managing-your-song-library.html#place-files-and-links-in-the-right-scope">file placement</a> or <a href="commands.html#json-and-errors">JSON for scripts</a> for focused recordings.</p>
+<p>Continue with <a href="planning-a-service.html#check-plan-readiness">plan readiness</a>, <a href="managing-your-song-library.html#place-files-and-links-in-the-right-scope">file placement</a>, or <a href="commands.html#json-and-errors">JSON for scripts</a> for focused recordings.</p>
 
 <h2 id="choose-a-workflow">Choose a workflow</h2>
 
@@ -136,6 +145,10 @@
     <tr>
       <td>Find songs and inspect their arrangements</td>
       <td><a href="services.html">Services overview</a></td>
+    </tr>
+    <tr>
+      <td>Create, copy, and maintain service plans, orders, times, and team assignments</td>
+      <td><a href="planning-a-service.html">Planning a service</a></td>
     </tr>
     <tr>
       <td>Maintain metadata, charts, keys, files, and tags</td>

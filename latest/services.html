@@ -14,7 +14,7 @@
   <body>
     <div class="docs-version" role="note" aria-label="Documentation version">
       
-        <strong>pccli v2.0.1</strong> documentation (v2).
+        <strong>pccli v2.1.0</strong> documentation (v2).
       
       <a href="/pccli/latest/">Latest release documentation</a>
       <span aria-hidden="true"> · </span>
@@ -49,8 +49,9 @@
           <a href="/pccli/quick-start.html">Quick Start</a>
           <p class="nav-title">Services</p>
           <a href="/pccli/services.html">Overview</a>
+          <a href="/pccli/planning-a-service.html">Planning a Service</a>
           <a href="/pccli/managing-your-song-library.html">Managing Your Song Library</a>
-          <a href="/pccli/commands.html">Music Library Commands</a>
+          <a href="/pccli/commands.html">Services Commands</a>
           <a href="/pccli/song-fields.html">Editable Song Fields</a>
           <p class="nav-title">Releases</p>
           <a href="/pccli/">Latest Release Documentation</a>
@@ -67,7 +68,7 @@
 
 <p>pccli is unofficial and is not built, endorsed, or supported by Planning Center.</p>
 
-<p>Use <code class="language-plaintext highlighter-rouge">pccli services RESOURCE ACTION</code> to work with the Services song library.</p>
+<p>Use <code class="language-plaintext highlighter-rouge">pccli services RESOURCE ACTION</code> to plan services and maintain the Services song library.</p>
 
 <table>
   <thead>
@@ -77,6 +78,42 @@
     </tr>
   </thead>
   <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">service-types</code></td>
+      <td>Discover service types and their IDs</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">plans</code></td>
+      <td>Create undated plans, inspect and update labels/settings/series, copy selected components, and delete with confirmation</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">items</code></td>
+      <td>Build and inspect a plan’s order, link songs, reorder items, and delete with confirmation</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">plan-times</code></td>
+      <td>Create, inspect, update, and delete individual service, rehearsal, and other times</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">teams</code></td>
+      <td>Inspect teams associated with a service type</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">team-people</code></td>
+      <td>Discover team members as scheduling candidates</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">team-positions</code></td>
+      <td>Discover available positions within a team</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">scheduled-people</code></td>
+      <td>Create, inspect, update, and delete whole-plan assignments</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">needed-positions</code></td>
+      <td>Track unfilled whole-plan position counts</td>
+    </tr>
     <tr>
       <td><code class="language-plaintext highlighter-rouge">songs</code></td>
       <td>Find, inspect, create, update, delete, and inspect scheduling history</td>
@@ -108,19 +145,19 @@
   </tbody>
 </table>
 
-<p>The <a href="index.html#see-what-pccli-does">front-page overview recording</a> shows how a song leads to its arrangements and keys. Focused recordings cover <a href="managing-your-song-library.html#place-files-and-links-in-the-right-scope">file placement</a> and <a href="commands.html#json-and-errors">JSON exports</a>.</p>
+<p>The <a href="index.html#see-what-pccli-does">front-page overview recording</a> follows a Sunday plan through its order to a song’s arrangements. A <a href="planning-a-service.html#check-plan-readiness">focused planning recording</a> checks times, teams, and responses. Focused recordings cover <a href="managing-your-song-library.html#place-files-and-links-in-the-right-scope">file placement</a> and <a href="commands.html#json-and-errors">JSON exports</a>.</p>
 
 <p>Start with a read:</p>
 
-<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services songs list <span class="nt">--search</span> <span class="s2">"Amazing"</span>
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services service-types list
+pccli services plans list <span class="nt">--service-type</span> 3001
+pccli services items list <span class="nt">--service-type</span> 3001 <span class="nt">--plan</span> 4001
 pccli services songs show 1001
-pccli services arrangements list <span class="nt">--song</span> 1001
-pccli services keys list <span class="nt">--song</span> 1001 <span class="nt">--arrangement</span> 2001
 </code></pre></div></div>
 
-<p>An arrangement always belongs to an explicitly selected song; a key always requires both song and arrangement. There is no inferred first or default arrangement. IDs are visible so follow-up scripts can identify the intended record.</p>
+<p>Replace the example IDs with those returned for your account. An arrangement always belongs to an explicitly selected song; a key always requires both song and arrangement. There is no inferred first or default arrangement. IDs are visible so follow-up scripts can identify the intended record.</p>
 
-<p><a href="managing-your-song-library.html">Follow the song-library workflow</a>, <a href="commands.html">look up commands</a>, or <a href="song-fields.html">review editable metadata</a>.</p>
+<p><a href="planning-a-service.html">Plan a service</a>, <a href="managing-your-song-library.html">follow the song-library workflow</a>, <a href="commands.html">look up commands</a>, or <a href="song-fields.html">review editable metadata</a>.</p>
 
       </main>
     </div>

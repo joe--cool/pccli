@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Services Music Library Commands - pccli</title>
+    <title>Services Commands - pccli</title>
     <meta name="description" content="An unofficial Planning Center command line tool.">
     <link href="https://fonts.googleapis.com/css?family=Inconsolata|Lato:300,400,700" rel="stylesheet">
     <link rel="stylesheet" href="/pccli/assets/css/site.css">
@@ -14,7 +14,7 @@
   <body>
     <div class="docs-version" role="note" aria-label="Documentation version">
       
-        <strong>pccli v2.0.1</strong> documentation (v2).
+        <strong>pccli v2.1.0</strong> documentation (v2).
       
       <a href="/pccli/latest/">Latest release documentation</a>
       <span aria-hidden="true"> · </span>
@@ -49,8 +49,9 @@
           <a href="/pccli/quick-start.html">Quick Start</a>
           <p class="nav-title">Services</p>
           <a href="/pccli/services.html">Overview</a>
+          <a href="/pccli/planning-a-service.html">Planning a Service</a>
           <a href="/pccli/managing-your-song-library.html">Managing Your Song Library</a>
-          <a href="/pccli/commands.html">Music Library Commands</a>
+          <a href="/pccli/commands.html">Services Commands</a>
           <a href="/pccli/song-fields.html">Editable Song Fields</a>
           <p class="nav-title">Releases</p>
           <a href="/pccli/">Latest Release Documentation</a>
@@ -63,7 +64,7 @@
       </aside>
 
       <main class="content">
-        <h1 id="services-music-library-commands">Services Music Library Commands</h1>
+        <h1 id="services-commands">Services Commands</h1>
 
 <p>pccli is unofficial and is not built, endorsed, or supported by Planning Center. Commands follow <code class="language-plaintext highlighter-rouge">pccli services RESOURCE ACTION</code>. Use <code class="language-plaintext highlighter-rouge">--help</code> on any command for its installed flags.</p>
 
@@ -95,7 +96,7 @@
     </tr>
     <tr>
       <td><code class="language-plaintext highlighter-rouge">--include-archived</code></td>
-      <td>Explicitly include archived arrangements where arrangement context is available</td>
+      <td>Explicitly include archived arrangements, or returned archived service types/teams/candidate people where relevant</td>
     </tr>
     <tr>
       <td><code class="language-plaintext highlighter-rouge">--limit N</code></td>
@@ -121,6 +122,291 @@
 <p>Arrangements require <code class="language-plaintext highlighter-rouge">--song SONG</code>. Keys require <code class="language-plaintext highlighter-rouge">--song SONG --arrangement ARRANGEMENT</code>. There is no automatic first/default arrangement. Attachment scope is a song, optionally an arrangement, optionally a key; <code class="language-plaintext highlighter-rouge">--key</code> requires <code class="language-plaintext highlighter-rouge">--arrangement</code>. Parent flags use the same visibility and ambiguity rules across follow-up commands.</p>
 
 <p>Lookups traverse all candidate pages before choosing a target. Display limits never limit identity resolution. Page failures, malformed records, or ambiguous matches stop the operation.</p>
+
+<h2 id="service-planning">Service planning</h2>
+
+<p>Use the <a href="planning-a-service.html">planning workflow</a> for an end-to-end example. All commands below support <code class="language-plaintext highlighter-rouge">--json</code>; lists accept <code class="language-plaintext highlighter-rouge">--limit N</code> or <code class="language-plaintext highlighter-rouge">--all</code>.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Context</th>
+      <th>Required parent flags</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Plans and teams</td>
+      <td><code class="language-plaintext highlighter-rouge">--service-type SERVICE_TYPE</code></td>
+    </tr>
+    <tr>
+      <td>Items, times, assignments, and needed positions</td>
+      <td><code class="language-plaintext highlighter-rouge">--service-type SERVICE_TYPE --plan PLAN</code></td>
+    </tr>
+    <tr>
+      <td>Team people and positions</td>
+      <td><code class="language-plaintext highlighter-rouge">--service-type SERVICE_TYPE --team TEAM</code></td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Parent flags and write targets require exact names or IDs. Read targets also accept a unique literal partial name. Use IDs for untitled plans, unnamed times, duplicate titles, or repeated assignment names. Dates are displayed for orientation and are not selectors.</p>
+
+<p><code class="language-plaintext highlighter-rouge">--include-archived</code> selects returned archived service types, teams, arrangements, or candidate people where relevant. It cannot recover records the provider omits. Song-link selection uses <code class="language-plaintext highlighter-rouge">--visibility</code>; it does not filter planning records.</p>
+
+<h3 id="service-types-and-plans">Service types and plans</h3>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services service-types list
+pccli services service-types show SERVICE_TYPE
+pccli services plans list --service-type SERVICE_TYPE [--filter future|past|no_dates]
+pccli services plans show PLAN --service-type SERVICE_TYPE
+pccli services plans create --service-type SERVICE_TYPE [fields]
+pccli services plans update PLAN --service-type SERVICE_TYPE [fields]
+pccli services plans delete PLAN --service-type SERVICE_TYPE --yes
+</code></pre></div></div>
+
+<table>
+  <thead>
+    <tr>
+      <th>Plan field</th>
+      <th>Create</th>
+      <th>Update</th>
+      <th>Behavior</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--title TEXT</code></td>
+      <td>Yes</td>
+      <td>Yes</td>
+      <td>Empty text requests an untitled plan</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--series-title TEXT</code></td>
+      <td>Yes</td>
+      <td>Yes</td>
+      <td>Empty text clears the label; conflicts with <code class="language-plaintext highlighter-rouge">--series-id</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--series-id ID</code></td>
+      <td>Yes</td>
+      <td>Yes</td>
+      <td>Existing positive decimal Series ID; validated before writing</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--public=true|false</code></td>
+      <td>Yes</td>
+      <td>Yes</td>
+      <td>Sets public access explicitly</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--reminders-disabled=true|false</code></td>
+      <td>No</td>
+      <td>Yes</td>
+      <td>Changes the plan reminder setting</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Creation makes one undated plan; labels are optional. Add service or rehearsal times to date it. Updates require at least one field, preserve omissions, and transmit explicit empty or false values. Creates and updates verify readable values independently. Deletes require <code class="language-plaintext highlighter-rouge">--yes</code> and verify HTTP 404 afterward.</p>
+
+<h3 id="copy-selected-plan-components">Copy selected plan components</h3>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services plans copy SOURCE --service-type SERVICE_TYPE [components] [options]
+</code></pre></div></div>
+
+<p>Choose at least one component:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Flag</th>
+      <th>Copies</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--copy-items</code></td>
+      <td>Supported item fields, selected song/arrangement/key IDs, and order</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--copy-times</code></td>
+      <td>Service, rehearsal, and other times; requires a date option below</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--copy-people</code></td>
+      <td>Supported whole-plan assignments, reset to unconfirmed with notification preparation off</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--copy-needed-positions</code></td>
+      <td>Supported whole-plan needed quantities; position IDs remain unverified</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--copy-settings</code></td>
+      <td>Known public-access and reminder settings</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Available source labels and Series selection are copied; <code class="language-plaintext highlighter-rouge">--title TEXT</code> overrides the title, including an explicit empty value. Without <code class="language-plaintext highlighter-rouge">--copy-settings</code>, creation sends <code class="language-plaintext highlighter-rouge">public: false</code>. Service-type scheduled publication rules still apply.</p>
+
+<p>With <code class="language-plaintext highlighter-rouge">--copy-times</code>, choose exactly one of <code class="language-plaintext highlighter-rouge">--time-offset DURATION</code> or <code class="language-plaintext highlighter-rouge">--preserve-dates</code>. Offsets such as <code class="language-plaintext highlighter-rouge">168h</code>, <code class="language-plaintext highlighter-rouge">-24h</code>, or <code class="language-plaintext highlighter-rouge">0</code> are elapsed time, not calendar weeks or local-clock scheduling. Daylight-saving transitions can change the local clock time. No timezone or date shift is inferred.</p>
+
+<p>Copying creates a new plan in the same service type through multiple verified requests. Copied songs require known selected key IDs; media, files, layouts, and other unlisted fields are excluded. It is not a full clone or remote transaction: read the <a href="planning-a-service.html#copy-selected-parts-of-a-plan">copied fields, exclusions, and recovery behavior</a> before using it. Errors retain known destination IDs and the failed stage; inspect those records before retrying. Needed-position copies preserve their accepted/unverified result.</p>
+
+<h3 id="order-of-service">Order of service</h3>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services items list --service-type SERVICE_TYPE --plan PLAN
+pccli services items show ITEM --service-type SERVICE_TYPE --plan PLAN
+pccli services items create --service-type SERVICE_TYPE --plan PLAN [fields]
+pccli services items update ITEM --service-type SERVICE_TYPE --plan PLAN [fields]
+pccli services items reorder --service-type SERVICE_TYPE --plan PLAN --sequence ID,ID
+pccli services items delete ITEM --service-type SERVICE_TYPE --plan PLAN --yes
+</code></pre></div></div>
+
+<table>
+  <thead>
+    <tr>
+      <th>Item field</th>
+      <th>Behavior</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--title</code>, <code class="language-plaintext highlighter-rouge">--description</code>, <code class="language-plaintext highlighter-rouge">--html-details</code></td>
+      <td>Text; explicit empty values clear</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--length</code></td>
+      <td>Nonnegative seconds or <code class="language-plaintext highlighter-rouge">m:ss</code>; zero is transmitted</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--service-position</code></td>
+      <td><code class="language-plaintext highlighter-rouge">pre</code>, <code class="language-plaintext highlighter-rouge">during</code>, or <code class="language-plaintext highlighter-rouge">post</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--chart-sequence LABEL,LABEL</code></td>
+      <td>Arrangement section labels; empty clears</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--type item|header</code></td>
+      <td>Create only; omit when selecting a song</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--position N</code></td>
+      <td>Create-only initial sequence number, nonnegative</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--song SONG --arrangement ARRANGEMENT [--key KEY]</code></td>
+      <td>Select song links explicitly; no first/default arrangement</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Song linking uses <code class="language-plaintext highlighter-rouge">--visibility</code> and <code class="language-plaintext highlighter-rouge">--include-archived</code> for existing song/arrangement selection. Headers cannot acquire song links. Direct type changes, empty song-link clearing, and media/layout editing are not exposed.</p>
+
+<p>Lists preserve provider order and show sequence, service position, and song ID when available. Reorder requires every scoped item ID exactly once; incomplete, duplicate, or foreign selections stop before writing. The complete collection is rechecked before the request and read again afterward to verify order.</p>
+
+<h3 id="service-and-rehearsal-times">Service and rehearsal times</h3>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services plan-times list --service-type SERVICE_TYPE --plan PLAN
+pccli services plan-times show TIME --service-type SERVICE_TYPE --plan PLAN
+pccli services plan-times create --service-type SERVICE_TYPE --plan PLAN --starts-at TIMESTAMP --time-type TYPE [--ends-at TIMESTAMP] [--name TEXT]
+pccli services plan-times update TIME --service-type SERVICE_TYPE --plan PLAN [fields]
+pccli services plan-times delete TIME --service-type SERVICE_TYPE --plan PLAN --yes
+</code></pre></div></div>
+
+<table>
+  <thead>
+    <tr>
+      <th>Time field</th>
+      <th>Behavior</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--starts-at</code>, <code class="language-plaintext highlighter-rouge">--ends-at</code></td>
+      <td>RFC3339 timestamps with an explicit offset or <code class="language-plaintext highlighter-rouge">Z</code>; empty is rejected</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--time-type</code></td>
+      <td><code class="language-plaintext highlighter-rouge">service</code>, <code class="language-plaintext highlighter-rouge">rehearsal</code>, or <code class="language-plaintext highlighter-rouge">other</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--name</code></td>
+      <td>Optional label; empty clears</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Creation requires a start and type, with no invented end or duration. Years must be 0001–9999, with at most nanosecond precision. End cannot precede start. A one-sided timestamp update validates the resulting pair using current known values. Readback compares equivalent instants; output retains provider timestamp text.</p>
+
+<p>These commands affect one time. Future-plan bulk changes, time-specific team assignment, and reminder rules are not exposed.</p>
+
+<h3 id="teams-and-scheduling-candidates">Teams and scheduling candidates</h3>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services teams list --service-type SERVICE_TYPE
+pccli services teams show TEAM --service-type SERVICE_TYPE
+pccli services team-people list --service-type SERVICE_TYPE --team TEAM
+pccli services team-people show PERSON --service-type SERVICE_TYPE --team TEAM
+pccli services team-positions list --service-type SERVICE_TYPE --team TEAM
+pccli services team-positions show POSITION --service-type SERVICE_TYPE --team TEAM
+</code></pre></div></div>
+
+<p>Team people are membership candidates, not guarantees of availability, eligibility, or permission to schedule. Candidate reads exclude known archived people by default; <code class="language-plaintext highlighter-rouge">--include-archived</code> permits inspection. Unknown archive state remains unavailable rather than proving activity.</p>
+
+<h3 id="scheduled-people">Scheduled people</h3>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services scheduled-people list --service-type SERVICE_TYPE --plan PLAN
+pccli services scheduled-people show ASSIGNMENT --service-type SERVICE_TYPE --plan PLAN
+pccli services scheduled-people create --service-type SERVICE_TYPE --plan PLAN --team TEAM --person PERSON --position POSITION [fields]
+pccli services scheduled-people update ASSIGNMENT --service-type SERVICE_TYPE --plan PLAN [fields]
+pccli services scheduled-people delete ASSIGNMENT --service-type SERVICE_TYPE --plan PLAN [--team TEAM] --yes
+</code></pre></div></div>
+
+<table>
+  <thead>
+    <tr>
+      <th>Assignment field</th>
+      <th>Behavior</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--status STATE</code></td>
+      <td><code class="language-plaintext highlighter-rouge">unconfirmed</code>, <code class="language-plaintext highlighter-rouge">confirmed</code>, <code class="language-plaintext highlighter-rouge">declined</code>, or <code class="language-plaintext highlighter-rouge">U</code>, <code class="language-plaintext highlighter-rouge">C</code>, <code class="language-plaintext highlighter-rouge">D</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--notes TEXT</code>, <code class="language-plaintext highlighter-rouge">--decline-reason TEXT</code></td>
+      <td>Explicit empty strings clear</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--position POSITION</code></td>
+      <td>Existing team position; updates require a unique serialized name</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--team TEAM</code> on update/delete</td>
+      <td>Guards the existing team; does not move the assignment</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Creation requires a known whole-plan team, current nonarchived member, and a position in that team. Duplicate position labels are ambiguous even when an ID is supplied, because assignments store the label. Creates default to unconfirmed and explicitly disable notification preparation. Updates preserve omitted preparation state; no command sends invitations or notifications.</p>
+
+<p>Split-time and known partial assignments are rejected. Creation and updates reject unknown person archive state. Deletion permits cleanup after a person leaves the team or is archived, while retaining plan/team validation and confirmation. Moving a person or team requires explicit deletion and creation.</p>
+
+<h3 id="needed-positions">Needed positions</h3>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services needed-positions list --service-type SERVICE_TYPE --plan PLAN
+pccli services needed-positions show NEED --service-type SERVICE_TYPE --plan PLAN
+pccli services needed-positions create --service-type SERVICE_TYPE --plan PLAN --team TEAM --position POSITION --quantity N
+pccli services needed-positions update NEED --service-type SERVICE_TYPE --plan PLAN --quantity N
+pccli services needed-positions delete NEED --service-type SERVICE_TYPE --plan PLAN --yes
+</code></pre></div></div>
+
+<p>Quantities are required and nonnegative, including explicit zero. Whole-plan teams are supported; explicit time or time-preference scopes are rejected. The raw provider <code class="language-plaintext highlighter-rouge">scheduled_to</code> value is retained without inferring its meaning.</p>
+
+<p>Create verifies quantity, team, and readable position name, but the API does not expose the requested position ID for readback. Its result reports <code class="language-plaintext highlighter-rouge">outcome: accepted</code>, <code class="language-plaintext highlighter-rouge">unverified_fields: ["team_position_id"]</code>, and a separate <code class="language-plaintext highlighter-rouge">requested_position_id</code>. Quantity updates report <code class="language-plaintext highlighter-rouge">verified</code> after readback. The read model never invents a position ID.</p>
 
 <h2 id="songs">Songs</h2>
 
@@ -341,6 +627,35 @@ pccli <span class="nt">--json</span> services songs show 1001 <span class="nt">-
 </code></pre></div></div>
 
 <p>Errors go to stderr; JSON errors use the same schema version with an <code class="language-plaintext highlighter-rouge">error</code> object containing a stable <code class="language-plaintext highlighter-rouge">code</code>, <code class="language-plaintext highlighter-rouge">message</code>, and relevant candidates or recovery information. A failure before publication emits no success result to stdout. A broken output pipe can still leave partial bytes; check the exit code before using an export.</p>
+
+<p>Planning write errors may include <code class="language-plaintext highlighter-rouge">error.recovery</code> with known record IDs, parents, and a failed stage. Copy recovery additionally retains <code class="language-plaintext highlighter-rouge">source_plan_id</code>, <code class="language-plaintext highlighter-rouge">created</code> receipts, <code class="language-plaintext highlighter-rouge">observed</code> contradictory IDs, <code class="language-plaintext highlighter-rouge">last_outcome</code>, <code class="language-plaintext highlighter-rouge">last_error_code</code>, and accepted-but-unverified fields when applicable. Observed IDs are not claimed as newly created records.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Error code</th>
+      <th>Meaning for a write</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">verification_failed</code></td>
+      <td>A request was accepted, but the requested state could not be confirmed</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">outcome_unknown</code></td>
+      <td>The write may have committed; inspect the destination before retrying</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">partial_success</code></td>
+      <td>A later copy step was rejected after earlier creations, or result output failed after an accepted/verified write; recovery or <code class="language-plaintext highlighter-rouge">error.result</code> retains context</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">cancelled</code></td>
+      <td>Execution was interrupted; copy recovery can still record an unknown last write outcome</td>
+    </tr>
+  </tbody>
+</table>
 
 <table>
   <thead>
