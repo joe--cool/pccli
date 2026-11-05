@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.1.0](https://github.com/joe--cool/pccli/compare/v2.0.1...v2.1.0) (2026-11-05)
+
+
+### Features
+
+* **services:** add service planning and whole-plan scheduling ([#10](https://github.com/joe--cool/pccli/issues/10)) ([b454a73](https://github.com/joe--cool/pccli/commit/b454a731cfbb5bd144af44e21a90e420202a44fe))
+
 ## [2.0.1](https://github.com/joe--cool/pccli/compare/v2.0.0...v2.0.1) (2026-11-04)
 
 
