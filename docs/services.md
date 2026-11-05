@@ -7,7 +7,7 @@ nav_order: 5
 
 pccli is unofficial and is not built, endorsed, or supported by Planning Center.
 
-Use `pccli services RESOURCE ACTION` to inspect service plans and maintain the Services song library.
+Use `pccli services RESOURCE ACTION` to plan services and maintain the Services song library.
 
 | Resource | Tasks |
 | --- | --- |
@@ -19,7 +19,7 @@ Use `pccli services RESOURCE ACTION` to inspect service plans and maintain the S
 | `team-people` | Discover team members as scheduling candidates |
 | `team-positions` | Discover available positions within a team |
 | `scheduled-people` | Create, inspect, update, and delete whole-plan assignments |
-| `needed-positions` | Track whole-plan unfilled quantities with honest position-ID verification |
+| `needed-positions` | Track unfilled whole-plan position counts |
 | `songs` | Find, inspect, create, update, delete, and inspect scheduling history |
 | `arrangements` | Maintain song versions, chord charts, print settings, sequence, and archive state |
 | `keys` | Maintain named keys and alternate keys within an arrangement |
@@ -33,12 +33,12 @@ The [front-page overview recording](index.html#see-what-pccli-does) follows a Su
 Start with a read:
 
 ```sh
-pccli services songs list --search "Amazing"
+pccli services service-types list
+pccli services plans list --service-type 3001
+pccli services items list --service-type 3001 --plan 4001
 pccli services songs show 1001
-pccli services arrangements list --song 1001
-pccli services keys list --song 1001 --arrangement 2001
 ```
 
-An arrangement always belongs to an explicitly selected song; a key always requires both song and arrangement. There is no inferred first or default arrangement. IDs are visible so follow-up scripts can identify the intended record.
+Replace the example IDs with those returned for your account. An arrangement always belongs to an explicitly selected song; a key always requires both song and arrangement. There is no inferred first or default arrangement. IDs are visible so follow-up scripts can identify the intended record.
 
 [Plan a service](planning-a-service.html), [follow the song-library workflow](managing-your-song-library.html), [look up commands](commands.html), or [review editable metadata](song-fields.html).

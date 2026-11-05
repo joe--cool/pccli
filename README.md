@@ -6,7 +6,7 @@
 
 `pccli` is an unofficial Planning Center CLI. It is not built, endorsed, or supported by Planning Center.
 
-Inspect service plans, orders, times, teams, and scheduled people, and create, update, and delete plans. Find and maintain the Services song library: songs, arrangements, musical keys, files, links, and tag assignments. Human output is concise; every data command supports a versioned `--json` envelope.
+Create and maintain service plans, orders, times, and whole-plan team schedules. Copy selected parts into a new plan. Find and maintain the Services song library: songs, arrangements, musical keys, files, links, and tag assignments. Human output is concise; every data command supports a versioned `--json` envelope.
 
 ## Install and authenticate
 

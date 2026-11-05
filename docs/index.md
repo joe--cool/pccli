@@ -7,7 +7,7 @@ nav_order: 1
 
 `pccli` is an unofficial Planning Center command line tool. It is not built, endorsed, or supported by Planning Center.
 
-Use a terminal or script to inspect service plans and maintain your Services song library, with clear IDs and explicit song, arrangement, and key context.
+Plan services and maintain your Services song library from a terminal or script, with visible IDs and explicit parent selection.
 
 ## Get connected
 
@@ -65,7 +65,7 @@ Continue with [plan readiness](planning-a-service.html#check-plan-readiness), [f
 | Task | Guide |
 | --- | --- |
 | Find songs and inspect their arrangements | [Services overview](services.html) |
-| Inspect service plans, orders, times, teams, and assignments | [Planning a service](planning-a-service.html) |
+| Create, copy, and maintain service plans, orders, times, and team assignments | [Planning a service](planning-a-service.html) |
 | Maintain metadata, charts, keys, files, and tags | [Managing your song library](managing-your-song-library.html) |
 | Look up command arguments and flags | [Command reference](commands.html) |
 | Check editable fields and import options | [Song-library metadata fields](song-fields.html) |

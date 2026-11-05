@@ -9,6 +9,8 @@ pccli is unofficial and is not built, endorsed, or supported by Planning Center.
 
 Find a service type, choose a plan, then inspect its order, times, and people. Every planning command supports `--json`; parent flags always identify the intended service type and plan.
 
+Choose a task: [inspect a plan](#find-the-plan), [create one](#create-and-maintain-plans), [copy selected parts](#copy-selected-parts-of-a-plan), [build the order](#build-the-order-of-service), [set times](#set-service-and-rehearsal-times), or [schedule people](#schedule-a-whole-plan-team).
+
 ## Find the plan
 
 ```sh
@@ -47,6 +49,85 @@ pccli --json services items list --service-type 3001 --plan 4001 --all \
 ```
 
 Check the pipeline status before using the export. A failed page or cancellation produces no success result; a broken output pipe can leave partial bytes and exits nonzero. See the [JSON contract](commands.html#json-and-errors).
+
+## Check plan readiness
+
+{% include terminal-demo.html name="planning-demo" title="Check Sunday's plan readiness" caption="Review Gathered in Grace, confirm its service time, inspect available teams, then read assignment responses. Under 90 seconds; mock data." %}
+
+<details markdown="1">
+<summary>Read the readiness steps</summary>
+
+1. `pccli services plans show 4001 --service-type 3001` shows **Gathered in Grace**, two scheduled people, and one needed position.
+2. `pccli services plan-times list --service-type 3001 --plan 4001` shows **Morning Service**, from **09:00 to 10:15 UTC** on November 8, 2026. Timestamps are displayed as returned.
+3. `pccli services teams list --service-type 3001` shows the available **Worship Team (6001)**. Availability is distinct from a plan assignment.
+4. `pccli services scheduled-people list --service-type 3001 --plan 4001` shows **Alex Sample / Vocals / Confirmed** and **Jordan Example / Keys / Unconfirmed**, with assignment, person, and team IDs.
+
+The recording ends on the response summary. Use the written commands above for exports and additional detail; the recording covers one selected plan.
+
+</details>
+
+## Create and maintain plans
+
+Create an empty, undated plan in an explicit service type:
+
+```sh
+pccli services plans create --service-type 3001 --title "Advent Sunday"
+pccli services plans create --service-type 3001
+```
+
+Labels are optional. Supplying no labels creates an untitled plan; `--title ""` explicitly requests an empty title. Ordinary creation does not copy items, people, notes, or times. Keep the returned plan ID for follow-up commands. Public access can be set explicitly with `--public=true|false`.
+
+Update labels or settings:
+
+```sh
+pccli services plans update 4001 --service-type 3001 --title "Gathered in Grace"
+pccli services plans update 4001 --service-type 3001 --series-title "Life Together"
+pccli services plans update 4001 --service-type 3001 --series-title ""
+pccli services plans update 4001 --service-type 3001 --public=false --reminders-disabled=true
+```
+
+Use `--series-id ID` to assign an existing Series by positive decimal ID; pccli validates it before writing and checks the returned series relationship afterward. `--series-id` conflicts with `--series-title`. Public access and reminder settings accept explicit true or false.
+
+Omitted fields remain unchanged. An explicit empty value requests clearing that field. The API must return the same value during readback for pccli to report success. A successful request followed by a failed readback reports a verification error; inspect the plan before retrying. pccli never automatically replays updates. If creation succeeds but later verification fails, the error includes a recovery record with the returned plan ID, service type, stage, and created receipt. Keep that identity and inspect it before creating another plan. JSON errors expose this as `error.recovery`; human errors print the same recovery information.
+
+Delete only the intended plan after checking its ID:
+
+```sh
+pccli services plans delete 4001 --service-type 3001 --yes
+```
+
+Deletion requires `--yes`, validates the exact identity, and verifies that the plan returns HTTP 404 afterward. A verification failure means the request was accepted but the final state could not be confirmed; inspect the resource before retrying.
+
+Notification sending, automatic scheduling, and split-time scheduling remain outside this interface. Mock mode supports the read journeys above; its static fixture does not emulate updates or prove live account permissions.
+
+## Copy selected parts of a plan
+
+Create a new plan in the **same service type**, choosing exactly which components to carry forward:
+
+```sh
+pccli services plans copy 4001 --service-type 3001 --title "Next Sunday" --copy-items --copy-times --time-offset 168h
+pccli services plans copy 4001 --service-type 3001 --copy-people --copy-needed-positions
+```
+
+Select at least one component:
+
+| Flag | Copied behavior |
+| --- | --- |
+| `--copy-items` | Supported items and headers, selected song/arrangement/key links, and provider item order |
+| `--copy-times` | Service, rehearsal, and other times with their names and classification |
+| `--copy-people` | Whole-plan assignments and notes, reset to Unconfirmed without preparing notifications |
+| `--copy-needed-positions` | Whole-plan unfilled quantities; separate from assigned people |
+| `--copy-settings` | Known public and reminder settings |
+
+The available title and Series selection carry forward. When no Series ID is returned, the available series label is used. `--title ""` explicitly requests an empty title. Without `--copy-settings`, the new plan's `public` field is set to false. Service-type scheduled publication rules still apply independently; this flag does not guarantee private access.
+
+When copying times, choose exactly one of `--time-offset DURATION` or `--preserve-dates`. Durations such as `168h`, `-24h`, or `0` shift every start and end by the same elapsed time. They do not mean a calendar week or preserve local wall-clock time across daylight-saving changes. `--preserve-dates` retains the original dates. Time flags require `--copy-times`.
+
+Item copying requires a known supported item type. Every copied song must have known song, arrangement, **and selected key IDs**; an unavailable or null key stops the copy before creating a destination. Ordinary item creation still permits an optional key. Media items and nonempty layout/background/media relationships are unsupported. Files, attachments, item leaders, notes outside assignment notes, and other unlisted components are not cloned. Copying people requires current active team membership and a uniquely named position in a whole-plan team; availability and scheduling permission remain provider decisions. Decline history is not copied.
+
+The command validates the complete selected source and referenced records before creating the destination, then rechecks them. These requests cannot form a remote transaction; concurrent changes can still occur between requests. Each created record is independently read back, and the final plan is refreshed after its children are created. Needed-position copies report `outcome: accepted`, with an unverified entry for each created record and its requested position ID, because the API does not expose that ID for confirmation.
+
+On a later failure, `error.recovery` retains the source and destination context, created IDs, failing stage, and last-step outcome. Contradictory returned IDs appear as observed records rather than being claimed as newly created. A rejected step after earlier creations reports partial success; lost write responses report unknown commitment. No rollback or automatic replay occurs. Inspect the reported records before retrying; repeating the whole command can create duplicates.
 
 ## Build the order of service
 
@@ -129,83 +210,3 @@ Quantity is required and nonnegative; zero is transmitted explicitly. These comm
 Creation sends the selected position ID, but the API does not expose that ID for independent readback. A successful create therefore reports **`outcome: accepted`**, **`unverified_fields: ["team_position_id"]`**, and the separate **`requested_position_id`**. Readback still verifies quantity, team identity, and the readable position name. Inspect the record in Planning Center when exact position identity matters. Quantity updates report `verified` after readback; the model never invents a canonical position ID from the requested value.
 
 Split-time scheduling, automatic scheduling, invitation sending, and time-specific needed positions are outside these commands. Static mock fixtures demonstrate the reads; stateful request tests establish the wire and recovery behavior, not live account eligibility or delivery.
-
-## Check plan readiness
-
-{% include terminal-demo.html name="planning-demo" title="Check Sunday's plan readiness" caption="Review Gathered in Grace, confirm its service time, inspect available teams, then read assignment responses. Under 90 seconds; mock data." %}
-
-<details markdown="1">
-<summary>Read the readiness steps</summary>
-
-1. `pccli services plans show 4001 --service-type 3001` shows **Gathered in Grace**, two scheduled people, and one needed position.
-2. `pccli services plan-times list --service-type 3001 --plan 4001` shows **Morning Service**, from **09:00 to 10:15 UTC** on November 8, 2026. Timestamps are displayed as returned.
-3. `pccli services teams list --service-type 3001` shows the available **Worship Team (6001)**. Availability is distinct from a plan assignment.
-4. `pccli services scheduled-people list --service-type 3001 --plan 4001` shows **Alex Sample / Vocals / Confirmed** and **Jordan Example / Keys / Unconfirmed**, with assignment, person, and team IDs.
-
-The recording ends on the response summary. Use the written commands above for exports and additional detail; the recording covers one selected plan.
-
-</details>
-
-## Create and maintain plans
-
-Create an empty, undated plan in an explicit service type:
-
-```sh
-pccli services plans create --service-type 3001 --title "Advent Sunday"
-pccli services plans create --service-type 3001
-```
-
-Labels are optional. Supplying no labels creates an untitled plan; `--title ""` explicitly requests an empty title. Ordinary creation does not copy items, people, notes, or times. Keep the returned plan ID for follow-up commands. Public access can be set explicitly with `--public=true|false`.
-
-Update labels or settings:
-
-```sh
-pccli services plans update 4001 --service-type 3001 --title "Gathered in Grace"
-pccli services plans update 4001 --service-type 3001 --series-title "Life Together"
-pccli services plans update 4001 --service-type 3001 --series-title ""
-pccli services plans update 4001 --service-type 3001 --public=false --reminders-disabled=true
-```
-
-Use `--series-id ID` to assign an existing Series by positive decimal ID; pccli validates it before writing and checks the returned series relationship afterward. `--series-id` conflicts with `--series-title`. Public access and reminder settings accept explicit true or false.
-
-Omitted fields remain unchanged. An explicit empty value requests clearing that field. The API must return the same value during readback for pccli to report success. A successful request followed by a failed readback reports a verification error; inspect the plan before retrying. pccli never automatically replays updates. If creation succeeds but later verification fails, the error includes a recovery record with the returned plan ID, service type, stage, and created receipt. Keep that identity and inspect it before creating another plan. JSON errors expose this as `error.recovery`; human errors print the same recovery information.
-
-Delete only the intended plan after checking its ID:
-
-```sh
-pccli services plans delete 4001 --service-type 3001 --yes
-```
-
-Deletion requires `--yes`, validates the exact identity, and verifies that the plan returns HTTP 404 afterward. A verification failure means the request was accepted but the final state could not be confirmed; inspect the resource before retrying.
-
-Notification sending, automatic scheduling, and split-time scheduling remain outside this interface. Mock mode supports the read journeys above; its static fixture does not emulate updates or prove live account permissions.
-
-
-## Copy selected parts of a plan
-
-Create a new plan in the **same service type**, choosing exactly which components to carry forward:
-
-```sh
-pccli services plans copy 4001 --service-type 3001 --title "Next Sunday" --copy-items --copy-times --time-offset 168h
-pccli services plans copy 4001 --service-type 3001 --copy-people --copy-needed-positions
-```
-
-Select at least one component:
-
-| Flag | Copied behavior |
-| --- | --- |
-| `--copy-items` | Supported items and headers, selected song/arrangement/key links, and provider item order |
-| `--copy-times` | Service, rehearsal, and other times with their names and classification |
-| `--copy-people` | Whole-plan assignments and notes, reset to Unconfirmed without preparing notifications |
-| `--copy-needed-positions` | Whole-plan unfilled quantities; separate from assigned people |
-| `--copy-settings` | Known public and reminder settings |
-
-Available title and series labels carry forward; `--title ""` explicitly requests an empty title. Without `--copy-settings`, the new plan's `public` field is set to false. Service-type scheduled publication rules still apply independently; this flag does not guarantee private access.
-
-When copying times, choose exactly one of `--time-offset DURATION` or `--preserve-dates`. Durations such as `168h`, `-24h`, or `0` shift every start and end by the same elapsed time. They do not mean a calendar week or preserve local wall-clock time across daylight-saving changes. `--preserve-dates` retains the original dates. Time flags require `--copy-times`.
-
-Item copying requires a known supported item type. Every copied song must have known song, arrangement, **and selected key IDs**; an unavailable or null key stops the copy before creating a destination. Ordinary item creation still permits an optional key. Media items and nonempty layout/background/media relationships are unsupported. Files, attachments, item leaders, notes outside assignment notes, and other unlisted components are not cloned. Copying people requires current active team membership and a uniquely named position in a whole-plan team; availability and scheduling permission remain provider decisions. Decline history is not copied.
-
-The command validates the complete selected source and referenced records before creating the destination, then rechecks them. These requests cannot form a remote transaction; concurrent changes can still occur between requests. Each created record is independently read back, and the final plan is refreshed after its children are created. Needed-position copies report `outcome: accepted`, with an unverified entry for each created record and its requested position ID, because the API does not expose that ID for confirmation.
-
-On a later failure, `error.recovery` retains the source and destination context, created IDs, failing stage, and last-step outcome. Contradictory returned IDs appear as observed records rather than being claimed as newly created. A rejected step after earlier creations reports partial success; lost write responses report unknown commitment. No rollback or automatic replay occurs. Inspect the reported records before retrying; repeating the whole command can create duplicates.
