@@ -415,6 +415,570 @@
           "pco_type": "PDF"
         }
       }
+    },
+    "GET /services/v2/service_types": {
+      "data": [
+        {
+          "type": "ServiceType",
+          "id": "3001",
+          "attributes": {
+            "name": "Sunday Worship",
+            "frequency": "Weekly",
+            "archived_at": null
+          }
+        }
+      ]
+    },
+    "GET /services/v2/service_types/3001": {
+      "data": {
+        "type": "ServiceType",
+        "id": "3001",
+        "attributes": {
+          "name": "Sunday Worship",
+          "frequency": "Weekly",
+          "archived_at": null
+        }
+      }
+    },
+    "GET /services/v2/service_types/3001/plans": {
+      "data": [
+        {
+          "type": "Plan",
+          "id": "4001",
+          "attributes": {
+            "title": "Gathered in Grace",
+            "series_title": "Life Together",
+            "dates": "November 8, 2026",
+            "short_dates": "Nov 8",
+            "sort_date": "2026-11-08T09:00:00Z",
+            "last_time_at": "2026-11-08T10:15:00Z",
+            "items_count": 3,
+            "plan_people_count": 2,
+            "needed_positions_count": 1,
+            "total_length": 4500,
+            "public": false
+          },
+          "relationships": {
+            "service_type": {
+              "data": {
+                "type": "ServiceType",
+                "id": "3001"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "GET /services/v2/service_types/3001/plans/4001": {
+      "data": {
+        "type": "Plan",
+        "id": "4001",
+        "attributes": {
+          "title": "Gathered in Grace",
+          "series_title": "Life Together",
+          "dates": "November 8, 2026",
+          "short_dates": "Nov 8",
+          "sort_date": "2026-11-08T09:00:00Z",
+          "last_time_at": "2026-11-08T10:15:00Z",
+          "items_count": 3,
+          "plan_people_count": 2,
+          "needed_positions_count": 1,
+          "total_length": 4500,
+          "public": false
+        },
+        "relationships": {
+          "service_type": {
+            "data": {
+              "type": "ServiceType",
+              "id": "3001"
+            }
+          }
+        }
+      }
+    },
+    "GET /services/v2/service_types/3001/plans/4001/items": {
+      "data": [
+        {
+          "type": "Item",
+          "id": "5001",
+          "attributes": {
+            "title": "Gathering",
+            "item_type": "header",
+            "sequence": 1,
+            "length": 0,
+            "service_position": "during"
+          },
+          "relationships": {
+            "plan": {
+              "data": {
+                "type": "Plan",
+                "id": "4001"
+              }
+            }
+          }
+        },
+        {
+          "type": "Item",
+          "id": "5002",
+          "attributes": {
+            "title": "Amazing Grace",
+            "item_type": "song",
+            "sequence": 2,
+            "length": 240,
+            "service_position": "during",
+            "key_name": "G"
+          },
+          "relationships": {
+            "plan": {
+              "data": {
+                "type": "Plan",
+                "id": "4001"
+              }
+            },
+            "song": {
+              "data": {
+                "type": "Song",
+                "id": "1001"
+              }
+            },
+            "arrangement": {
+              "data": {
+                "type": "Arrangement",
+                "id": "2001"
+              }
+            },
+            "key": {
+              "data": {
+                "type": "Key",
+                "id": "3001"
+              }
+            }
+          }
+        },
+        {
+          "type": "Item",
+          "id": "5003",
+          "attributes": {
+            "title": "Welcome and Prayer",
+            "description": "Welcome the congregation and pray together.",
+            "item_type": "item",
+            "sequence": 3,
+            "length": 180,
+            "service_position": "during"
+          },
+          "relationships": {
+            "plan": {
+              "data": {
+                "type": "Plan",
+                "id": "4001"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "GET /services/v2/service_types/3001/teams": {
+      "data": [
+        {
+          "type": "Team",
+          "id": "6001",
+          "attributes": {
+            "name": "Worship Team",
+            "schedule_to": "plan",
+            "rehearsal_team": false,
+            "archived_at": null
+          },
+          "relationships": {
+            "service_type": {
+              "data": {
+                "type": "ServiceType",
+                "id": "3001"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "GET /services/v2/service_types/3001/teams/6001": {
+      "data": {
+        "type": "Team",
+        "id": "6001",
+        "attributes": {
+          "name": "Worship Team",
+          "schedule_to": "plan",
+          "rehearsal_team": false,
+          "archived_at": null
+        },
+        "relationships": {
+          "service_type": {
+            "data": {
+              "type": "ServiceType",
+              "id": "3001"
+            }
+          }
+        }
+      }
+    },
+    "GET /services/v2/service_types/3001/plans/4001/plan_times": {
+      "data": [
+        {
+          "type": "PlanTime",
+          "id": "7001",
+          "attributes": {
+            "name": "Morning Service",
+            "starts_at": "2026-11-08T09:00:00Z",
+            "ends_at": "2026-11-08T10:15:00Z",
+            "time_type": "service"
+          },
+          "relationships": {
+            "plan": {
+              "data": {
+                "type": "Plan",
+                "id": "4001"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "GET /services/v2/service_types/3001/plans/4001/team_members": {
+      "data": [
+        {
+          "type": "PlanPerson",
+          "id": "8001",
+          "attributes": {
+            "name": "Alex Sample",
+            "status": "C",
+            "team_position_name": "Vocals",
+            "notes": "",
+            "decline_reason": "",
+            "prepare_notification": false,
+            "can_accept_partial": false
+          },
+          "relationships": {
+            "plan": {
+              "data": {
+                "type": "Plan",
+                "id": "4001"
+              }
+            },
+            "service_type": {
+              "data": {
+                "type": "ServiceType",
+                "id": "3001"
+              }
+            },
+            "person": {
+              "data": {
+                "type": "Person",
+                "id": "9001"
+              }
+            },
+            "team": {
+              "data": {
+                "type": "Team",
+                "id": "6001"
+              }
+            }
+          }
+        },
+        {
+          "type": "PlanPerson",
+          "id": "8002",
+          "attributes": {
+            "name": "Jordan Example",
+            "status": "U",
+            "team_position_name": "Keys",
+            "notes": "",
+            "decline_reason": "",
+            "prepare_notification": false,
+            "can_accept_partial": false
+          },
+          "relationships": {
+            "plan": {
+              "data": {
+                "type": "Plan",
+                "id": "4001"
+              }
+            },
+            "person": {
+              "data": {
+                "type": "Person",
+                "id": "9002"
+              }
+            },
+            "team": {
+              "data": {
+                "type": "Team",
+                "id": "6001"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "GET /services/v2/service_types/3001/plans/4001/items/5001": {
+      "data": {
+        "type": "Item",
+        "id": "5001",
+        "attributes": {
+          "title": "Gathering",
+          "item_type": "header",
+          "sequence": 1,
+          "length": 0,
+          "service_position": "during"
+        },
+        "relationships": {
+          "plan": {
+            "data": {
+              "type": "Plan",
+              "id": "4001"
+            }
+          }
+        }
+      }
+    },
+    "GET /services/v2/service_types/3001/plans/4001/items/5002": {
+      "data": {
+        "type": "Item",
+        "id": "5002",
+        "attributes": {
+          "title": "Amazing Grace",
+          "item_type": "song",
+          "sequence": 2,
+          "length": 240,
+          "service_position": "during",
+          "key_name": "G"
+        },
+        "relationships": {
+          "plan": {
+            "data": {
+              "type": "Plan",
+              "id": "4001"
+            }
+          },
+          "song": {
+            "data": {
+              "type": "Song",
+              "id": "1001"
+            }
+          },
+          "arrangement": {
+            "data": {
+              "type": "Arrangement",
+              "id": "2001"
+            }
+          },
+          "key": {
+            "data": {
+              "type": "Key",
+              "id": "3001"
+            }
+          }
+        }
+      }
+    },
+    "GET /services/v2/service_types/3001/plans/4001/items/5003": {
+      "data": {
+        "type": "Item",
+        "id": "5003",
+        "attributes": {
+          "title": "Welcome and Prayer",
+          "description": "Welcome the congregation and pray together.",
+          "item_type": "item",
+          "sequence": 3,
+          "length": 180,
+          "service_position": "during"
+        },
+        "relationships": {
+          "plan": {
+            "data": {
+              "type": "Plan",
+              "id": "4001"
+            }
+          }
+        }
+      }
+    },
+    "GET /services/v2/teams/6001/people": {
+      "data": [
+        {
+          "type": "Person",
+          "id": "9001",
+          "attributes": {
+            "full_name": "Alex Sample",
+            "archived": false,
+            "archived_at": null
+          }
+        },
+        {
+          "type": "Person",
+          "id": "9002",
+          "attributes": {
+            "full_name": "Jordan Example",
+            "archived": false,
+            "archived_at": null
+          }
+        }
+      ]
+    },
+    "GET /services/v2/teams/6001/people/9001": {
+      "data": {
+        "type": "Person",
+        "id": "9001",
+        "attributes": {
+          "full_name": "Alex Sample",
+          "archived": false,
+          "archived_at": null
+        }
+      }
+    },
+    "GET /services/v2/teams/6001/people/9002": {
+      "data": {
+        "type": "Person",
+        "id": "9002",
+        "attributes": {
+          "full_name": "Jordan Example",
+          "archived": false,
+          "archived_at": null
+        }
+      }
+    },
+    "GET /services/v2/teams/6001/team_positions": {
+      "data": [
+        {
+          "type": "TeamPosition",
+          "id": "10001",
+          "attributes": {
+            "name": "Vocals",
+            "sequence": 1
+          },
+          "relationships": {
+            "team": {
+              "data": {
+                "type": "Team",
+                "id": "6001"
+              }
+            }
+          }
+        },
+        {
+          "type": "TeamPosition",
+          "id": "10002",
+          "attributes": {
+            "name": "Keys",
+            "sequence": 2
+          },
+          "relationships": {
+            "team": {
+              "data": {
+                "type": "Team",
+                "id": "6001"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "GET /services/v2/teams/6001/team_positions/10001": {
+      "data": {
+        "type": "TeamPosition",
+        "id": "10001",
+        "attributes": {
+          "name": "Vocals",
+          "sequence": 1
+        },
+        "relationships": {
+          "team": {
+            "data": {
+              "type": "Team",
+              "id": "6001"
+            }
+          }
+        }
+      }
+    },
+    "GET /services/v2/teams/6001/team_positions/10002": {
+      "data": {
+        "type": "TeamPosition",
+        "id": "10002",
+        "attributes": {
+          "name": "Keys",
+          "sequence": 2
+        },
+        "relationships": {
+          "team": {
+            "data": {
+              "type": "Team",
+              "id": "6001"
+            }
+          }
+        }
+      }
+    },
+    "GET /services/v2/service_types/3001/plans/4001/needed_positions": {
+      "data": [
+        {
+          "type": "NeededPosition",
+          "id": "11001",
+          "attributes": {
+            "quantity": 1,
+            "team_position_name": "Vocals",
+            "scheduled_to": "plan"
+          },
+          "relationships": {
+            "team": {
+              "data": {
+                "type": "Team",
+                "id": "6001"
+              }
+            },
+            "plan": {
+              "data": {
+                "type": "Plan",
+                "id": "4001"
+              }
+            },
+            "time": {
+              "data": null
+            },
+            "time_preference_option": {
+              "data": null
+            }
+          }
+        }
+      ]
+    },
+    "GET /services/v2/service_types/3001/plans/4001/needed_positions/11001": {
+      "data": {
+        "type": "NeededPosition",
+        "id": "11001",
+        "attributes": {
+          "quantity": 1,
+          "team_position_name": "Vocals",
+          "scheduled_to": "plan"
+        },
+        "relationships": {
+          "team": {
+            "data": {
+              "type": "Team",
+              "id": "6001"
+            }
+          },
+          "plan": {
+            "data": {
+              "type": "Plan",
+              "id": "4001"
+            }
+          },
+          "time": {
+            "data": null
+          },
+          "time_preference_option": {
+            "data": null
+          }
+        }
+      }
     }
   }
 }

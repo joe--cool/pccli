@@ -224,6 +224,49 @@ func text(v any) string {
 	}
 }
 func renderResource(r output.Renderer, value any) error {
+	if result, ok := value.(services.PlanCopyResult); ok {
+		if e := renderResource(r, result.Plan); e != nil {
+			return e
+		}
+		if e := r.KeyValues([][2]string{{"Source plan ID", result.SourcePlanID}, {"Copied", strings.Join(result.Components, ", ")}, {"Outcome", result.Outcome}}); e != nil {
+			return e
+		}
+		rows := [][]string{}
+		for _, receipt := range result.Created {
+			rows = append(rows, []string{receipt.Resource, receipt.ID})
+		}
+		if len(rows) > 0 {
+			if _, e := fmt.Fprintln(r.Out, "\nCREATED RECORDS"); e != nil {
+				return e
+			}
+			if e := r.Table([]string{"Resource", "ID"}, rows); e != nil {
+				return e
+			}
+		}
+		if len(result.UnverifiedFields) > 0 {
+			rows = nil
+			for _, field := range result.UnverifiedFields {
+				rows = append(rows, []string{field.Resource, field.ID, field.Field, field.RequestedID})
+			}
+			if _, e := fmt.Fprintln(r.Out, "\nUNVERIFIED FIELDS"); e != nil {
+				return e
+			}
+			return r.Table([]string{"Resource", "ID", "Field", "Requested ID"}, rows)
+		}
+		return nil
+	}
+
+	if result, ok := value.(services.NeededPositionResult); ok {
+		if e := renderResource(r, result.NeededPosition); e != nil {
+			return e
+		}
+		requested := ""
+		if result.RequestedPositionID != nil {
+			requested = *result.RequestedPositionID
+		}
+		return r.KeyValues([][2]string{{"Outcome", result.Outcome}, {"Unverified fields", strings.Join(result.UnverifiedFields, ", ")}, {"Requested position ID", requested}})
+	}
+
 	if update, ok := value.(services.AttachmentUpdateResult); ok {
 		if e := renderResource(r, update.Attachment); e != nil {
 			return e
@@ -279,6 +322,9 @@ func renderResource(r output.Renderer, value any) error {
 	return nil
 }
 func renderTable[T any](r output.Renderer, items []T) error {
+	if handled, err := planningTable(r, items); handled {
+		return err
+	}
 	first := object(items[0])
 	columns := []string{"id"}
 	for _, k := range []string{"title", "name", "display_name", "author", "ccli_number", "starting_key", "ending_key", "chord_chart_key", "bpm", "meter", "filename", "tag_group_id", "tag_group_name", "tags_for", "content_type"} {

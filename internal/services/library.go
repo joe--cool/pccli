@@ -69,11 +69,12 @@ type ArrangementDetail struct {
 	Keys        ListResult[Key] `json:"keys"`
 }
 type Error struct {
-	Code       string            `json:"code"`
-	Message    string            `json:"message"`
-	Candidates any               `json:"candidates,omitempty"`
-	Recovery   *AttachmentResult `json:"recovery,omitempty"`
-	Cause      error             `json:"-"`
+	Code             string            `json:"code"`
+	Message          string            `json:"message"`
+	Candidates       any               `json:"candidates,omitempty"`
+	Recovery         *AttachmentResult `json:"recovery,omitempty"`
+	PlanningRecovery *PlanningRecovery `json:"-"`
+	Cause            error             `json:"-"`
 }
 
 func (e *Error) Error() string     { return e.Message }

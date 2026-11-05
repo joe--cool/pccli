@@ -13,7 +13,7 @@ import (
 func newServicesCommand(jsonOutput *bool) *cobra.Command {
 	c := group("services", "Work with Planning Center Services")
 	c.GroupID = "products"
-	c.AddCommand(newSongsCommand(jsonOutput), newArrangementsCommand(jsonOutput), newKeysCommand(jsonOutput), newAttachmentsCommand(jsonOutput), newTagsCommand(jsonOutput), newCatalogCommand("tag-groups", jsonOutput), newCatalogCommand("attachment-types", jsonOutput))
+	c.AddCommand(newTeamPeopleCommand(jsonOutput), newTeamPositionsCommand(jsonOutput), newNeededPositionsCommand(jsonOutput), newServiceTypesCommand(jsonOutput), newPlansCommand(jsonOutput), newItemsCommand(jsonOutput), newTeamsCommand(jsonOutput), newPlanTimesCommand(jsonOutput), newScheduledPeopleCommand(jsonOutput), newSongsCommand(jsonOutput), newArrangementsCommand(jsonOutput), newKeysCommand(jsonOutput), newAttachmentsCommand(jsonOutput), newTagsCommand(jsonOutput), newCatalogCommand("tag-groups", jsonOutput), newCatalogCommand("attachment-types", jsonOutput))
 	return c
 }
 func noArguments(c *cobra.Command, args []string) error {

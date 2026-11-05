@@ -63,6 +63,9 @@ func printError(out io.Writer, j bool, err error) {
 		if s.Recovery != nil {
 			body["recovery"] = s.Recovery
 		}
+		if s.PlanningRecovery != nil {
+			body["recovery"] = s.PlanningRecovery
+		}
 	}
 	if errors.Is(err, context.Canceled) {
 		body["code"] = "cancelled"
@@ -82,6 +85,10 @@ func printError(out io.Writer, j bool, err error) {
 	if s != nil && s.Candidates != nil {
 		b, _ := json.Marshal(s.Candidates)
 		_, _ = fmt.Fprintf(out, "Candidates: %s\n", output.SafeText(string(b)))
+	}
+	if s != nil && s.PlanningRecovery != nil {
+		b, _ := json.Marshal(s.PlanningRecovery)
+		_, _ = fmt.Fprintf(out, "Recovery: %s\nInspect the destination before retrying; do not replay automatically.\n", output.SafeText(string(b)))
 	}
 	if s != nil && s.Recovery != nil {
 		b, _ := json.Marshal(s.Recovery)

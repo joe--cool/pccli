@@ -1,0 +1,243 @@
+{
+  "source": "https://api.planningcenteronline.com/services/v2/open_api/2018-11-01",
+  "api_version": "2018-11-01",
+  "retrieved_on": "2026-11-04",
+  "read": {
+    "ServiceType": {
+      "name": "string",
+      "frequency": "string",
+      "archived_at": "string"
+    },
+    "Plan": {
+      "title": "string",
+      "series_title": "string",
+      "dates": "string",
+      "short_dates": "string",
+      "sort_date": "string",
+      "last_time_at": "string",
+      "items_count": "integer",
+      "plan_people_count": "integer",
+      "needed_positions_count": "integer",
+      "total_length": "integer",
+      "public": "boolean",
+      "planning_center_url": "string",
+      "reminders_disabled": "boolean",
+      "public_by_schedule": "boolean"
+    },
+    "Item": {
+      "title": "string",
+      "description": "string",
+      "item_type": "string",
+      "service_position": "string",
+      "sequence": "integer",
+      "length": "integer",
+      "key_name": "string",
+      "html_details": "string",
+      "custom_arrangement_sequence": "array"
+    },
+    "Team": {
+      "name": "string",
+      "archived_at": "string",
+      "schedule_to": "string",
+      "rehearsal_team": "boolean"
+    },
+    "PlanTime": {
+      "name": "string",
+      "starts_at": "string",
+      "ends_at": "string",
+      "time_type": "string"
+    },
+    "PlanPerson": {
+      "name": "string",
+      "status": "string",
+      "team_position_name": "string",
+      "notes": "string",
+      "decline_reason": "string",
+      "prepare_notification": "boolean",
+      "can_accept_partial": "boolean",
+      "notification_prepared_at": "string",
+      "notification_sent_at": "string"
+    },
+    "Person": {
+      "full_name": "string",
+      "archived": "boolean",
+      "archived_at": "string"
+    },
+    "TeamPosition": {
+      "name": "string",
+      "sequence": "integer"
+    },
+    "NeededPosition": {
+      "quantity": "integer",
+      "team_position_name": "string",
+      "scheduled_to": "string"
+    }
+  },
+  "update": {
+    "Plan": {
+      "title": "string",
+      "public": "boolean",
+      "series_id": "string",
+      "series_title": "string",
+      "reminders_disabled": "boolean"
+    },
+    "Item": {
+      "title": "string",
+      "description": "string",
+      "html_details": "string",
+      "length": "integer",
+      "service_position": "string",
+      "custom_arrangement_sequence": "array",
+      "song_id": "string",
+      "arrangement_id": "string",
+      "key_id": "string"
+    },
+    "PlanTime": {
+      "name": "string",
+      "starts_at": "string",
+      "ends_at": "string",
+      "time_type": "string"
+    },
+    "PlanPerson": {
+      "status": "string",
+      "notes": "string",
+      "decline_reason": "string",
+      "team_position_name": "string"
+    },
+    "NeededPosition": {
+      "quantity": "integer"
+    }
+  },
+  "paths": {
+    "/service_types": [
+      "GET"
+    ],
+    "/service_types/{service_type_id}/plans": [
+      "GET",
+      "POST"
+    ],
+    "/service_types/{service_type_id}/plans/{plan_id}": [
+      "GET",
+      "PATCH",
+      "DELETE"
+    ],
+    "/service_types/{service_type_id}/plans/{plan_id}/items": [
+      "GET",
+      "POST"
+    ],
+    "/service_types/{service_type_id}/teams": [
+      "GET"
+    ],
+    "/service_types/{service_type_id}/plans/{plan_id}/plan_times": [
+      "GET",
+      "POST"
+    ],
+    "/service_types/{service_type_id}/plans/{plan_id}/team_members": [
+      "GET",
+      "POST"
+    ],
+    "/series/{series_id}": [
+      "GET"
+    ],
+    "/service_types/{service_type_id}/plans/{plan_id}/items/{item_id}": [
+      "GET",
+      "PATCH",
+      "DELETE"
+    ],
+    "/service_types/{service_type_id}/plans/{plan_id}/plan_times/{plan_time_id}": [
+      "GET",
+      "PATCH",
+      "DELETE"
+    ],
+    "/teams/{team_id}/people": [
+      "GET"
+    ],
+    "/teams/{team_id}/people/{person_id}": [
+      "GET"
+    ],
+    "/teams/{team_id}/team_positions": [
+      "GET"
+    ],
+    "/teams/{team_id}/team_positions/{team_position_id}": [
+      "GET"
+    ],
+    "/service_types/{service_type_id}/plans/{plan_id}/team_members/{team_member_id}": [
+      "GET",
+      "PATCH",
+      "DELETE"
+    ],
+    "/service_types/{service_type_id}/plans/{plan_id}/needed_positions": [
+      "GET",
+      "POST"
+    ],
+    "/service_types/{service_type_id}/plans/{plan_id}/needed_positions/{needed_position_id}": [
+      "GET",
+      "PATCH",
+      "DELETE"
+    ]
+  },
+  "create": {
+    "Plan": {
+      "title": "string",
+      "public": "boolean",
+      "series_id": "string",
+      "series_title": "string"
+    },
+    "Item": {
+      "title": "string",
+      "description": "string",
+      "html_details": "string",
+      "length": "integer",
+      "service_position": "string",
+      "custom_arrangement_sequence": "array",
+      "song_id": "string",
+      "arrangement_id": "string",
+      "key_id": "string",
+      "item_type": "string",
+      "sequence": "integer"
+    },
+    "PlanTime": {
+      "name": "string",
+      "starts_at": "string",
+      "ends_at": "string",
+      "time_type": "string"
+    },
+    "PlanPerson": {
+      "person_id": "string",
+      "team_id": "string",
+      "status": "string",
+      "notes": "string",
+      "decline_reason": "string",
+      "team_position_name": "string",
+      "prepare_notification": "boolean"
+    },
+    "NeededPosition": {
+      "quantity": "integer",
+      "team_id": "string",
+      "team_position_id": "string"
+    }
+  },
+  "actions": {
+    "item_reorder": {
+      "source": "https://api.planningcenteronline.com/docs/apps/services/versions/2018-11-01/vertices/plan",
+      "method": "POST",
+      "path": "/service_types/{service_type_id}/plans/{plan_id}/item_reorder",
+      "type": "PlanItemReorder",
+      "attributes": {
+        "sequence": "array[string]"
+      },
+      "success_status": 204
+    }
+  },
+  "composed_copy": {
+    "implementation": "Verified ordinary plan, item/reorder, time, assignment, and needed-position CRUD; no guessed import action envelope",
+    "components": [
+      "items",
+      "times",
+      "people",
+      "needed_positions",
+      "settings"
+    ],
+    "readback": "Each created resource plus refreshed destination plan; needed team_position_id remains write-only"
+  }
+}

@@ -6,7 +6,7 @@
 
 `pccli` is an unofficial Planning Center CLI. It is not built, endorsed, or supported by Planning Center.
 
-Find and maintain the Services song library: songs, arrangements, musical keys, files, links, and tag assignments. Human output is concise; every data command supports a versioned `--json` envelope.
+Create and maintain service plans, orders, times, and whole-plan team schedules. Copy selected parts into a new plan. Find and maintain the Services song library: songs, arrangements, musical keys, files, links, and tag assignments. Human output is concise; every data command supports a versioned `--json` envelope.
 
 ## Install and authenticate
 
@@ -47,7 +47,7 @@ pccli --json services songs list --all
 PCCLI_MOCK=true pccli services songs list
 ```
 
-[Documentation](https://joe--cool.github.io/pccli/) · [Quick start](docs/quick-start.md) · [Song-library workflows](docs/managing-your-song-library.md) · [Command reference](docs/commands.md) · [Metadata fields](docs/song-fields.md)
+[Documentation](https://joe--cool.github.io/pccli/) · [Quick start](docs/quick-start.md) · [Service planning](docs/planning-a-service.md) · [Song-library workflows](docs/managing-your-song-library.md) · [Command reference](docs/commands.md) · [Metadata fields](docs/song-fields.md)
 
 ## Develop
 

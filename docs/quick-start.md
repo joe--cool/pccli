@@ -48,8 +48,9 @@ PCCLI_MOCK=true pccli services songs list
 
 ## Choose your next task
 
+- [Plan services and manage orders, times, and whole-plan team assignments](planning-a-service.html).
 - [Find and maintain songs, arrangements, keys, files, and tags](managing-your-song-library.html).
 - [Look up a command](commands.html).
 - [Use JSON in a script](commands.html#json-and-errors).
 
-The available product workflow is currently Services song-library management.
+Available workflows cover service planning, selected-component plan copying, whole-plan scheduling, and song-library management.
