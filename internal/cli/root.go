@@ -18,6 +18,7 @@ import (
 type app struct {
 	cfg     config.Config
 	library *services.Library
+	rateLog *os.File
 }
 
 var Version = "dev"
@@ -34,6 +35,9 @@ func executeCommand(ctx context.Context, cmd *cobra.Command, args []string, out,
 	cmd.SetOut(out)
 	cmd.SetErr(stderr)
 	err := cmd.ExecuteContext(ctx)
+	if a := appFrom(cmd); a != nil && a.rateLog != nil {
+		_ = a.rateLog.Close()
+	}
 	if err != nil && strings.HasPrefix(err.Error(), "unknown command ") {
 		err = usageError{err}
 	}
@@ -105,6 +109,7 @@ func NewRootCommand() *cobra.Command {
 	}
 	root.SetFlagErrorFunc(func(_ *cobra.Command, e error) error { return usageError{e} })
 	root.PersistentFlags().BoolVar(&jsonOutput, "json", false, "write machine-readable JSON")
+	root.PersistentFlags().String("rate-limit-log", "", "append timestamped rate-limit diagnostics to a JSONL file")
 	root.SetOut(os.Stdout)
 	root.SetErr(os.Stderr)
 
@@ -125,7 +130,11 @@ func loadApp(cmd *cobra.Command) (*app, error) {
 	if existing := appFrom(cmd.Root()); existing != nil {
 		return existing, nil
 	}
-	app, err := buildApp()
+	rateLogPath, err := cmd.Root().PersistentFlags().GetString("rate-limit-log")
+	if err != nil {
+		return nil, err
+	}
+	app, err := buildApp(rateLogPath)
 	if err != nil {
 		return nil, err
 	}
@@ -133,7 +142,7 @@ func loadApp(cmd *cobra.Command) (*app, error) {
 	return app, nil
 }
 
-func buildApp() (*app, error) {
+func buildApp(rateLogPath string) (*app, error) {
 	cfg, err := config.Load()
 	if err != nil {
 		return nil, err
@@ -148,8 +157,17 @@ func buildApp() (*app, error) {
 	}
 
 	client := planningcenter.NewClient(cfg, transport)
+	var rateLog *os.File
+	if rateLogPath != "" {
+		rateLog, err = os.OpenFile(rateLogPath, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0600)
+		if err != nil {
+			return nil, err
+		}
+		client.SetRateLimitLog(rateLog)
+	}
 	return &app{
 		cfg:     cfg,
 		library: services.NewLibrary(client),
+		rateLog: rateLog,
 	}, nil
 }

@@ -330,6 +330,17 @@ pccli --json services songs show 1001 --arrangement 2001
 
 Errors go to stderr; JSON errors use the same schema version with an `error` object containing a stable `code`, `message`, and relevant candidates or recovery information. A failure before publication emits no success result to stdout. A broken output pipe can still leave partial bytes; check the exit code before using an export.
 
+Use `--rate-limit-log PATH` to append timestamped JSON lines with each HTTP
+attempt's status, elapsed milliseconds, rate counters, and any wait before
+a retry. The log excludes request URLs, credentials, and bodies. Command JSON
+stays on its usual streams. A rate-limited command's JSON error includes
+`retry_after_seconds` when the server provides a retry delay or rate window.
+
+```sh
+pccli --rate-limit-log ./pco-rate.jsonl --json services songs list --limit 10
+```
+
+
 Planning write errors may include `error.recovery` with known record IDs, parents, and a failed stage. Copy recovery additionally retains `source_plan_id`, `created` receipts, `observed` contradictory IDs, `last_outcome`, `last_error_code`, and accepted-but-unverified fields when applicable. Observed IDs are not claimed as newly created records.
 
 | Error code | Meaning for a write |
