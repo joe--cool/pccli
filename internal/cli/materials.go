@@ -9,6 +9,7 @@ import (
 
 func newAttachmentsCommand(j *bool) *cobra.Command {
 	g := group("attachments", "Manage song, arrangement, or key files and links")
+	g.AddCommand(newAttachmentRelocation(j))
 	var s services.Scope
 	var o services.ListOptions
 	c := dataCommand("list", "List materials at an explicit scope", 0, func(c *cobra.Command, _ []string) error {

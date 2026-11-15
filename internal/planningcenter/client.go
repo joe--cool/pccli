@@ -15,6 +15,8 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/joe--cool/pccli/v2/internal/config"
@@ -28,6 +30,9 @@ type Client struct {
 	baseURL, uploadURL, clientID, clientSecret, userAgent string
 	httpClient                                            *http.Client
 	wait                                                  func(context.Context, time.Duration) error
+	rateLimitLog                                          *json.Encoder
+	logMu                                                 sync.Mutex
+	requests                                              atomic.Uint64
 }
 
 func NewClient(cfg config.Config, transport http.RoundTripper) *Client {
@@ -39,6 +44,14 @@ func NewClient(cfg config.Config, transport http.RoundTripper) *Client {
 			return errors.New("Planning Center redirects are not permitted")
 		}}, wait: waitContext}
 }
+
+// SetRateLimitLog writes opt-in request timing and rate-limit events as JSON lines.
+func (c *Client) SetRateLimitLog(w io.Writer) {
+	c.rateLimitLog = json.NewEncoder(w)
+}
+
+// Requests reports the number of HTTP attempts, including retries and uploads.
+func (c *Client) Requests() uint64 { return c.requests.Load() }
 
 func (c *Client) Get(ctx context.Context, path string, query url.Values, dst any) error {
 	return c.do(ctx, http.MethodGet, path, query, nil, dst)
@@ -91,11 +104,16 @@ func (c *Client) UploadFile(ctx context.Context, path string, dst any) error {
 	req.ContentLength = int64(len(prefix)) + info.Size() + int64(len(suffix))
 	c.headers(req, false)
 	req.Header.Set("Content-Type", writer.FormDataContentType())
+	started := time.Now()
+	c.requests.Add(1)
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
+		c.logRateLimit(http.MethodPost, started, 1, nil, 0)
 		return requestFailure(ctx, "upload", true, err)
 	}
-	return classifyResponse("upload", true, decodeResponse(resp, dst))
+	result := classifyResponse("upload", true, decodeResponse(resp, dst))
+	c.logRateLimit(http.MethodPost, started, 1, resp, 0)
+	return result
 }
 
 type contextReader struct {
@@ -145,6 +163,8 @@ func (c *Client) do(ctx context.Context, method, path string, query url.Values, 
 		if body != nil {
 			req.Header.Set("Content-Type", "application/vnd.api+json")
 		}
+		started := time.Now()
+		c.requests.Add(1)
 		resp, requestErr := c.httpClient.Do(req)
 		var result error
 		var delay time.Duration
@@ -155,20 +175,22 @@ func (c *Client) do(ctx context.Context, method, path string, query url.Values, 
 		} else {
 			result = classifyResponse("request", method != http.MethodGet, decodeResponse(resp, dst))
 			retry = resp.StatusCode == 429 || resp.StatusCode == 502 || resp.StatusCode == 503 || resp.StatusCode == 504
-			delay = retryAfter(resp.Header.Get("Retry-After"))
+			delay = retryDelay(resp)
 		}
-		if result == nil {
-			return nil
-		}
-		if method != http.MethodGet || !retry || attempt == 2 {
-			return result
-		}
-		if delay > maxRetryWait {
+		canRetry := result != nil && method == http.MethodGet && retry && attempt < 2 && delay <= maxRetryWait
+		if !canRetry {
+			c.logRateLimit(method, started, attempt+1, resp, 0)
 			return result
 		}
 		if delay == 0 {
-			delay = time.Duration(200*(1<<attempt))*time.Millisecond + time.Duration(rand.IntN(100))*time.Millisecond
+			delay = time.Duration(200*(1<<attempt)) * time.Millisecond
 		}
+		jitterLimit := 100 * time.Millisecond
+		if resp != nil && resp.StatusCode == http.StatusTooManyRequests {
+			jitterLimit = time.Second
+		}
+		delay += time.Duration(rand.Int64N(int64(jitterLimit)))
+		c.logRateLimit(method, started, attempt+1, resp, delay)
 		if err = c.wait(ctx, delay); err != nil {
 			return err
 		}
@@ -253,7 +275,7 @@ func decodeResponse(resp *http.Response, dst any) error {
 	if resp.StatusCode < 200 || resp.StatusCode > 299 {
 		// Remote bodies can contain credentials, request content, or terminal controls.
 		_, _ = io.Copy(io.Discard, io.LimitReader(resp.Body, 64<<10))
-		return APIError{StatusCode: resp.StatusCode}
+		return APIError{StatusCode: resp.StatusCode, RetryAfter: retryDelay(resp)}
 	}
 	if dst == nil {
 		_, err := io.Copy(io.Discard, io.LimitReader(resp.Body, maxResponseBytes))
@@ -293,10 +315,60 @@ func waitContext(ctx context.Context, delay time.Duration) error {
 		return nil
 	}
 }
+func retryDelay(resp *http.Response) time.Duration {
+	hint := retryAfter(resp.Header.Get("Retry-After"))
+	if hint == 0 && resp.StatusCode == http.StatusTooManyRequests {
+		hint = retryAfter(strconv.Itoa(ratePeriod(resp.Header)))
+	}
+	return hint
+}
+
+func ratePeriod(header http.Header) int {
+	text := strings.TrimSpace(header.Get("X-PCO-API-Request-Rate-Period"))
+	return rateNumber(strings.TrimSuffix(strings.TrimSuffix(text, " seconds"), " second"))
+}
+
+func rateNumber(text string) int {
+	n, err := strconv.Atoi(strings.TrimSpace(text))
+	if err != nil || n < 0 {
+		return 0
+	}
+	return n
+}
+
+func (c *Client) logRateLimit(method string, started time.Time, attempt int, resp *http.Response, wait time.Duration) {
+	if c.rateLimitLog == nil {
+		return
+	}
+	event := struct {
+		Timestamp  time.Time `json:"timestamp"`
+		Method     string    `json:"method"`
+		Attempt    int       `json:"attempt"`
+		ElapsedMS  int64     `json:"elapsed_ms"`
+		Status     int       `json:"http_status,omitempty"`
+		Limit      int       `json:"rate_limit,omitempty"`
+		Count      int       `json:"rate_count,omitempty"`
+		Period     int       `json:"rate_period_seconds,omitempty"`
+		RetryAfter int64     `json:"retry_after_ms,omitempty"`
+		RetryWait  int64     `json:"retry_wait_ms,omitempty"`
+	}{Timestamp: time.Now().UTC(), Method: method, Attempt: attempt,
+		ElapsedMS: time.Since(started).Milliseconds(), RetryWait: wait.Milliseconds()}
+	if resp != nil {
+		event.Status = resp.StatusCode
+		event.Limit = rateNumber(resp.Header.Get("X-PCO-API-Request-Rate-Limit"))
+		event.Count = rateNumber(resp.Header.Get("X-PCO-API-Request-Rate-Count"))
+		event.Period = ratePeriod(resp.Header)
+		event.RetryAfter = retryDelay(resp).Milliseconds()
+	}
+	c.logMu.Lock()
+	defer c.logMu.Unlock()
+	_ = c.rateLimitLog.Encode(event)
+}
+
 func retryAfter(value string) time.Duration {
 	if seconds, err := strconv.ParseInt(value, 10, 64); err == nil && seconds >= 0 {
-		if seconds > int64(maxRetryWait/time.Second) {
-			return maxRetryWait + time.Second
+		if seconds > int64((1<<63-1)/time.Second) {
+			return time.Duration(1<<63 - 1)
 		}
 		return time.Duration(seconds) * time.Second
 	}

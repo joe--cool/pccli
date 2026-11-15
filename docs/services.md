@@ -21,9 +21,10 @@ Use `pccli services RESOURCE ACTION` to plan services and maintain the Services 
 | `scheduled-people` | Create, inspect, update, and delete whole-plan assignments |
 | `needed-positions` | Track unfilled whole-plan position counts |
 | `songs` | Find, inspect, create, update, delete, and inspect scheduling history |
-| `arrangements` | Maintain song versions, chord charts, print settings, sequence, and archive state |
+| `arrangements` | Maintain song versions and inspect shared and key-specific files |
+| `library` | Export snapshots and [audit file placements](managing-your-song-library.html#audit-file-placements-across-the-library) |
 | `keys` | Maintain named keys and alternate keys within an arrangement |
-| `attachments` | List, inspect, add, update, and delete files or links at song, arrangement, or key scope |
+| `attachments` | Manage files and links by scope, including [relocating uploaded PDFs](managing-your-song-library.html#move-an-uploaded-pdf) |
 | `tags` | Discover available or assigned tags; replace a song's or arrangement's complete assignment |
 | `tag-groups` | Discover song and arrangement tag classifications |
 | `attachment-types` | Discover available file classifications |

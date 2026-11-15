@@ -18,7 +18,8 @@ pccli is unofficial and is not built, endorsed, or supported by Planning Center.
 | `--include-archived` | Explicitly include archived arrangements, or returned archived service types/teams/candidate people where relevant |
 | `--limit N` | Total results to display, default 25; positive integer |
 | `--all` | Return the complete selected collection; conflicts with an explicit `--limit` |
-| `--yes` | Required for every delete; never bypasses target validation |
+| `--yes` | Required by commands named `delete`. [Relocation](#relocate-an-uploaded-pdf) uses `--apply` with a new journal to authorize deleting the source after verification. |
+| `--rate-limit-log PATH` | Append timestamped request and retry diagnostics to a separate JSON Lines file |
 
 ### IDs, names, and parents
 
@@ -330,6 +331,17 @@ pccli --json services songs show 1001 --arrangement 2001
 
 Errors go to stderr; JSON errors use the same schema version with an `error` object containing a stable `code`, `message`, and relevant candidates or recovery information. A failure before publication emits no success result to stdout. A broken output pipe can still leave partial bytes; check the exit code before using an export.
 
+Use `--rate-limit-log PATH` to append timestamped JSON lines with each HTTP
+attempt's status, elapsed milliseconds, rate counters, and any wait before
+a retry. The log excludes request URLs, credentials, and bodies. Command JSON
+stays on its usual streams. A rate-limited command's JSON error includes
+`retry_after_seconds` when the server provides a retry delay or rate window.
+
+```sh
+pccli --rate-limit-log ./pco-rate.jsonl --json services songs list --limit 10
+```
+
+
 Planning write errors may include `error.recovery` with known record IDs, parents, and a failed stage. Copy recovery additionally retains `source_plan_id`, `created` receipts, `observed` contradictory IDs, `last_outcome`, `last_error_code`, and accepted-but-unverified fields when applicable. Observed IDs are not claimed as newly created records.
 
 | Error code | Meaning for a write |
@@ -366,3 +378,64 @@ Never treat a write error as permission to replay it automatically. The request 
 | `NO_COLOR` | Nonempty disables automatic color; explicit `always` wins |
 
 Endpoint overrides must be HTTP(S) origins without credentials, path, query, or fragment. Precedence is shell environment, local `.env`, `~/.pccli/.env`, then defaults. No legacy environment aliases are supported.
+
+## Library snapshots and placement audits
+
+```sh
+pccli services arrangements show ARRANGEMENT --song SONG --include attachments
+pccli services library export --all --visibility all \
+  --include arrangements,keys,attachments,tags --progress --output library.json
+pccli --json services library audit --snapshot library.json --expected expected.json
+```
+
+The arrangement view groups attachments under **Arrangement** and each named key,
+including empty groups. Existing `arrangements show` output stays available
+without the include flag.
+
+Export writes a private `pccli/library-v1` JSON snapshot after every selected
+collection has been read and validated. The output includes song, arrangement,
+key, file, and tag IDs when selected. `--workers` bounds concurrent song reads.
+Progress shows HTTP attempts, including retries. Use `--rate-limit-log` for
+individual request timing.
+
+Audit reads a completed snapshot offline and reports empty keys, resource IDs
+that are missing or unexpected, and metadata values that differ. Pass a
+complete snapshot with the same visibility, archive selection, and resource
+groups as `--expected`. A missing and an unexpected resource with the same ID
+under different parents indicate a scope change. The audit exits zero when it
+successfully reads and compares the inputs. An automation gate should check
+`.data.findings` in the JSON output. The audit compares title,
+author, visibility, arrangement name, meter and BPM, key name and pitches,
+attachment filename, size, stored file identifier, and downloadability, and assigned tag IDs.
+
+## Relocate an uploaded PDF
+
+```sh
+pccli services attachments relocate id:FILE --song id:SONG \
+  --arrangement id:ARRANGEMENT --key id:KEY --to-song id:SONG \
+  --to-arrangement id:ARRANGEMENT
+pccli services attachments relocate id:FILE --song id:SONG \
+  --arrangement id:ARRANGEMENT --key id:KEY --to-song id:SONG \
+  --to-arrangement id:ARRANGEMENT --file ./chart.pdf \
+  --apply --journal ./relocation.jsonl --prune-empty-key
+```
+
+Preview checks both scopes without writing. Relocation supports downloadable, unlicensed uploaded PDFs
+with the default page order. Apply uploads the supplied local
+PDF and verifies its destination, filename, size, uploaded-file identifier,
+media type, and attachment type tags before deleting the source attachment. Supply the
+original PDF. The command requires the uploaded-PDF identifier to match its
+checksum and verifies that identifier again on the replacement. Relocation
+creates a new attachment ID.
+
+Apply requires a new journal path. The journal records the intent, the
+replacement and upload receipt when available, and the last verified step.
+After a partial operation with the source still present, inspect the
+destination and use the confirmed destination attachment ID with
+`--replacement id:FILE` and a new journal path to continue without uploading
+again. If the source was already retired, use the journal to verify the
+replacement and inspect the key before any further cleanup.
+`--prune-empty-key` requires a source key. It refuses the operation when the
+song has scheduled uses and deletes the key only if the remaining file list
+is empty. Without that flag, relocation keeps the key. Source and destination
+selectors must be IDs.

@@ -39,13 +39,24 @@ func newArrangementsCommand(j *bool) *cobra.Command {
 	listFlags(c, &o)
 	g.AddCommand(c)
 	var sh services.Scope
+	var include string
 	c = dataCommand("show ARRANGEMENT", "Show one arrangement and its keys", 1, func(c *cobra.Command, x []string) error {
 		if e := checkScope(sh, false); e != nil {
 			return e
 		}
+		if include != "" && include != "attachments" {
+			return usageError{fmt.Errorf("--include must be attachments")}
+		}
 		a, e := loadApp(c)
 		if e != nil {
 			return e
+		}
+		if include == "attachments" {
+			result, err := a.library.ShowArrangementFiles(c.Context(), sh, x[0])
+			if err != nil {
+				return err
+			}
+			return writeArrangementFiles(c, *j, a, result)
 		}
 		r, e := a.library.ShowArrangement(c.Context(), sh, x[0])
 		if e != nil {
@@ -54,6 +65,7 @@ func newArrangementsCommand(j *bool) *cobra.Command {
 		return writeArrangementDetail(c, *j, a, r)
 	})
 	selection(c, &sh, false, false)
+	c.Flags().StringVar(&include, "include", "", "include attachments grouped by their arrangement or key")
 	g.AddCommand(c)
 	var cs services.Scope
 	var m services.ArrangementCreate

@@ -34,8 +34,15 @@ func decodeRecord(r planningcenter.Resource[json.RawMessage], kind string) (reco
 	switch kind {
 	case "Song":
 		nameField = "title"
-	case "Arrangement", "Key":
+	case "Arrangement":
 		nameField = "name"
+	case "Key":
+		nameField = "name"
+		raw := a["alternate_keys"]
+		if strings.HasPrefix(strings.TrimSpace(string(raw)), "[") {
+			// Services returns an array here. Keep pccli/v1's string representation.
+			a["alternate_keys"], _ = json.Marshal(string(raw))
+		}
 	}
 	if nameField != "" {
 		var name string
@@ -59,7 +66,7 @@ func decodeRecord(r planningcenter.Resource[json.RawMessage], kind string) (reco
 		model = &Attachment{}
 	}
 	if model != nil {
-		if err := json.Unmarshal(r.Attributes, model); err != nil {
+		if err := (record{id: r.ID, attrs: a}).model(model); err != nil {
 			return record{}, fail("invalid_response", "invalid typed resource attributes")
 		}
 	}

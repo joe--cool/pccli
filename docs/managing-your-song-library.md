@@ -23,12 +23,13 @@ Search text is literal. Use `--visibility hidden` to inspect hidden songs, or `-
 ```sh
 pccli services arrangements list --song 1001
 pccli services arrangements show 2001 --song 1001
+pccli services arrangements show 2001 --song 1001 --include attachments
 pccli services keys list --song 1001 --arrangement 2001
 pccli services keys show 3001 --song 1001 --arrangement 2001
 pccli services arrangements sections 2001 --song 1001
 ```
 
-Parent flags accept IDs or exact names. An arrangement is always explicit for key operations; pccli never chooses the first or a named default arrangement for you. The sections command helps inspect full labels before changing sequence.
+Parent flags accept IDs or exact names. An arrangement is always explicit for key operations; pccli never chooses the first or a named default arrangement for you. Use `--include attachments` to see the shared **Arrangement** files and a group for each key, including empty keys. The sections command helps inspect full labels before changing sequence.
 
 ## Maintain metadata and charts
 
@@ -87,13 +88,31 @@ pccli services attachments list --song 1001 --arrangement 2001
 pccli services attachments list --song 1001 --arrangement 2001 --key 3001
 pccli services attachments add --song 1001 --arrangement 2001 --file ./full-band.pdf
 pccli services attachments add --song 1001 --arrangement 2001 --key 3001 --url https://example.com/chart.pdf --filename chart.pdf
-pccli services attachments show 4001 --song 1001 --arrangement 2001
-pccli services attachments update 4001 --song 1001 --arrangement 2001 --filename full-band-revised.pdf
+pccli services attachments show 4002 --song 1001 --arrangement 2001
+pccli services attachments update 4002 --song 1001 --arrangement 2001 --filename full-band-revised.pdf
 ```
 
 Choose one add source: local `--file`, existing `--upload-id`, `--url`, or inline `--content`. Updates can change metadata or replace a source with `--upload-id`, `--url`, or `--content`. Read the outcome: `verified` confirms readable requested values; `accepted` lists fields that cannot be confirmed through API readback.
 
 If an upload succeeds but attachment creation fails, keep the recovery receipt. Inspect the destination before retrying an unknown outcome. Reuse the receipt with `--upload-id` only after confirming it was not attached. [Attachment reference](commands.html#attachments).
+
+## Move an uploaded PDF
+
+Preview a relocation from a key to shared arrangement files. Replace each
+uppercase placeholder with the numeric ID from your Services account.
+
+```sh
+pccli services attachments relocate id:FILE --song id:SONG \
+  --arrangement id:ARRANGEMENT --key id:KEY --to-song id:SONG \
+  --to-arrangement id:ARRANGEMENT
+```
+
+For a supported uploaded PDF, add `--file ./chart.pdf --apply --journal ./relocation.jsonl`
+when you are ready to make the change. Use the original PDF. The command verifies
+its replacement before deleting the source attachment. `--prune-empty-key` can
+also delete the old key if it has no files and the song has no scheduled uses.
+See the [relocation reference](commands.html#relocate-an-uploaded-pdf) for supported
+files and how to resume using a verified replacement.
 
 ## Classify with tags
 
@@ -120,7 +139,7 @@ These read the song's scheduling associations. They do not edit plans or create 
 ## Delete intentionally
 
 ```sh
-pccli services attachments delete 4001 --song 1001 --arrangement 2001 --yes
+pccli services attachments delete 4002 --song 1001 --arrangement 2001 --yes
 pccli services keys delete 3001 --song 1001 --arrangement 2001 --yes
 pccli services arrangements delete 2001 --song 1001 --yes
 pccli services songs delete 1001 --yes
@@ -136,3 +155,24 @@ pccli --json services arrangements list --song 1001 --all
 ```
 
 The envelope is `{"schema":"pccli/v1","data":...,"meta":...}`. Check the exit code and completeness metadata before processing an export. Use IDs for subsequent commands, and stop for ambiguity or an incomplete lookup. [JSON and errors](commands.html#json-and-errors).
+
+
+## Audit file placements across the library
+
+Export a complete snapshot from your connected Services account, then audit it
+locally. The example includes hidden
+songs by selecting all visibility states. Archived arrangements require
+`--include-archived` explicitly.
+
+```sh
+pccli services library export --all --visibility all --progress --output library.json &&
+  pccli --json services library audit --snapshot library.json > audit.json &&
+  jq -e '.data.findings == []' audit.json
+```
+
+The audit reports empty keys. Add `--expected expected.json` to compare
+metadata and file destinations with an expected inventory. An audit that
+successfully reads its inputs can exit zero with findings, which is why the
+example checks the findings array. Use the [snapshot reference](commands.html#library-snapshots-and-placement-audits)
+for the snapshot contract and [rate-limit logging](commands.html#json-and-errors)
+to inspect a slow export.

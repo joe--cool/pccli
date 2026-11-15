@@ -363,6 +363,9 @@
         }
       }
     },
+    "GET /services/v2/songs/1001/arrangements/2001/keys/3002/attachments": {
+      "data": []
+    },
     "GET /services/v2/songs/1001/arrangements/2001/keys/3002": {
       "data": {
         "id": "3002",

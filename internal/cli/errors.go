@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"time"
 
 	"github.com/joe--cool/pccli/v2/internal/output"
 	"github.com/joe--cool/pccli/v2/internal/planningcenter"
@@ -73,6 +74,13 @@ func printError(out io.Writer, j bool, err error) {
 	var api planningcenter.APIError
 	if errors.As(err, &api) {
 		body["http_status"] = api.StatusCode
+		if api.RetryAfter > 0 {
+			seconds := api.RetryAfter / time.Second
+			if api.RetryAfter%time.Second > 0 {
+				seconds++
+			}
+			body["retry_after_seconds"] = seconds
+		}
 	}
 	if committed != nil {
 		body["result"] = committed.Result

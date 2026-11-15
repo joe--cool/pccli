@@ -3,6 +3,7 @@ package planningcenter
 import (
 	"encoding/json"
 	"fmt"
+	"time"
 )
 
 type Resource[T any] struct {
@@ -47,6 +48,7 @@ type ErrorObject struct {
 
 type APIError struct {
 	StatusCode int
+	RetryAfter time.Duration
 	Errors     []ErrorObject
 	Body       string
 }
