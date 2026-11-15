@@ -14,7 +14,7 @@
   <body>
     <div class="docs-version" role="note" aria-label="Documentation version">
       
-        <strong>pccli v2.2.0</strong> documentation (v2).
+        <strong>pccli v2.2.1</strong> documentation (v2).
       
       <a href="/pccli/latest/">Latest release documentation</a>
       <span aria-hidden="true"> · </span>
@@ -590,6 +590,8 @@ pccli services attachment-types list [--limit N | --all]
 <p>Unscoped <code class="language-plaintext highlighter-rouge">tags list</code> discovers tags for songs and arrangements; a scope lists assignments. <code class="language-plaintext highlighter-rouge">replace</code> sends the <strong>entire desired tag set</strong>, not an addition. <code class="language-plaintext highlighter-rouge">--clear</code> explicitly removes assignments and conflicts with <code class="language-plaintext highlighter-rouge">--tags</code>. Tags are selected by ID or exact case-insensitive name. Duplicate names across groups require IDs. Required groups and single-selection rules are enforced.</p>
 
 <p>Tags belong to songs or arrangements, not key records. Scoped tag commands accept <code class="language-plaintext highlighter-rouge">--visibility</code> and <code class="language-plaintext highlighter-rouge">--include-archived</code>. Tag groups and attachment types are read-only catalogs. Song <code class="language-plaintext highlighter-rouge">--themes</code> is text metadata and is separate from relational tags.</p>
+
+<p>The Services API does not support creating tag definitions or tag groups. Create missing definitions in Planning Center Services under <strong>Songs → Actions → Edit Tags</strong>, choosing the <strong>Song</strong> or <strong>Arrangements</strong> tab for the destination. Then run <code class="language-plaintext highlighter-rouge">pccli services tags list --all</code> to retrieve their IDs before assigning them. See the <a href="managing-your-song-library.html#classify-with-tags">tag setup workflow</a>.</p>
 
 <h2 id="json-and-errors">JSON and errors</h2>
 

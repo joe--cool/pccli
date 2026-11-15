@@ -14,7 +14,7 @@
   <body>
     <div class="docs-version" role="note" aria-label="Documentation version">
       
-        <strong>pccli v2.2.0</strong> documentation (v2).
+        <strong>pccli v2.2.1</strong> documentation (v2).
       
       <a href="/pccli/latest/">Latest release documentation</a>
       <span aria-hidden="true"> · </span>
@@ -174,6 +174,10 @@ See the <a href="commands.html#relocate-an-uploaded-pdf">relocation reference</a
 files and how to resume using a verified replacement.</p>
 
 <h2 id="classify-with-tags">Classify with tags</h2>
+
+<p>Create missing tags and tag groups in Planning Center Services first: open <strong>Songs → Actions → Edit Tags</strong>, then choose the <strong>Song</strong> or <strong>Arrangements</strong> tab. Song tags and arrangement tags are separate catalogs; choose the tab matching your assignment destination. The Services API does not support creating these definitions, so pccli can only discover and assign existing tags. See Planning Center’s <a href="https://help.planningcenter.com/en/139436-song-and-arrangement-tags.html">song and arrangement tag guide</a>.</p>
+
+<p>After setup, list the catalog to find the tag IDs, then replace the destination’s assignments:</p>
 
 <div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services tag-groups list <span class="nt">--all</span>
 pccli services tags list <span class="nt">--all</span>
