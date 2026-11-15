@@ -156,6 +156,11 @@ func newAttachmentsCommand(j *bool) *cobra.Command {
 }
 func newTagsCommand(j *bool) *cobra.Command {
 	g := group("tags", "Discover and replace song or arrangement tag assignments")
+	g.Long = "Discover existing tags and replace song or arrangement tag assignments.\n\n" +
+		"The Services API does not support creating tag definitions or tag groups.\n" +
+		"Create them in Planning Center Services: Songs > Actions > Edit Tags,\n" +
+		"using the Song or Arrangements tab. Then run pccli services tags list --all\n" +
+		"to find their IDs before replacing assignments."
 	var s services.Scope
 	var o services.ListOptions
 	c := dataCommand("list", "List assigned tags or the available song/arrangement catalog", 0, func(c *cobra.Command, _ []string) error {

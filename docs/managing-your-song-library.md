@@ -116,6 +116,10 @@ files and how to resume using a verified replacement.
 
 ## Classify with tags
 
+Create missing tags and tag groups in Planning Center Services first: open **Songs → Actions → Edit Tags**, then choose the **Song** or **Arrangements** tab. Song tags and arrangement tags are separate catalogs; choose the tab matching your assignment destination. The Services API does not support creating these definitions, so pccli can only discover and assign existing tags. See Planning Center's [song and arrangement tag guide](https://help.planningcenter.com/en/139436-song-and-arrangement-tags.html).
+
+After setup, list the catalog to find the tag IDs, then replace the destination's assignments:
+
 ```sh
 pccli services tag-groups list --all
 pccli services tags list --all
