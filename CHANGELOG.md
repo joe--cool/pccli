@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.2.1](https://github.com/joe--cool/pccli/compare/v2.2.0...v2.2.1) (2026-11-15)
+
+
+### Documentation
+
+* **services:** explain tag definition setup ([#14](https://github.com/joe--cool/pccli/issues/14)) ([473cbef](https://github.com/joe--cool/pccli/commit/473cbef3eef969e55d1e89b0d374d68f18c402d6))
+
 ## [2.2.0](https://github.com/joe--cool/pccli/compare/v2.1.0...v2.2.0) (2026-11-15)
 
 
