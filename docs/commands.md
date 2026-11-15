@@ -293,6 +293,8 @@ Unscoped `tags list` discovers tags for songs and arrangements; a scope lists as
 
 Tags belong to songs or arrangements, not key records. Scoped tag commands accept `--visibility` and `--include-archived`. Tag groups and attachment types are read-only catalogs. Song `--themes` is text metadata and is separate from relational tags.
 
+The Services API does not support creating tag definitions or tag groups. Create missing definitions in Planning Center Services under **Songs → Actions → Edit Tags**, choosing the **Song** or **Arrangements** tab for the destination. Then run `pccli services tags list --all` to retrieve their IDs before assigning them. See the [tag setup workflow](managing-your-song-library.html#classify-with-tags).
+
 ## JSON and errors
 
 {% include terminal-demo.html name="json-demo" title="Export songs for a script" caption="Inspect the JSON envelope and completeness, then extract song IDs and titles with jq." %}

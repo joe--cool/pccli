@@ -70,6 +70,8 @@ Services version `2018-11-01` is explicit. Verify each changed capability agains
 
 ## Maintain API capability evidence
 
+Services tag definitions and tag groups are discovery-only: the official [Tag](https://api.planningcenteronline.com/docs/apps/services/versions/2018-11-01/vertices/tag) and [TagGroup](https://api.planningcenteronline.com/docs/apps/services/versions/2018-11-01/vertices/tag_group) references and versioned OpenAPI schema expose GET operations for these records, with no creation operation. The separate song/arrangement `assign_tags` action replaces assignments to existing tags. Keep this limitation explicit in tag help and setup guidance; do not infer definition creation from assignment support. Other Planning Center products have independent API contracts.
+
 [testdata/contracts/services-song-library.json](testdata/contracts/services-song-library.json) is a versioned test fixture, derived from the official Services OpenAPI document linked in its `source` field. It records assignable Song, Arrangement, Key, and Attachment create/update fields, wire types, CLI flags, API version, and retrieval date. Keep that provenance: it explains the contract being tested.
 
 [testdata/contracts/services-planning.json](testdata/contracts/services-planning.json) records the planning endpoint methods, exposed read-field types, and supported Plan patch fields from the same official versioned source. Planning request tests cover scoped identity, optional fields, archive inclusion, assignment relationships, zero-side-effect selection failures, and independent readback. Update the inventory from upstream evidence when expanding the planning field set.
