@@ -405,3 +405,34 @@ different parent indicate a scope change. Audit findings are returned as data
 so an automated check can count or filter them. The audit compares title,
 author, visibility, arrangement name, meter and BPM, key name and pitches,
 attachment filename, size, stored file identifier, and downloadability, and assigned tag IDs.
+
+## Relocate an uploaded PDF
+
+```sh
+pccli services attachments relocate id:FILE --song id:SONG \
+  --arrangement id:ARRANGEMENT --key id:KEY --to-song id:SONG \
+  --to-arrangement id:ARRANGEMENT
+pccli services attachments relocate id:FILE --song id:SONG \
+  --arrangement id:ARRANGEMENT --key id:KEY --to-song id:SONG \
+  --to-arrangement id:ARRANGEMENT --file ./chart.pdf \
+  --apply --journal ./relocation.jsonl --prune-empty-key
+```
+
+Preview checks both scopes without writing. Relocation supports uploaded PDFs
+with the default page order. Apply uploads the supplied local
+PDF and verifies its destination, filename, size, uploaded-file identifier,
+media type, and attachment type tags before retiring the source. Supply the
+original PDF. The command requires the uploaded-PDF identifier to match its
+checksum and verifies that identifier again on the replacement. Relocation
+creates a new attachment ID.
+
+Apply requires a new journal path. The journal records the intent, the
+replacement and upload receipt when available, and the last verified step.
+After a partial operation with the source still present, inspect the
+destination and use the confirmed destination attachment ID with
+`--replacement id:FILE` and a new journal path to continue without uploading
+again. If the source was already retired, use the journal to verify the
+replacement and inspect the key before any further cleanup.
+`--prune-empty-key` requires a source key and checks for a completely empty
+file list and no scheduled uses of the song. Song IDs and selected parent
+IDs are always explicit.
