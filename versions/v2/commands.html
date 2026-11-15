@@ -14,7 +14,7 @@
   <body>
     <div class="docs-version" role="note" aria-label="Documentation version">
       
-        <strong>pccli v2.1.0</strong> documentation (v2).
+        <strong>pccli v2.2.0</strong> documentation (v2).
       
       <a href="/pccli/latest/">Latest release documentation</a>
       <span aria-hidden="true"> · </span>
@@ -108,7 +108,11 @@
     </tr>
     <tr>
       <td><code class="language-plaintext highlighter-rouge">--yes</code></td>
-      <td>Required for every delete; never bypasses target validation</td>
+      <td>Required by commands named <code class="language-plaintext highlighter-rouge">delete</code>. <a href="#relocate-an-uploaded-pdf">Relocation</a> uses <code class="language-plaintext highlighter-rouge">--apply</code> with a new journal to authorize deleting the source after verification.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--rate-limit-log PATH</code></td>
+      <td>Append timestamped request and retry diagnostics to a separate JSON Lines file</td>
     </tr>
   </tbody>
 </table>
@@ -628,6 +632,15 @@ pccli <span class="nt">--json</span> services songs show 1001 <span class="nt">-
 
 <p>Errors go to stderr; JSON errors use the same schema version with an <code class="language-plaintext highlighter-rouge">error</code> object containing a stable <code class="language-plaintext highlighter-rouge">code</code>, <code class="language-plaintext highlighter-rouge">message</code>, and relevant candidates or recovery information. A failure before publication emits no success result to stdout. A broken output pipe can still leave partial bytes; check the exit code before using an export.</p>
 
+<p>Use <code class="language-plaintext highlighter-rouge">--rate-limit-log PATH</code> to append timestamped JSON lines with each HTTP
+attempt’s status, elapsed milliseconds, rate counters, and any wait before
+a retry. The log excludes request URLs, credentials, and bodies. Command JSON
+stays on its usual streams. A rate-limited command’s JSON error includes
+<code class="language-plaintext highlighter-rouge">retry_after_seconds</code> when the server provides a retry delay or rate window.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli <span class="nt">--rate-limit-log</span> ./pco-rate.jsonl <span class="nt">--json</span> services songs list <span class="nt">--limit</span> 10
+</code></pre></div></div>
+
 <p>Planning write errors may include <code class="language-plaintext highlighter-rouge">error.recovery</code> with known record IDs, parents, and a failed stage. Copy recovery additionally retains <code class="language-plaintext highlighter-rouge">source_plan_id</code>, <code class="language-plaintext highlighter-rouge">created</code> receipts, <code class="language-plaintext highlighter-rouge">observed</code> contradictory IDs, <code class="language-plaintext highlighter-rouge">last_outcome</code>, <code class="language-plaintext highlighter-rouge">last_error_code</code>, and accepted-but-unverified fields when applicable. Observed IDs are not claimed as newly created records.</p>
 
 <table>
@@ -744,6 +757,65 @@ pccli <span class="nt">--json</span> services songs show 1001 <span class="nt">-
 </table>
 
 <p>Endpoint overrides must be HTTP(S) origins without credentials, path, query, or fragment. Precedence is shell environment, local <code class="language-plaintext highlighter-rouge">.env</code>, <code class="language-plaintext highlighter-rouge">~/.pccli/.env</code>, then defaults. No legacy environment aliases are supported.</p>
+
+<h2 id="library-snapshots-and-placement-audits">Library snapshots and placement audits</h2>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services arrangements show ARRANGEMENT <span class="nt">--song</span> SONG <span class="nt">--include</span> attachments
+pccli services library <span class="nb">export</span> <span class="nt">--all</span> <span class="nt">--visibility</span> all <span class="se">\</span>
+  <span class="nt">--include</span> arrangements,keys,attachments,tags <span class="nt">--progress</span> <span class="nt">--output</span> library.json
+pccli <span class="nt">--json</span> services library audit <span class="nt">--snapshot</span> library.json <span class="nt">--expected</span> expected.json
+</code></pre></div></div>
+
+<p>The arrangement view groups attachments under <strong>Arrangement</strong> and each named key,
+including empty groups. Existing <code class="language-plaintext highlighter-rouge">arrangements show</code> output stays available
+without the include flag.</p>
+
+<p>Export writes a private <code class="language-plaintext highlighter-rouge">pccli/library-v1</code> JSON snapshot after every selected
+collection has been read and validated. The output includes song, arrangement,
+key, file, and tag IDs when selected. <code class="language-plaintext highlighter-rouge">--workers</code> bounds concurrent song reads.
+Progress shows HTTP attempts, including retries. Use <code class="language-plaintext highlighter-rouge">--rate-limit-log</code> for
+individual request timing.</p>
+
+<p>Audit reads a completed snapshot offline and reports empty keys, resource IDs
+that are missing or unexpected, and metadata values that differ. Pass a
+complete snapshot with the same visibility, archive selection, and resource
+groups as <code class="language-plaintext highlighter-rouge">--expected</code>. A missing and an unexpected resource with the same ID
+under different parents indicate a scope change. The audit exits zero when it
+successfully reads and compares the inputs. An automation gate should check
+<code class="language-plaintext highlighter-rouge">.data.findings</code> in the JSON output. The audit compares title,
+author, visibility, arrangement name, meter and BPM, key name and pitches,
+attachment filename, size, stored file identifier, and downloadability, and assigned tag IDs.</p>
+
+<h2 id="relocate-an-uploaded-pdf">Relocate an uploaded PDF</h2>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services attachments relocate <span class="nb">id</span>:FILE <span class="nt">--song</span> <span class="nb">id</span>:SONG <span class="se">\</span>
+  <span class="nt">--arrangement</span> <span class="nb">id</span>:ARRANGEMENT <span class="nt">--key</span> <span class="nb">id</span>:KEY <span class="nt">--to-song</span> <span class="nb">id</span>:SONG <span class="se">\</span>
+  <span class="nt">--to-arrangement</span> <span class="nb">id</span>:ARRANGEMENT
+pccli services attachments relocate <span class="nb">id</span>:FILE <span class="nt">--song</span> <span class="nb">id</span>:SONG <span class="se">\</span>
+  <span class="nt">--arrangement</span> <span class="nb">id</span>:ARRANGEMENT <span class="nt">--key</span> <span class="nb">id</span>:KEY <span class="nt">--to-song</span> <span class="nb">id</span>:SONG <span class="se">\</span>
+  <span class="nt">--to-arrangement</span> <span class="nb">id</span>:ARRANGEMENT <span class="nt">--file</span> ./chart.pdf <span class="se">\</span>
+  <span class="nt">--apply</span> <span class="nt">--journal</span> ./relocation.jsonl <span class="nt">--prune-empty-key</span>
+</code></pre></div></div>
+
+<p>Preview checks both scopes without writing. Relocation supports downloadable, unlicensed uploaded PDFs
+with the default page order. Apply uploads the supplied local
+PDF and verifies its destination, filename, size, uploaded-file identifier,
+media type, and attachment type tags before deleting the source attachment. Supply the
+original PDF. The command requires the uploaded-PDF identifier to match its
+checksum and verifies that identifier again on the replacement. Relocation
+creates a new attachment ID.</p>
+
+<p>Apply requires a new journal path. The journal records the intent, the
+replacement and upload receipt when available, and the last verified step.
+After a partial operation with the source still present, inspect the
+destination and use the confirmed destination attachment ID with
+<code class="language-plaintext highlighter-rouge">--replacement id:FILE</code> and a new journal path to continue without uploading
+again. If the source was already retired, use the journal to verify the
+replacement and inspect the key before any further cleanup.
+<code class="language-plaintext highlighter-rouge">--prune-empty-key</code> requires a source key. It refuses the operation when the
+song has scheduled uses and deletes the key only if the remaining file list
+is empty. Without that flag, relocation keeps the key. Source and destination
+selectors must be IDs.</p>
 
       </main>
     </div>

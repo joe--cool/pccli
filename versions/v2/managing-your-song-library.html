@@ -14,7 +14,7 @@
   <body>
     <div class="docs-version" role="note" aria-label="Documentation version">
       
-        <strong>pccli v2.1.0</strong> documentation (v2).
+        <strong>pccli v2.2.0</strong> documentation (v2).
       
       <a href="/pccli/latest/">Latest release documentation</a>
       <span aria-hidden="true"> · </span>
@@ -82,12 +82,13 @@ pccli services songs show 1001 <span class="nt">--arrangement</span> 2001
 
 <div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services arrangements list <span class="nt">--song</span> 1001
 pccli services arrangements show 2001 <span class="nt">--song</span> 1001
+pccli services arrangements show 2001 <span class="nt">--song</span> 1001 <span class="nt">--include</span> attachments
 pccli services keys list <span class="nt">--song</span> 1001 <span class="nt">--arrangement</span> 2001
 pccli services keys show 3001 <span class="nt">--song</span> 1001 <span class="nt">--arrangement</span> 2001
 pccli services arrangements sections 2001 <span class="nt">--song</span> 1001
 </code></pre></div></div>
 
-<p>Parent flags accept IDs or exact names. An arrangement is always explicit for key operations; pccli never chooses the first or a named default arrangement for you. The sections command helps inspect full labels before changing sequence.</p>
+<p>Parent flags accept IDs or exact names. An arrangement is always explicit for key operations; pccli never chooses the first or a named default arrangement for you. Use <code class="language-plaintext highlighter-rouge">--include attachments</code> to see the shared <strong>Arrangement</strong> files and a group for each key, including empty keys. The sections command helps inspect full labels before changing sequence.</p>
 
 <h2 id="maintain-metadata-and-charts">Maintain metadata and charts</h2>
 
@@ -147,13 +148,30 @@ pccli services attachments list <span class="nt">--song</span> 1001 <span class=
 pccli services attachments list <span class="nt">--song</span> 1001 <span class="nt">--arrangement</span> 2001 <span class="nt">--key</span> 3001
 pccli services attachments add <span class="nt">--song</span> 1001 <span class="nt">--arrangement</span> 2001 <span class="nt">--file</span> ./full-band.pdf
 pccli services attachments add <span class="nt">--song</span> 1001 <span class="nt">--arrangement</span> 2001 <span class="nt">--key</span> 3001 <span class="nt">--url</span> https://example.com/chart.pdf <span class="nt">--filename</span> chart.pdf
-pccli services attachments show 4001 <span class="nt">--song</span> 1001 <span class="nt">--arrangement</span> 2001
-pccli services attachments update 4001 <span class="nt">--song</span> 1001 <span class="nt">--arrangement</span> 2001 <span class="nt">--filename</span> full-band-revised.pdf
+pccli services attachments show 4002 <span class="nt">--song</span> 1001 <span class="nt">--arrangement</span> 2001
+pccli services attachments update 4002 <span class="nt">--song</span> 1001 <span class="nt">--arrangement</span> 2001 <span class="nt">--filename</span> full-band-revised.pdf
 </code></pre></div></div>
 
 <p>Choose one add source: local <code class="language-plaintext highlighter-rouge">--file</code>, existing <code class="language-plaintext highlighter-rouge">--upload-id</code>, <code class="language-plaintext highlighter-rouge">--url</code>, or inline <code class="language-plaintext highlighter-rouge">--content</code>. Updates can change metadata or replace a source with <code class="language-plaintext highlighter-rouge">--upload-id</code>, <code class="language-plaintext highlighter-rouge">--url</code>, or <code class="language-plaintext highlighter-rouge">--content</code>. Read the outcome: <code class="language-plaintext highlighter-rouge">verified</code> confirms readable requested values; <code class="language-plaintext highlighter-rouge">accepted</code> lists fields that cannot be confirmed through API readback.</p>
 
 <p>If an upload succeeds but attachment creation fails, keep the recovery receipt. Inspect the destination before retrying an unknown outcome. Reuse the receipt with <code class="language-plaintext highlighter-rouge">--upload-id</code> only after confirming it was not attached. <a href="commands.html#attachments">Attachment reference</a>.</p>
+
+<h2 id="move-an-uploaded-pdf">Move an uploaded PDF</h2>
+
+<p>Preview a relocation from a key to shared arrangement files. Replace each
+uppercase placeholder with the numeric ID from your Services account.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services attachments relocate <span class="nb">id</span>:FILE <span class="nt">--song</span> <span class="nb">id</span>:SONG <span class="se">\</span>
+  <span class="nt">--arrangement</span> <span class="nb">id</span>:ARRANGEMENT <span class="nt">--key</span> <span class="nb">id</span>:KEY <span class="nt">--to-song</span> <span class="nb">id</span>:SONG <span class="se">\</span>
+  <span class="nt">--to-arrangement</span> <span class="nb">id</span>:ARRANGEMENT
+</code></pre></div></div>
+
+<p>For a supported uploaded PDF, add <code class="language-plaintext highlighter-rouge">--file ./chart.pdf --apply --journal ./relocation.jsonl</code>
+when you are ready to make the change. Use the original PDF. The command verifies
+its replacement before deleting the source attachment. <code class="language-plaintext highlighter-rouge">--prune-empty-key</code> can
+also delete the old key if it has no files and the song has no scheduled uses.
+See the <a href="commands.html#relocate-an-uploaded-pdf">relocation reference</a> for supported
+files and how to resume using a verified replacement.</p>
 
 <h2 id="classify-with-tags">Classify with tags</h2>
 
@@ -177,7 +195,7 @@ pccli services songs last-scheduled 1001 <span class="nt">--service-type</span> 
 
 <h2 id="delete-intentionally">Delete intentionally</h2>
 
-<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services attachments delete 4001 <span class="nt">--song</span> 1001 <span class="nt">--arrangement</span> 2001 <span class="nt">--yes</span>
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services attachments delete 4002 <span class="nt">--song</span> 1001 <span class="nt">--arrangement</span> 2001 <span class="nt">--yes</span>
 pccli services keys delete 3001 <span class="nt">--song</span> 1001 <span class="nt">--arrangement</span> 2001 <span class="nt">--yes</span>
 pccli services arrangements delete 2001 <span class="nt">--song</span> 1001 <span class="nt">--yes</span>
 pccli services songs delete 1001 <span class="nt">--yes</span>
@@ -192,6 +210,25 @@ pccli <span class="nt">--json</span> services arrangements list <span class="nt"
 </code></pre></div></div>
 
 <p>The envelope is <code class="language-plaintext highlighter-rouge">{"schema":"pccli/v1","data":...,"meta":...}</code>. Check the exit code and completeness metadata before processing an export. Use IDs for subsequent commands, and stop for ambiguity or an incomplete lookup. <a href="commands.html#json-and-errors">JSON and errors</a>.</p>
+
+<h2 id="audit-file-placements-across-the-library">Audit file placements across the library</h2>
+
+<p>Export a complete snapshot from your connected Services account, then audit it
+locally. The example includes hidden
+songs by selecting all visibility states. Archived arrangements require
+<code class="language-plaintext highlighter-rouge">--include-archived</code> explicitly.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pccli services library <span class="nb">export</span> <span class="nt">--all</span> <span class="nt">--visibility</span> all <span class="nt">--progress</span> <span class="nt">--output</span> library.json <span class="o">&amp;&amp;</span>
+  pccli <span class="nt">--json</span> services library audit <span class="nt">--snapshot</span> library.json <span class="o">&gt;</span> audit.json <span class="o">&amp;&amp;</span>
+  jq <span class="nt">-e</span> <span class="s1">'.data.findings == []'</span> audit.json
+</code></pre></div></div>
+
+<p>The audit reports empty keys. Add <code class="language-plaintext highlighter-rouge">--expected expected.json</code> to compare
+metadata and file destinations with an expected inventory. An audit that
+successfully reads its inputs can exit zero with findings, which is why the
+example checks the findings array. Use the <a href="commands.html#library-snapshots-and-placement-audits">snapshot reference</a>
+for the snapshot contract and <a href="commands.html#json-and-errors">rate-limit logging</a>
+to inspect a slow export.</p>
 
       </main>
     </div>
