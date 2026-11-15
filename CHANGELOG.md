@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.2.0](https://github.com/joe--cool/pccli/compare/v2.1.0...v2.2.0) (2026-11-15)
+
+
+### Features
+
+* **services:** audit library placements and relocate PDFs ([#12](https://github.com/joe--cool/pccli/issues/12)) ([9af8a42](https://github.com/joe--cool/pccli/commit/9af8a421245d306a0137afb12203c37c7a774478))
+
 ## [2.1.0](https://github.com/joe--cool/pccli/compare/v2.0.1...v2.1.0) (2026-11-05)
 
 
