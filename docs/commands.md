@@ -18,7 +18,8 @@ pccli is unofficial and is not built, endorsed, or supported by Planning Center.
 | `--include-archived` | Explicitly include archived arrangements, or returned archived service types/teams/candidate people where relevant |
 | `--limit N` | Total results to display, default 25; positive integer |
 | `--all` | Return the complete selected collection; conflicts with an explicit `--limit` |
-| `--yes` | Required for every delete; never bypasses target validation |
+| `--yes` | Required by commands named `delete`. [Relocation](#relocate-an-uploaded-pdf) uses `--apply` with a new journal to authorize deleting the source after verification. |
+| `--rate-limit-log PATH` | Append timestamped request and retry diagnostics to a separate JSON Lines file |
 
 ### IDs, names, and parents
 
@@ -387,7 +388,7 @@ pccli services library export --all --visibility all \
 pccli --json services library audit --snapshot library.json --expected expected.json
 ```
 
-The arrangement view groups PDFs under **Arrangement** and each named key,
+The arrangement view groups attachments under **Arrangement** and each named key,
 including empty groups. Existing `arrangements show` output stays available
 without the include flag.
 
@@ -400,9 +401,10 @@ individual request timing.
 Audit reads a completed snapshot offline and reports empty keys, resource IDs
 that are missing or unexpected, and metadata values that differ. Pass a
 complete snapshot with the same visibility, archive selection, and resource
-groups as `--expected`. A missing resource and an unexpected resource under a
-different parent indicate a scope change. Audit findings are returned as data
-so an automated check can count or filter them. The audit compares title,
+groups as `--expected`. A missing and an unexpected resource with the same ID
+under different parents indicate a scope change. The audit exits zero when it
+successfully reads and compares the inputs. An automation gate should check
+`.data.findings` in the JSON output. The audit compares title,
 author, visibility, arrangement name, meter and BPM, key name and pitches,
 attachment filename, size, stored file identifier, and downloadability, and assigned tag IDs.
 
@@ -418,10 +420,10 @@ pccli services attachments relocate id:FILE --song id:SONG \
   --apply --journal ./relocation.jsonl --prune-empty-key
 ```
 
-Preview checks both scopes without writing. Relocation supports uploaded PDFs
+Preview checks both scopes without writing. Relocation supports downloadable, unlicensed uploaded PDFs
 with the default page order. Apply uploads the supplied local
 PDF and verifies its destination, filename, size, uploaded-file identifier,
-media type, and attachment type tags before retiring the source. Supply the
+media type, and attachment type tags before deleting the source attachment. Supply the
 original PDF. The command requires the uploaded-PDF identifier to match its
 checksum and verifies that identifier again on the replacement. Relocation
 creates a new attachment ID.
@@ -433,6 +435,7 @@ destination and use the confirmed destination attachment ID with
 `--replacement id:FILE` and a new journal path to continue without uploading
 again. If the source was already retired, use the journal to verify the
 replacement and inspect the key before any further cleanup.
-`--prune-empty-key` requires a source key and checks for a completely empty
-file list and no scheduled uses of the song. Song IDs and selected parent
-IDs are always explicit.
+`--prune-empty-key` requires a source key. It refuses the operation when the
+song has scheduled uses and deletes the key only if the remaining file list
+is empty. Without that flag, relocation keeps the key. Source and destination
+selectors must be IDs.

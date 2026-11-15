@@ -70,6 +70,9 @@ func newAttachmentRelocation(j *bool) *cobra.Command {
 		return err
 	})
 	selection(command, &opts.From, true, true)
+	command.Flags().Lookup("song").Usage = "source song ID (required)"
+	command.Flags().Lookup("arrangement").Usage = "source arrangement ID"
+	command.Flags().Lookup("key").Usage = "source key ID; requires --arrangement"
 	command.Flags().StringVar(&opts.To.Song, "to-song", "", "destination song ID (required)")
 	command.Flags().StringVar(&opts.To.Arrangement, "to-arrangement", "", "destination arrangement ID")
 	command.Flags().StringVar(&opts.To.Key, "to-key", "", "destination key ID")
