@@ -377,3 +377,31 @@ Never treat a write error as permission to replay it automatically. The request 
 | `NO_COLOR` | Nonempty disables automatic color; explicit `always` wins |
 
 Endpoint overrides must be HTTP(S) origins without credentials, path, query, or fragment. Precedence is shell environment, local `.env`, `~/.pccli/.env`, then defaults. No legacy environment aliases are supported.
+
+## Library snapshots and placement audits
+
+```sh
+pccli services arrangements show ARRANGEMENT --song SONG --include attachments
+pccli services library export --all --visibility all \
+  --include arrangements,keys,attachments,tags --progress --output library.json
+pccli --json services library audit --snapshot library.json --expected expected.json
+```
+
+The arrangement view groups PDFs under **Arrangement** and each named key,
+including empty groups. Existing `arrangements show` output stays available
+without the include flag.
+
+Export writes a private `pccli/library-v1` JSON snapshot after every selected
+collection has been read and validated. The output includes song, arrangement,
+key, file, and tag IDs when selected. `--workers` bounds concurrent song reads.
+Progress shows HTTP attempts, including retries. Use `--rate-limit-log` for
+individual request timing.
+
+Audit reads a completed snapshot offline and reports empty keys, resource IDs
+that are missing or unexpected, and metadata values that differ. Pass a
+complete snapshot with the same visibility, archive selection, and resource
+groups as `--expected`. A missing resource and an unexpected resource under a
+different parent indicate a scope change. Audit findings are returned as data
+so an automated check can count or filter them. The audit compares title,
+author, visibility, arrangement name, meter and BPM, key name and pitches,
+attachment filename, size, stored file identifier, and downloadability, and assigned tag IDs.

@@ -19,6 +19,7 @@ type app struct {
 	cfg     config.Config
 	library *services.Library
 	rateLog *os.File
+	client  *planningcenter.Client
 }
 
 var Version = "dev"
@@ -169,5 +170,6 @@ func buildApp(rateLogPath string) (*app, error) {
 		cfg:     cfg,
 		library: services.NewLibrary(client),
 		rateLog: rateLog,
+		client:  client,
 	}, nil
 }

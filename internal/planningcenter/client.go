@@ -15,6 +15,8 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/joe--cool/pccli/v2/internal/config"
@@ -29,6 +31,8 @@ type Client struct {
 	httpClient                                            *http.Client
 	wait                                                  func(context.Context, time.Duration) error
 	rateLimitLog                                          *json.Encoder
+	logMu                                                 sync.Mutex
+	requests                                              atomic.Uint64
 }
 
 func NewClient(cfg config.Config, transport http.RoundTripper) *Client {
@@ -45,6 +49,9 @@ func NewClient(cfg config.Config, transport http.RoundTripper) *Client {
 func (c *Client) SetRateLimitLog(w io.Writer) {
 	c.rateLimitLog = json.NewEncoder(w)
 }
+
+// Requests reports the number of HTTP attempts, including retries and uploads.
+func (c *Client) Requests() uint64 { return c.requests.Load() }
 
 func (c *Client) Get(ctx context.Context, path string, query url.Values, dst any) error {
 	return c.do(ctx, http.MethodGet, path, query, nil, dst)
@@ -98,6 +105,7 @@ func (c *Client) UploadFile(ctx context.Context, path string, dst any) error {
 	c.headers(req, false)
 	req.Header.Set("Content-Type", writer.FormDataContentType())
 	started := time.Now()
+	c.requests.Add(1)
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
 		c.logRateLimit(http.MethodPost, started, 1, nil, 0)
@@ -156,6 +164,7 @@ func (c *Client) do(ctx context.Context, method, path string, query url.Values, 
 			req.Header.Set("Content-Type", "application/vnd.api+json")
 		}
 		started := time.Now()
+		c.requests.Add(1)
 		resp, requestErr := c.httpClient.Do(req)
 		var result error
 		var delay time.Duration
@@ -351,6 +360,8 @@ func (c *Client) logRateLimit(method string, started time.Time, attempt int, res
 		event.Period = ratePeriod(resp.Header)
 		event.RetryAfter = retryDelay(resp).Milliseconds()
 	}
+	c.logMu.Lock()
+	defer c.logMu.Unlock()
 	_ = c.rateLimitLog.Encode(event)
 }
 
